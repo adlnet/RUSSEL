@@ -1,0 +1,112 @@
+<!--
+Copyright (c) 2012 Eduworks Corporation
+All rights reserved.
+ 
+This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
+the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
+Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
+as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
+evaluation under the following terms and conditions:
+
+	-Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
+	 starting with the above copyright notice and ending with the disclaimer below.
+	 
+	-Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
+	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
+	 of evaluating and testing this Software.
+	 
+	-No other rights are granted and no other distribution or use is permitted, including without limitation 
+	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
+	 
+	-All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
+	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
+	 using in-system feedback mechanism or email to russel@eduworks.com.
+	 
+THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+-->
+
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+	<!-- Set the viewport width to device width for mobile -->
+	<meta name="viewport" content="width=device-width" />
+
+	<title>RUSSEL</title>
+  	
+	<link rel="stylesheet" href="stylesheets/foundation.css" type="text/css" />
+	<link rel="stylesheet" href="stylesheets/app.css" type="text/css" />
+   	
+	<!--[if lt IE 9]>
+		<link rel="stylesheet" href="stylesheets/ie.css">
+	<![endif]-->
+	
+	<script src="js/modernizr.foundation.js" type="text/javascript"></script>
+
+	<!-- IE Fix for HTML5 Tags -->
+	<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+    
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--[if lt IE 9]>
+    	<script type="text/javascript">
+    		var isIE = "Feel The Evil";
+    	</script>
+    <![endif]-->
+    
+   	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/foundation.js"></script>
+    <script type="text/javascript" src="js/base64.js"></script>
+	<!-- <script type="text/javascript" src="js/deflate.js"></script>
+    <script type="text/javascript" src="js/inflate.js"></script> -->
+	<!--[if (gte IE 9)|(!IE)]> -->
+		<script type="text/javascript" src="js/zip.js"></script>
+		<script type="text/javascript" src="js/DataView.js"></script>
+	<!-- <![endif]-->
+    <script type="text/javascript" src="js/xml2json.js"></script>
+	<script type="text/javascript" src="Scripts/swfobject_modified.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="russel_ui/russel_ui.nocache.js"></script>
+  </head>
+
+  <!--                                           -->
+  <!-- The body can have arbitrary html, or      -->
+  <!-- you can leave the body empty if you want  -->
+  <!-- to create a completely dynamic UI.        -->
+  <!--                                           -->
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+    
+    	<!-- container -->
+	<div class="container">
+   	 	<div id="contentHeader" class="row header"></div>
+		<div id="contentPane"></div>
+		<footer id="contentFooter" class="row"></footer>
+	</div>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+<HTML>
+<!-- This is a blank html file used by the Isomorphic SmartClient framework -->
+<SCRIPT>
+
+
+if (!window.isc && (window.opener != null || window.top != window)) {
+    while (document.domain.indexOf(".") != -1) {
+        try {
+            // >IDocument
+            // This attempt to reference a resource in another domain does not fail in certain 
+            // modern browsers (Safari, Chrome) because there seems to be a more liberal 
+            // interpretation of the same origin policy going on.  So, the flow here now is:
+            // - The reference to window.opener.isc will fail with a security exception in 
+            //   some browsers, and thus drop into the catch
+            // - In other browsers, we will not get the security exception, but window.opener.isc
+            //   will be undef, which also tells us we've got a domain mismatch
+            // <IDocument
+            if (window.opener && window.opener.isc === undefined) {
+                try {
+                    document.domain = document.domain.replace(/.*?\./, '');
+                } catch (ee) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        } catch (e) {
+            try {
+                document.domain = document.domain.replace(/.*?\./, '');
+            } catch (ee) {
+                break;
+            }
+        }
+    } 
+}
+
+</SCRIPT>
+</HTML>

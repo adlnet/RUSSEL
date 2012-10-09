@@ -1,0 +1,12 @@
+isc.DataSource.create({
+    ID:"QuartzJobGroups",
+    dbName:"ANY_DATA",
+    serverConstructor:"com.isomorphic.scheduler.QuartzJobGroups",
+    fields:{
+        name:{
+            name:"name",
+            primaryKey:true,
+            type:"string"
+        }
+    }
+})
