@@ -78,12 +78,16 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class EditScreen extends ScreenTemplate {
-	private String IMS_MANIFEST = "imsmanifest.xml";
+	private static String IMS_MANIFEST = "imsmanifest.xml";
+	private static String NO_PENDING_UPLOADS = "No Pending Uploads";
+	private static String PENDING_UPLOADS = " Pending Uploads";
 	private Vector<String> editIDs = new Vector<String>();
 	private HashMap<String, String> thumbIDs = new HashMap<String, String>();
 	private Vector<AlfrescoPacket> pendingEdits;
-	private Vector<AlfrescoPacket> pendingUploads;
+	private Vector<AlfrescoPacket> pendingZipUploads;
+	private int pendingFileUploads;
 	private MetaBuilder meta = new MetaBuilder(MetaBuilder.EDIT_SCREEN);
+	private DragDropHandler ddh = null;
 		
 	public EditScreen(Vector<AlfrescoPacket> pendingEdits) {
 		this.pendingEdits = pendingEdits;
@@ -96,7 +100,8 @@ public class EditScreen extends ScreenTemplate {
 	public void display() {
 		editIDs = new Vector<String>();
 		thumbIDs = new HashMap<String, String>();
-		pendingUploads = new Vector<AlfrescoPacket>();
+		pendingZipUploads = new Vector<AlfrescoPacket>();
+		pendingFileUploads = 0;
 		
 		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getDetailModel().getText()));
 		if (Browser.isIE()) { 
@@ -190,14 +195,14 @@ public class EditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 																		@Override
 																		public void onEvent(Event event) {
-																			Window.alert(Constants.INCOMPLETE_FEATURE_MESSAGE);
-//																			Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
-//																																    "x", 
-//																																    new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
-//																																    true);
-//																			final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
-//																			buildEmptyLinkTile(idPrefix);
-//																			thumbIDs.put(idPrefix + "-thumb", null);
+																			Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
+																																    "x", 
+																																    new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
+																																    true);
+																			final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
+																			buildEmptyUploadTile(idPrefix);
+																			thumbIDs.put(idPrefix + "-object", null);
+																			doFileCancel();
 																		}
 																	});
 		
@@ -265,11 +270,13 @@ public class EditScreen extends ScreenTemplate {
 		formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
 		formPanel.setAction(CommunicationHub.getAlfrescoUploadURL());
 		hiddenDestination.setValue(AlfrescoApi.currentDirectoryId);
+		pendingFileUploads++;
 		formPanel.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 										@Override
 										public void onSubmitComplete(SubmitCompleteEvent event) {
 											RootPanel.get(idPrefix + "-objectDescription").getElement().setInnerText("");
 											fillTemplateDetails(AlfrescoPacket.wrap(CommunicationHub.parseJSON(CommunicationHub.unwrapJSONString(event.getResults()))), idPrefix);
+											pendingFileUploads--;
 											refreshInformation();
 										}
 									});
@@ -351,10 +358,25 @@ public class EditScreen extends ScreenTemplate {
 			((Label)PageAssembler.elementToWidget("editCover", PageAssembler.LABEL)).removeStyleName("hide");
 		else
 			((Label)PageAssembler.elementToWidget("editCover", PageAssembler.LABEL)).addStyleName("hide");
-			
+		
+		if (countUploads()==0)
+			((Label)PageAssembler.elementToWidget("r-editPendingUploads", PageAssembler.LABEL)).setText(NO_PENDING_UPLOADS);
+		else
+			((Label)PageAssembler.elementToWidget("r-editPendingUploads", PageAssembler.LABEL)).setText(countUploads() + PENDING_UPLOADS);
+		
 		AlfrescoPacket ap = AlfrescoPacket.makePacket();
 		meta.addMetaDataFields("@propertyDefinitionId", ap, ap);
 		removeUnsavedEffects();
+	}
+	
+	private int countUploads() {
+		int acc = 0;
+		if (ddh!=null&&ddh.readQueue!=null)
+			acc += ddh.readQueue.size();
+		if (pendingZipUploads!=null)
+		acc += pendingZipUploads.size();
+		acc += pendingFileUploads;
+		return acc;
 	}
 	
 	private void removeUnsavedEffects() {
@@ -416,8 +438,8 @@ public class EditScreen extends ScreenTemplate {
 
 	
 	private void doPendingUploads() {
-		if (pendingUploads.size()>0) {
-			AlfrescoPacket zipEntry = pendingUploads.remove(0);
+		if (pendingZipUploads.size()>0) {
+			AlfrescoPacket zipEntry = pendingZipUploads.remove(0);
 			Zip.inflateEntry(zipEntry, true, new AlfrescoCallback<AlfrescoPacket>() {
 												@Override public void onFailure(Throwable caught) {}
 												
@@ -438,7 +460,7 @@ public class EditScreen extends ScreenTemplate {
 																					  filename,
 																					  AlfrescoApi.currentDirectoryId, 
 																					  ((Blob)alfrescoPacket.getValue("zipEntryData").cast()),
-																					  "russel:metaTest",
+																					  "russel:metaTest,cm:versionable",
 																					  new AlfrescoCallback<AlfrescoPacket>() {
 																							@Override
 																							public void onFailure(Throwable caught) {
@@ -464,58 +486,58 @@ public class EditScreen extends ScreenTemplate {
 	}
 	
 	private void hookDragDrop(DropPanel w) {
-		new DragDropHandler(w) {
-			@Override
-			public void run(final File file)
-			{
-				if (file.getName().indexOf(".")!=-1&&file.getName().substring(file.getName().indexOf(".")+1).toLowerCase().equals("zip")) { 
-					Zip.checkSCORMandGrabEntries(file, new AlfrescoCallback<AlfrescoPacket>() {
-						@Override public void onFailure(Throwable caught) {}
-
-						@SuppressWarnings("unchecked")
-						@Override
-						public void onSuccess(AlfrescoPacket alfrescoPacket) {
-							if (alfrescoPacket.hasKey("zipEntries")) {
-								JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
-								for (int x=0;x<zipEntries.length();x++)
-									pendingUploads.add(zipEntries.get(x));
-								doPendingUploads();
-							}
-						}
-					});
-				}				
-				
-				final Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
-																	    	  "x", 
-																	    	  new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
-																	    	  false);
-				final String idNumPrefix = iDs.get(0).substring(0, iDs.get(0).indexOf("-"));
-				RootPanel.get(idNumPrefix + "-objectDescription").add(new Image("images/orbit/loading.gif"));
-				DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
-				CommunicationHub.sendForm(CommunicationHub.getAlfrescoUploadURL(), 
-										  file.getName(), 
-										  AlfrescoApi.currentDirectoryId, 
-										  file, 
-										  "russel:metaTest",
-										  new AlfrescoCallback<AlfrescoPacket>(){
-											@Override
-											public void onFailure(Throwable caught) {
-												Window.alert("Fooing Drag and Drop failed - " + caught.getMessage());
-											}
+		ddh = new DragDropHandler(w) {
+					@Override
+					public void run(final File file)
+					{
+						if (file.getName().indexOf(".")!=-1&&file.getName().substring(file.getName().indexOf(".")+1).toLowerCase().equals("zip")) { 
+							Zip.checkSCORMandGrabEntries(file, new AlfrescoCallback<AlfrescoPacket>() {
+								@Override public void onFailure(Throwable caught) {}
+		
+								@SuppressWarnings("unchecked")
+								@Override
+								public void onSuccess(AlfrescoPacket alfrescoPacket) {
+									if (alfrescoPacket.hasKey("zipEntries")) {
+										JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
+										for (int x=0;x<zipEntries.length();x++)
+											pendingZipUploads.add(zipEntries.get(x));
+										doPendingUploads();
+									}
+								}
+							});
+						}				
 						
-											@Override
-											public void onSuccess(AlfrescoPacket result) {
-												RootPanel.get(idNumPrefix + "-objectDescription").clear();
-												DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
-												fillTemplateDetails(result, idNumPrefix);
-												readNext();
-											}
-										});
-				
-				thumbIDs.put(idNumPrefix + "-object", "");
-				refreshInformation();
-			}
-		};
+						final Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
+																			    	  "x", 
+																			    	  new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
+																			    	  false);
+						final String idNumPrefix = iDs.get(0).substring(0, iDs.get(0).indexOf("-"));
+						RootPanel.get(idNumPrefix + "-objectDescription").add(new Image("images/orbit/loading.gif"));
+						DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
+						CommunicationHub.sendForm(CommunicationHub.getAlfrescoUploadURL(), 
+												  file.getName(), 
+												  AlfrescoApi.currentDirectoryId, 
+												  file, 
+												  "russel:metaTest,cm:versionable",
+												  new AlfrescoCallback<AlfrescoPacket>(){
+													@Override
+													public void onFailure(Throwable caught) {
+														Window.alert("Fooing Drag and Drop failed - " + caught.getMessage());
+													}
+								
+													@Override
+													public void onSuccess(AlfrescoPacket result) {
+														RootPanel.get(idNumPrefix + "-objectDescription").clear();
+														DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
+														fillTemplateDetails(result, idNumPrefix);
+														readNext();
+													}
+												});
+						
+						thumbIDs.put(idNumPrefix + "-object", "");
+						refreshInformation();
+					}
+				};
 	}
 
 	private void toggleSelection(String id) {

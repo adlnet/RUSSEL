@@ -272,11 +272,11 @@ function boxedCustomAppJavascript() {
 	
 	/* $("#r-metadataToolbar .section .value, #r-metadata .meta-value.editable, #r-objectives .meta-value.editable").unbind();  */
 	/* Object Details and upload screens - Edit metadata: Switch text to editable input form */
-	$("#r-metadataToolbar .section .value, #r-metadata .meta-value.editable, #r-objectives .meta-value.editable").click(function() {
+	$("#r-metadataToolbar .section .value, #r-metadata .meta-value.editable, #r-metaDescription .meta-value.editable").click(function() {
 		$textObj = $(this);
 		$inputObj = $(this).next();
 		$objValue = $(this).text();
-		if ($objValue=="Click to edit") {
+		if ($.trim($objValue)=="Click to edit") {
 			$objValue=null;
 		}
 		$inputObj.val($objValue);
@@ -304,11 +304,11 @@ function boxedCustomAppJavascript() {
 	
 	/*  $("#r-metadataToolbar .section .value-input, #r-metadata .section .value-input, #r-objectives .value-input").unbind(); */
 	/* Edit Metadata Screen: Switch input form back to text */
-	$("#r-metadataToolbar .section .value-input, #r-metadata .section .value-input, #r-objectives .value-input").live('blur', function() {
+	$("#r-metadataToolbar .section .value-input, #r-metadata .section .value-input, #r-metaDescription .value-input").live('blur', function() {
 		$textObj = $(this).prev();
 		$inputObj = $(this);
 		$objValue = $(this).val();
-		if ($objValue=="") {
+		if ($.trim($objValue)=="") {
 			$objValue = "Click to edit";
 		}
 		
@@ -316,20 +316,22 @@ function boxedCustomAppJavascript() {
 		
 		$objValue = getSecurityColor($objValue);
 		
-		if ($('#r-detailEditUpdate').size()!=0) {
-			$('#r-detailEditUpdate').removeClass('white');
-			$('#r-detailEditUpdate').addClass('blue');
-			$('#r-detailSaveAlert').removeClass('hide');
+		if ($objValue!="Click to edit") {
+			if ($('#r-detailEditUpdate').size()!=0) {
+				$('#r-detailEditUpdate').removeClass('white');
+				$('#r-detailEditUpdate').addClass('blue');
+				$('#r-detailSaveAlert').removeClass('hide');
+			}
+			
+			if ($('#r-editSave').size()!=0) {
+				$('#r-editSave').removeClass('white');
+				$('#r-editSave').addClass('blue');
+				$('#r-save-alert').removeClass('hide');
+			}
 		}
 		
-		if ($('#r-editSave').size()!=0) {
-			$('#r-editSave').removeClass('white');
-			$('#r-editSave').addClass('blue');
-			$('#r-save-alert').removeClass('hide');
-		}
-		
-		$textObj.html($objValue);
 		checkFouo();
+		$textObj.html($objValue);
 		$inputObj.fadeOut(100, function() {
 			$textObj.fadeIn(100);
 		});

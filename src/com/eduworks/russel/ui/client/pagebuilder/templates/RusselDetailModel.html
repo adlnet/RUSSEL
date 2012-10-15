@@ -42,7 +42,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 			  <dd class=""><a id="r-downloadDoc" class="finger">Download</a></dd>
 			  <dd class=""><a id="r-deleteDoc" class="finger">Delete</a></dd> <!-- only show this option to authorized users -->
 			  <dd id="r-editEPSSContainer" style="display:none"><a id="r-editEPSS" class="finger">Edit Project</a></dd>
-			  <dd class=""><a id="r-saveAs" class="finger">Save As</a></dd> <!-- only show this option to authorized users -->
+			  <dd class=""><a id="r-duplicate" class="finger">Duplicate</a></dd> <!-- only show this option to authorized users -->
 			  <dd class="">
 				<select disabled="disabled" onchange="">
 					<option value="">Add to:</option>
@@ -50,7 +50,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 					<option value="">Course</option>
 				</select>
 			  </dd>
-              <dd class=""><a id="r-detailEditUpdate" class="nice small radius white button finger">Update</a></dd>
+              <dd class=""><a id="r-detailEditUpdate" style="float:right" class="nice small radius white button finger">Update</a></dd>
               <dd id="r-detailSaveAlert" style="float:right" class="hide">Unsaved Changes</dd>
 		   </dl>
 		</div>
@@ -73,7 +73,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                 	<p>No Preview Available</p>
   			    </div>
            
-                <div class="row meta">
+                <div id="r-metaDescription" class="row meta">
 					<div class="three columns phone-one"><span class="meta-label">Description</span></div>
 					<div class="nine columns phone-three"><span id="detailMetaDescription" class="meta-value editable"><!-- As with other infantry fighting vehicles, the Bradley is designed to transport infantry with armor protection while providing covering fire to suppress enemy troops and armored vehicles. --></span>
 						<textarea style="display:none;" rows="4" class="input-text nice value-input" placeholder="Please describe using 'Subject + verb + object' sentences" >Click to edit</textarea>
@@ -297,8 +297,8 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                                  <div id="r-technicalMetadata" class="section-content" style="display:none;">
                                     <div class="row meta">
                                         <div class="three columns phone-one"><span class="meta-label">Version</span></div>
-                                        <div class="nine columns phone-three"><span id="detailMetaVersion" class="meta-value editable"><!-- 1 by JSmith on 1/05/2003 --></span>
-											<input style="display:none;" type="file" class="input-text nice value-input" placeholder="Upload a new version" value="Upload a new version">
+                                        <div class="nine columns phone-three"><span id="detailMetaVersion" class="meta-value"><!-- 1 by JSmith on 1/05/2003 --></span>
+											<!-- <input style="display:none;" type="file" class="input-text nice value-input" placeholder="Upload a new version" value="Upload a new version"> -->
                                         </div>
                                     </div>
                                     <div class="row meta">

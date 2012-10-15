@@ -371,7 +371,7 @@ public class DetailScreen extends ScreenTemplate {
 									});
 		
 		PageAssembler.attachHandler("r-findSimilar", Event.ONCLICK, Russel.nonFunctional);
-		PageAssembler.attachHandler("r-saveAs", Event.ONCLICK, Russel.nonFunctional);
+		PageAssembler.attachHandler("r-duplicate", Event.ONCLICK, Russel.nonFunctional);
 		PageAssembler.attachHandler("r-commentCount", Event.ONCLICK, Russel.nonFunctional);
 		
 		attachRatingListeners();

@@ -64,24 +64,54 @@ public class AlfrescoSearchHandler {
 	public static final String ASSET_TYPE = "asset";
 	public static final String NOTES_TYPE = "notes";
 	public static final String TEMPLATE_TYPE = "template";
+	public static final String NO_SEARCH_RESULTS = "<p>No Search Results Found.</p>";
 	
 	private boolean pendingSearch = false;
-	private Vector<SearchTileHandler> pendingPackets = new Vector<SearchTileHandler>();
+	private Vector<SearchTileHandler> tileHandlers = new Vector<SearchTileHandler>();
 	private Vector<AlfrescoPacket> pendingEdits;
 	private int retries = 0;
 	private Timer t;
 	private boolean initialHook = true;
+	private int tileIndex;
 	private String customQuery = null;
 	private String searchType;
+	private HTML noResults = null;
 	
 	//{"prop_cm_name":"","prop_cm_title":"","prop_cm_description":"","prop_mimetype":"","prop_cm_modified-date-range":"2012-07-13T00:00:00-07:00|2012-07-23T00:00:00-07:00","prop_cm_modifier":"","datatype":"cm:content"}
+	
+	private void buildTile(AlfrescoPacket searchTermPacket, int index, String objPanel, Element td) {
+		Vector<String> iDs = null;
+		if (searchTermPacket.getShareSearchRecords().get(index)!=null&&searchTermPacket.getShareSearchRecords().get(index).getNodeId()!=null) {
+			if ((td != null) && (searchType.equals(RECENT_TYPE)))
+				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getObjectPanelWidget().getText()), false);
+			else if (searchType.equals(SEARCH_TYPE))
+				iDs = PageAssembler.getInstance().inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getSearchPanelWidget().getText()), false);
+			else if ((td != null) && (searchType.equals(PROJECT_TYPE)))
+				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSProjectObjectPanelWidget().getText()), false);
+			else if ((td != null) && (searchType.equals(ASSET_TYPE)))
+				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
+			else if ((td != null) && (searchType.equals(NOTES_TYPE)))
+				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()), false);
+			String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
+			tileHandlers.add(new SearchTileHandler(this, idPrefix, searchType, searchTermPacket.getShareSearchRecords().get(index)));
+		}
+	}
 	
 	public void buildThumbnails(String objPanel, AlfrescoPacket searchTermPacket) {
 		
 		RootPanel rp = RootPanel.get(objPanel);
 		if (rp!=null) {
 			Element td = null;
-			Vector<String> iDs = null;
+			tileIndex = 0;
+			if (noResults!=null)
+				rp.remove(noResults);
+			
+			if (searchTermPacket.getShareSearchRecords().length()==0) {
+				rp.getElement().setAttribute("style", "text-align:center");
+				noResults = new HTML(NO_SEARCH_RESULTS); 
+				rp.add(noResults);
+			} else
+				rp.getElement().setAttribute("style", "");
 			
 			for (int x=0;x<searchTermPacket.getShareSearchRecords().length();x+=2) {
 				if (!searchType.equals(SEARCH_TYPE)) {
@@ -90,36 +120,10 @@ public class AlfrescoSearchHandler {
 					td.setId(x +"-" + rp.getElement().getId());
 					rp.getElement().appendChild(td);					
 				}
-				
-				if (searchTermPacket.getShareSearchRecords().get(x)!=null&&searchTermPacket.getShareSearchRecords().get(x).getNodeId()!=null) {
-					if ((td != null) && (searchType.equals(RECENT_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getObjectPanelWidget().getText()), false);
-					else if (searchType.equals(SEARCH_TYPE))
-						iDs = PageAssembler.getInstance().inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getSearchPanelWidget().getText()), false);
-					else if ((td != null) && (searchType.equals(PROJECT_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSProjectObjectPanelWidget().getText()), false);
-					else if ((td != null) && (searchType.equals(ASSET_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
-					else if ((td != null) && (searchType.equals(NOTES_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()), false);
-					String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
-					pendingPackets.add(new SearchTileHandler(this, idPrefix, searchType, searchTermPacket.getShareSearchRecords().get(x)));
-				}
-				if (searchTermPacket.getShareSearchRecords().get(x+1)!=null&&searchTermPacket.getShareSearchRecords().get(x+1).getNodeId()!=null) {
-					if ((td != null) && (searchType.equals(RECENT_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getObjectPanelWidget().getText()), false);
-					else if (searchType.equals(SEARCH_TYPE))
-						iDs = PageAssembler.getInstance().inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getSearchPanelWidget().getText()), false);
-					else if ((td != null) && (searchType.equals(PROJECT_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSProjectObjectPanelWidget().getText()), false);
-					else if ((td != null) && (searchType.equals(ASSET_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
-					else if ((td != null) && (searchType.equals(NOTES_TYPE)))
-						iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()), false);
-					String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
-					pendingPackets.add(new SearchTileHandler(this, idPrefix, searchType, searchTermPacket.getShareSearchRecords().get(x+1)));
-				}
+				buildTile(searchTermPacket, x, objPanel, td);
+				buildTile(searchTermPacket, x+1, objPanel, td);
 			}
+			
 			processCallbacks();  // Number of tiles on the search results screen
 		}
 	}
@@ -145,13 +149,14 @@ public class AlfrescoSearchHandler {
 	}
 	
 	public void processCallbacks() {
-		if (pendingPackets.size()!=0)
-			pendingPackets.remove(0).refreshTile(new AlfrescoNullCallback<AlfrescoPacket>() {
-													@Override
-													public void onEvent(Event event) {
-														processCallbacks();
-													}
-												});
+		if (tileHandlers.size()!=0&&tileIndex<tileHandlers.size())
+			tileHandlers.get(tileIndex).refreshTile(new AlfrescoNullCallback<AlfrescoPacket>() {
+														@Override
+														public void onEvent(Event event) {
+															tileIndex++;
+															processCallbacks();
+														}
+													});
 	}
 	
 	public void forceSearch () {
@@ -225,7 +230,7 @@ public class AlfrescoSearchHandler {
 											public void onFailure(Throwable caught) {
 												if (retries>3) {
 													retries = 0;
-													pendingPackets.clear();
+													tileHandlers.clear();
 													RootPanel rp = RootPanel.get(objectPanel);
 													rp.clear();
 													rp.getElement().setInnerHTML("");
@@ -241,14 +246,19 @@ public class AlfrescoSearchHandler {
 											}
 											
 											@Override
-											public void onSuccess(AlfrescoPacket SearchTermPacket) {
-												pendingPackets.clear();
+											public void onSuccess(final AlfrescoPacket SearchTermPacket) {
+												tileHandlers.clear();
 												RootPanel rp = RootPanel.get(objectPanel);
 												rp.clear();
 												rp.getElement().setInnerHTML("");
 												if (searchType.equals(PROJECT_TYPE))
 													PageAssembler.getInstance().inject(objectPanel, "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNewProjectWidget().getText()), true);
-												buildThumbnails(objectPanel, SearchTermPacket);
+												new Timer() {
+													@Override
+													public void run() {
+														buildThumbnails(objectPanel, SearchTermPacket);
+													}
+												}.schedule(100);
 												pendingSearch = false;
 												initialHook = false;
 												customQuery = null;
