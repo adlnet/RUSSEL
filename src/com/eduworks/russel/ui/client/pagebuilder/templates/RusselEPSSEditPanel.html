@@ -37,9 +37,24 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
             <p class="lead">Developer Notes</p>
             <textarea id="epssProjectNotes" rows="4" class="input-text nice" placeholder="Add notes for this entire project"></textarea>
             <p class="lead">Learning Objectives</p>
-            <textarea id="epssProjectObjectives" rows="4" class="input-text nice" placeholder="Enter learning objective text here. This field will be hooked to formal definitions later.' structure"></textarea>
+            <!-- <textarea id="epssProjectObjectives" rows="4" class="input-text nice" placeholder="Enter learning objective text here. This field will be hooked to formal definitions later.' structure"></textarea> -->
+            <div id="projectObjectives">
+            	<ul id="project-objective-list" class="objList">
+				</ul>
+				<a id="projectCreateObjective" href="#">Create New</a>
+				<div id="projectCreateObjectiveWrapper" style="display: none;">
+					<form id="projectCreateObjectiveForm" class="nice">
+						<input id="projectNewObjectiveTitle" type="text" class="input-text nice " placeholder="Title" value="">
+						<input id="projectNewObjectiveDesc" type="text" class="input-text nice " placeholder="Description" value="">
+						<a id="projectCreateObjectiveApply" class="nice tiny radius blue button" href="#">Apply</a>
+						<a id="projectCreateObjectiveCancel" class="nice tiny radius white button" href="#">Cancel</a>
+						<a id="projectCreateObjectiveHelp" href="#" title="How to write an objective"><img src="images/help.png">Help</a>
+					</form>
+				</div>
+			</div>
+            <p class="lead">Other Properties</p>
             <select id="projectImiLevel" class="input-text nice">
-               <option value="">IMI Level:</option>
+               <option value="">IMI Level</option>
                <option value="1">Level 1 - Passive</option>
                 <option value="2">Level 2 - Limited participation</option>
                 <option value="3">Level 3 - Complex participation</option>
@@ -51,17 +66,26 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                 <option value="2">Comprehension - understand and translate</option>
                 <option value="3">Application - apply to a situation</option>
                 <option value="4">Analysis - break down and compare</option>
-                <option value="4">Synthesis - combine and organize</option>
-                <option value="4">Evaluation - make value judgements</option>
+                <option value="5">Synthesis - combine and organize</option>
+                <option value="6">Evaluation - make value judgements</option>
             </select>
-            <a id="epssSaveProperties" class="blue small nice button radius finger" onclick="$('#projectProperties').trigger('reveal:close');" >Save</a> 
-            <a class="white small nice finger button radius" onclick="$('#projectProperties').trigger('reveal:close');" >Cancel</a> 
-            <a class="close-reveal-modal">&#215;</a>
+            <select id="projectParadata" class="input-text nice">
+                <option value="">Usage Data Options</option>
+                <option value="1">Do not publish usage data.</option>
+                <option value="2">Publish usage data upon save.</option>
+                <option value="3">Publish usage data upon export.</option>
+                <option value="4">Publish usage data upon save and export.</option>
+            </select>
+            <a id="epssSaveProperties" class="blue small nice button radius finger">Save</a> 
+            <a id="epssCancelProperties" class="white small nice finger button radius">Cancel</a> 
+            <a id="epssCloseProperties"class="close-reveal-modal">&#215;</a>
         </div>
         
         <div id="exportProjectModal" class="reveal-modal">
             <h2>Export</h2>
             <p class="lead">Share this project by choosing one of the following</p>
+            <div id="epssDownloadArea">
+            </div>
             <dl class="nice vertical tabs">
                 <dd><a id="epssExportSCORM" class="finger" title="" onclick="$('#exportProjectModal').trigger('reveal:close');">SCORM 2004 4th Edition ...</a></dd>
                 <dd><a id="epssSaveAs" class="finger" title="" onclick="$('#exportProjectModal').trigger('reveal:close');">Save As ...</a></dd>
@@ -75,19 +99,18 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
          <!-- page content -->
         
         <div class="row">
-            <div class="eight columns">
+            <div class="seven columns">
             	<h3 id="projectTitleView" title="Click to edit title"><a id="projectTitleText" class="finger">Click here to add a title</a></h3>
-                <form class="nice" id="projectTitleEdit" style="display:none;"> <!-- Show this and hide 'projectTitleView' above when ckicked -->
+                <form class="nice" id="projectTitleEdit" style="display:none;"> <!-- Show this and hide 'projectTitleView' above when clicked -->
                 	<input id="projectTitleInput" type="text" placeholder="Type in a great title" class="input-text" value="Click to edit title">
                 </form>
 			</div>
-            <div id="r-project-actions" class="four columns">
-            	<a class="small white nice button finger" data-reveal-id="projectProperties">Properties</a> <a data-reveal-id="exportProjectModal" class="small white nice button finger">Export</a>
-				<br />
-				<div style="float:right">
-					<span id="r-save-alert" class="hide">Unsaved Changes</span>
-					<a id="epssUpdate" class="nice small radius white button finger">Update</a>
-				</div>
+            <div id="r-project-actions" class="five columns" style="float:right">
+            	<a id="epssProperties" data-reveal-id="projectProperties" class="small radius nice button finger white">Properties</a> 
+            	<a id="epssExportButton" data-reveal-id="exportProjectModal" class="small radius nice button finger white">Export</a>
+				<a id="epssUpdate" class="nice small radius button finger white">Update</a>
+				<a id="epssCancel" class="nice small radius button finger white">Cancel</a>
+				<br /><span id="r-save-alert" class="hide">Unsaved Changes</span>
             </div>
         </div>
                 
@@ -174,12 +197,13 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                     <div class="six columns">
                     	<h5><br>Notes for <span id="projectSectionTitle" class="template-title section-title">Gain Attention</span></h5>
                     	<p class="help">Add developer instructions or comments</p>
-                        <form class="nice" id=""> <!-- Show this and hide 'projectTitleView' above when ckicked -->
+                        <form class="nice" id=""> 
                             <textarea id="inputSectionNotes" rows="5" placeholder="Developer notes" class="input-text" value=""></textarea>
                         </form>
                     </div>
                  </div>
-             </div><!-- END Developer notes -->
+             </div>
+             <!-- END Developer notes for a section -->
 			
             <!-- Developer Notes for selected asset -->
          	<div id="projectDevNotes" style="display:none;">
@@ -187,20 +211,21 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                     <div class="six columns">
                     	<h5><br>Notes for <span id="projectAssetTitle" class="template-title asset-title">Gain Attention</span></h5>
                     	<p id="helptext-notes" class="help">Add developer instructions or comments</p>
-                        <form class="nice" id=""> <!-- Show this and hide 'projectTitleView' above when ckicked -->
+                        <form class="nice" id=""> 
                             <textarea id="inputDevNotes" rows="5" placeholder="Developer notes" class="input-text" value=""></textarea>
                         </form>
                     </div>
                  </div>
 				 <input id="epssActiveAddAsset" type="hidden" />
 				 <input id="epssActiveRemoveAsset" type="hidden" />
-             </div><!-- END Developer notes -->
+             </div>
+             <!-- END Developer notes for an asset -->
              
              <!-- Find assets -->
          	<div id="findAssets" style="display:none;">
             <br>
-                    <div class="row">
-        <div class="twelve columns" style="background-color:#ddd; padding: 20px; box-sizing:border-box; border-radius:12px;">
+            <div class="row">
+	        <div class="twelve columns" style="background-color:#ddd; padding: 20px; box-sizing:border-box; border-radius:12px;">
 
                 <div class="row" >
                     <div class="twelve columns">
@@ -216,60 +241,60 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                         <a id="epssTerm1" class="searchTerm small white button finger">Grab attention</a>
                         <a id="epssTerm2" class="searchTerm small white button finger">Demonstration</a>
                         <a id="epssTerm3" class="searchTerm small white button finger">video</a>
-                        <a id="epssTerm4" class="searchTerm small white button finger">storytelling</a>
-                        <a id="epssTerm5" class="searchTerm small white button finger">wrong way</a>
+                        <a id="epssTerm4" class="searchTerm small white button finger">Storytelling</a>
+                        <a id="epssTerm5" class="searchTerm small white button finger">Wrong Way</a>
                         <a id="epssTerm6" class="searchTerm small white button finger">image</a>
                     </div>
                  </div>
          
-         <div id="content" class="row">
-            <div class="twelve columns">
-           
-            <div id="searchObjectPanelScroll" class="horzScrollBar">
-            <table class="">
-              <tr id="epssAssetPanel"><!--
-                <td>
-                
-                <div class="tile" tabindex="0"> 
-                    <div class="cube file course"> 
-                    	<div class="front" > 
-                            <p class="title" ><span class="icon"></span>Bradleys_in_Iraq_the_long_long_title_here</p>
-                            <p class="description" style="background-image:url(preview/ABC-XYZ-1234-small.jpg);">  object thumbnail image, if any -->
-                            	<!-- Description appears here if there is no preview image. --
-                            </p>
-                            <p class="paradata">
-                                <span class="uses">1</span> <!-- only show if more than zero --
-                                <span class="comments">5</span> <!-- only show if more than zero --
-                                <span class="status-alert"></span> <!-- only show alert if needed --
-                                <span class="rating">
-                                	<span class="current-rating" style="width:70%;">3.5 stars</span> <!-- set width and text to match rating --
-                                </span>
-                            </p>
-                        </div>
-                    	<div class="back"> 
-                            <p class="status">
-                                <span class="status-title">Bradleys in Iraq the long long title here</span><br>
-                                Course (SCORM 2004) <br> <!-- object type (and format) --
-                                Modified: 10/05/2008<br>
-                                <span class="status-alert"></span>FOUO<br> <!-- only show alert(s) if applicable --
-                            </p>
-                            <div class="actions">
-                            	<a href="RUSSEL Object Details.html" target="_blank" class="">Preview</a> <!-- for multi-select feature. Add 'active' class to 'cube' to lock it's flip state --
-                            	<a href="#" class="">Add</a>
-                            </div>
-                        </div>
-                      </div>
-                      <a href="#" class="hotspot"></a> <!-- primary click action here 
-                 </div>
-                 
-               
+				 <div id="content" class="row">
+					<div class="twelve columns">
+				   
+					<div id="searchObjectPanelScroll" class="horzScrollBar">
+					<table class="">
+					  <tr id="epssAssetPanel"><!--
+						<td>
+						
+						<div class="tile" tabindex="0"> 
+							<div class="cube file course"> 
+								<div class="front" > 
+									<p class="title" ><span class="icon"></span>Bradleys_in_Iraq_the_long_long_title_here</p>
+									<p class="description" style="background-image:url(preview/ABC-XYZ-1234-small.jpg);">  object thumbnail image, if any -->
+										<!-- Description appears here if there is no preview image. --
+									</p>
+									<p class="paradata">
+										<span class="uses">1</span> <!-- only show if more than zero --
+										<span class="comments">5</span> <!-- only show if more than zero --
+										<span class="status-alert"></span> <!-- only show alert if needed --
+										<span class="rating">
+											<span class="current-rating" style="width:70%;">3.5 stars</span> <!-- set width and text to match rating --
+										</span>
+									</p>
+								</div>
+								<div class="back"> 
+									<p class="status">
+										<span class="status-title">Bradleys in Iraq the long long title here</span><br>
+										Course (SCORM 2004) <br> <!-- object type (and format) --
+										Modified: 10/05/2008<br>
+										<span class="status-alert"></span>FOUO<br> <!-- only show alert(s) if applicable --
+									</p>
+									<div class="actions">
+										<a href="RUSSEL Object Details.html" target="_blank" class="">Preview</a> <!-- for multi-select feature. Add 'active' class to 'cube' to lock it's flip state --
+										<a href="#" class="">Add</a>
+									</div>
+								</div>
+							  </div>
+							  <a href="#" class="hotspot"></a> <!-- primary click action here 
+						 </div>
+						 
+					   
 
-                </td>-->
-                </tr>
-            </table>
-            </div>
-        	</div>
-        </div> 
+						</td>-->
+						</tr>
+					</table>
+					</div>
+					</div>
+				</div> 
 
 
 

@@ -54,6 +54,7 @@ public class ProjectFileModel {
 	public String projectLearningObjectives;
 	public String projectImi;
 	public String projectTaxo;
+	public String projectUsage;
 	public String projectNodeId;
 	public AlfrescoPacket projectSectionNotes;
 	public AlfrescoPacket projectSectionAssets;
@@ -63,6 +64,7 @@ public class ProjectFileModel {
 		this.projectTitle = "Click here to add a title";
 		this.projectImi = "0,";
 		this.projectTaxo = "0,";
+		this.projectUsage = "0,";
 		this.projectNotes = "";
 		this.projectLearningObjectives = "";
 		this.projectCreator = AlfrescoApi.username;
@@ -75,6 +77,7 @@ public class ProjectFileModel {
 		this.projectTitle = ap.getValueString("projectTitle"); 
 		this.projectImi = ap.getValueString("projectImi");
 		this.projectTaxo = ap.getValueString("projectTaxo");
+		this.projectUsage = ap.getValueString("projectUsage");
 		this.projectNotes = ap.getValueString("projectNotes");
 		this.projectLearningObjectives = ap.getValueString("projectLearningObjectives");
 		this.projectTemplate = ap.getValueString("projectTemplate");
@@ -93,6 +96,7 @@ public class ProjectFileModel {
 		ap.addKeyValue("projectLearningObjectives", "\"" + projectLearningObjectives + "\"");
 		ap.addKeyValue("projectImi", "\"" + projectImi + "\"");
 		ap.addKeyValue("projectTaxo", "\"" + projectTaxo + "\"");
+		ap.addKeyValue("projectUsage", "\"" + projectUsage + "\"");
 		ap.addKeyValue("projectNodeId", "\"" + projectNodeId + "\"");
 		ap.addKeyValue("projectSections", projectSectionNotes.toJSONWrappedString());
 		ap.addKeyValue("projectSectionAssets", projectSectionAssets.toJSONArrayString());

@@ -33,7 +33,6 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
 import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
@@ -42,36 +41,51 @@ import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 
-public class SearchScreen extends ScreenTemplate {
-	private static final String DOCUMENT = "Documents";
-	private static final String IMAGE = "Images";
-	private static final String VIDEO = "Videos";
-	private static final String PACKAGE = "Packages";
-	private static final String AUDIO = "Audio";
-	private static final String LINK = "Links";
-	private static final String EVERYTHING = "Everything";
-	private static final String DEFAULT = "Default";
+public class ResultsScreen extends ScreenTemplate {
+	
+	public static final String DOCUMENT = "Documents";
+	public static final String IMAGE = "Images";
+	public static final String VIDEO = "Videos";
+	public static final String PACKAGE = "Packages";
+	public static final String AUDIO = "Audio";
+	public static final String LINK = "Links";
+	public static final String EVERYTHING = "Everything";
+	public static final String DEFAULT = "Default";
+	public static final int OUTOFRANGE = -1;
+	public String searchType;
+	private String pageTitle;
+
 	AlfrescoSearchHandler ash;
 	
 	public void display() {
-		((Label)PageAssembler.elementToWidget("r-menuUserName", PageAssembler.LABEL)).setText(AlfrescoApi.username);
-
 		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getDetailModel().getText()));
-		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getSearchPanel().getText()));
+		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getResultsPanel().getText()));
 		PageAssembler.getInstance().buildContents();
 		
-		DOM.getElementById("r-menuWorkspace").removeClassName("active");
-		DOM.getElementById("r-menuCollections").removeClassName("active");
 		DOM.getElementById("r-menuProjects").removeClassName("active");
+		DOM.getElementById("r-menuWorkspace").removeClassName("active");
+		
+		if (searchType.equals(AlfrescoSearchHandler.SEARCH_TYPE)) {
+			pageTitle = "Search Results";
+			DOM.getElementById("r-menuCollections").removeClassName("active");
+		} 
+		else if (searchType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)) {
+			pageTitle = "My Files";
+			DOM.getElementById("r-menuCollections").addClassName("active");
+		} 
+		else {
+//			Window.alert("ResultsScreen received request for "+searchType);
+			pageTitle = "Unknown Search Type";
+		}
+		
+		DOM.getElementById("r-pageTitle").setInnerHTML("<h4>"+pageTitle+"</h4>");
 
 		ash = new AlfrescoSearchHandler();
 		
-		ash.hook("r-menuSearchBar", "searchPanelWidgetScroll", AlfrescoSearchHandler.SEARCH_TYPE);
+		ash.hook("r-menuSearchBar", "searchPanelWidgetScroll", searchType);
 	
 	
 		PageAssembler.attachHandler("resultsSearchSelectShow", Event.ONCHANGE, new AlfrescoNullCallback<AlfrescoPacket>() {
@@ -107,7 +121,7 @@ public class SearchScreen extends ScreenTemplate {
 	public static String buildSearchSortString() {
 		String acc = "";
 		ListBox lb = (ListBox)PageAssembler.elementToWidget("resultsSearchSelectSort", PageAssembler.SELECT);
-		if (lb.getItemText(lb.getSelectedIndex())!=DEFAULT)
+		if ((lb.getSelectedIndex() != OUTOFRANGE) && (lb.getItemText(lb.getSelectedIndex()) != DEFAULT))
 			acc = lb.getItemText(lb.getSelectedIndex());	
 		return acc;
 	}
@@ -115,10 +129,10 @@ public class SearchScreen extends ScreenTemplate {
 	public static String buildSearchQueryString() {
 		String acc = "";
 		ListBox lb = (ListBox)PageAssembler.elementToWidget("resultsSearchSelectShow", PageAssembler.SELECT);
-		if (lb.getItemText(lb.getSelectedIndex())!=EVERYTHING)
+		if ((lb.getSelectedIndex() != OUTOFRANGE) && (lb.getItemText(lb.getSelectedIndex())!=EVERYTHING))
 			acc += " AND cm:name:(" + getFileExtensionString(lb.getItemText(lb.getSelectedIndex())) + ")";
 		lb = (ListBox)PageAssembler.elementToWidget("resultsSearchSelectDistribution", PageAssembler.SELECT);
-		if (lb.getItemText(lb.getSelectedIndex())!=EVERYTHING)
+		if ((lb.getSelectedIndex() != OUTOFRANGE) && (lb.getItemText(lb.getSelectedIndex())!=EVERYTHING))
 			acc += " AND russel:dist:\"" + lb.getItemText(lb.getSelectedIndex()) + "\"";
 		return acc;
 	}
@@ -126,11 +140,12 @@ public class SearchScreen extends ScreenTemplate {
 	public static String getFileExtensionString(String type) {
 	    String acc = ""; 
 		if (type==DOCUMENT)
-			acc = "\".doc\" OR \".docx\" OR \".log\" OR \".msg\" OR \".odt\" OR \".pages\" OR \".rtf\" OR \".tex\" OR \".txt\" OR \".wpd\" OR \".wps\" OR \".xlr\" OR \".xls\" OR \".xlsx\" OR \".indd\" OR \".pct\" OR \".pdf\"";
+			acc = "\".doc\" OR \".docx\" OR \".log\" OR \".msg\" OR \".odt\" OR \".pages\" OR \".rtf\" OR \".tex\" OR \".txt\" OR \".wpd\" OR \".wps\" OR \".xlr\" OR \".xls\" OR" +
+				  "\".xlsx\" OR \".indd\" OR \".pct\" OR \".pdf\" OR \".htm\" OR \".html\" OR \".ppt\" OR \".pptx\"";
 		else if (type==VIDEO)
 			acc = "\".fla\" OR \".3g2\" OR \".3gp\" OR \".asf\" OR \".asx\" OR \".avi\" OR \".flv\" OR \".mov\" OR \".mp4\" OR \".mpg\" OR \".rm\" OR \".srt\" OR \".swf\" OR \".vob\" OR \".wmv\"";
 		else if (type==IMAGE)
-			acc = "\".ai\" OR \".eps\" OR \".ps\" OR \".svg\" OR \".gif\" OR \".giff\" OR \".jpeg\" OR \".jpg\" OR \".png\" OR \".bmp\" OR \".dng\" OR \".pspimage \".tga\" OR \".tif\" OR \".tiff\" OR \".yuv\" OR \".psd\" OR " +
+			acc = "\".ai\" OR \".eps\" OR \".ps\" OR \".svg\" OR \".gif\" OR \".giff\" OR \".jpeg\" OR \".jpg\" OR \".png\" OR \".bmp\" OR \".dng\" OR \".pspimage\" OR \".tga\" OR \".tif\" OR \".tiff\" OR \".yuv\" OR \".psd\" OR " +
 				  "\".dds\" OR \".3dm\" OR \".3ds\" OR \".dwg\" OR \".dxf\" OR \".max\" OR \".obj\"";
 		else if (type==PACKAGE)
 			acc = "\".zip\" OR \".rar\" OR \".zipx\" OR \".gz\" OR \".7z\" OR \".pkg\" OR \".jar\" OR \".deb\" OR \".rpm\" OR \".sit\" OR \".sitx\" OR \".tar.gz\"";

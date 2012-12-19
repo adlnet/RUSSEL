@@ -78,7 +78,7 @@ public class AssetExtractor {
 				acc = VIDEO;
 			else if (ext.equalsIgnoreCase("doc")||ext.equalsIgnoreCase("docx")||ext.equalsIgnoreCase("log")||ext.equalsIgnoreCase("msg")||ext.equalsIgnoreCase("odt")||ext.equalsIgnoreCase("pages")||
 					 ext.equalsIgnoreCase("rtf")||ext.equalsIgnoreCase("tex")||ext.equalsIgnoreCase("txt")||ext.equalsIgnoreCase("wpd")||ext.equalsIgnoreCase("wps")||ext.equalsIgnoreCase("xlr")||ext.equalsIgnoreCase("xls")||
-					 ext.equalsIgnoreCase("xlsx")||ext.equalsIgnoreCase("indd")||ext.equalsIgnoreCase("pct")||ext.equalsIgnoreCase("pdf"))
+					 ext.equalsIgnoreCase("xlsx")||ext.equalsIgnoreCase("indd")||ext.equalsIgnoreCase("pct")||ext.equalsIgnoreCase("pdf")||ext.equalsIgnoreCase("ppt")||ext.equalsIgnoreCase("pptx"))
 				acc = DOCUMENT;
 			else if (ext.equalsIgnoreCase("html")||ext.equalsIgnoreCase("htm"))
 				acc = LINK;

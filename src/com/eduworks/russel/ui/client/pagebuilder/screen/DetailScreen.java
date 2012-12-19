@@ -35,8 +35,6 @@ package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import java.util.Vector;
 
-import sun.audio.AudioData;
-
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
@@ -52,7 +50,6 @@ import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
 import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.media.client.Audio;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;

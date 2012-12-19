@@ -45,6 +45,8 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
 
 public class Russel extends Constants implements EntryPoint, ValueChangeHandler<String>
 {
@@ -65,6 +67,7 @@ public class Russel extends Constants implements EntryPoint, ValueChangeHandler<
 		GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
 			@Override
 			public void onUncaughtException(Throwable e) {
+				Window.alert("onUncaughtException errors");
 				Window.alert(e.toString());
 				Window.alert(e.getCause().getMessage());
 				e.printStackTrace();
@@ -75,6 +78,14 @@ public class Russel extends Constants implements EntryPoint, ValueChangeHandler<
 		
 		History.addValueChangeHandler(this);
 				
+		Window.addWindowClosingHandler(new ClosingHandler() {
+			
+			@Override
+			public void onWindowClosing(ClosingEvent event) {
+				// TODO Auto-generated method stub
+				Window.alert("onWindowClosingMessage -- will address in polish sprint");
+			}
+		});
 		CommunicationHub.sendHTTP(CommunicationHub.GET, 
 								  "../js/module.properties", 
 								  null, 

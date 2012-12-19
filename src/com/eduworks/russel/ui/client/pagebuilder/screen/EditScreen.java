@@ -49,9 +49,9 @@ import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
 import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
-import com.eduworks.russel.ui.client.Constants;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.extractor.AssetExtractor;
+import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
 import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
@@ -75,7 +75,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class EditScreen extends ScreenTemplate {
 	private static String IMS_MANIFEST = "imsmanifest.xml";
@@ -115,6 +114,10 @@ public class EditScreen extends ScreenTemplate {
 			hookDragDrop(dp);
 		}
 		
+		AlfrescoSearchHandler ash = new AlfrescoSearchHandler();
+		
+		ash.hook("r-menuSearchBar", "", AlfrescoSearchHandler.EDIT_TYPE);
+	
 		PageAssembler.attachHandler("r-saveAs", Event.ONCLICK, Russel.nonFunctional);
 		
 		PageAssembler.attachHandler("r-editDelete", 
@@ -192,19 +195,20 @@ public class EditScreen extends ScreenTemplate {
 			}
 		});
 
-		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
-																		@Override
-																		public void onEvent(Event event) {
-																			Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
-																																    "x", 
-																																    new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
-																																    true);
-																			final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
-																			buildEmptyUploadTile(idPrefix);
-																			thumbIDs.put(idPrefix + "-object", null);
-																			doFileCancel();
-																		}
-																	});
+//		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+//																		@Override
+//																		public void onEvent(Event event) {
+//																			Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
+//																																    "x", 
+//																																    new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
+//																																    true);
+//																			final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
+//																			buildEmptyUploadTile(idPrefix);
+//																			thumbIDs.put(idPrefix + "-object", null);
+//																			doFileCancel();
+//																		}
+//																	});
+		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, Russel.nonFunctional); 
 		
 		PageAssembler.attachHandler("r-editSave", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 																	@Override
@@ -256,14 +260,6 @@ public class EditScreen extends ScreenTemplate {
 	}
 
 	private void buildEmptyUploadTile(final String idPrefix) {
-		PageAssembler.attachHandler(idPrefix + "-objectDetail", 
-									Event.ONCLICK, 
-									new AlfrescoNullCallback<AlfrescoPacket>() {
-										@Override
-										public void onEvent(Event event) {
-											toggleSelection(idPrefix + "-object");
-										}
-									});
 		final FormPanel formPanel = (FormPanel)PageAssembler.elementToWidget("addFileForm", PageAssembler.FORM);
 		final FileUpload fileUpload = (FileUpload)PageAssembler.elementToWidget("addFileData", PageAssembler.FILE);
 		final Hidden hiddenDestination = (Hidden)PageAssembler.elementToWidget("addFileDestination", PageAssembler.HIDDEN);
@@ -277,18 +273,56 @@ public class EditScreen extends ScreenTemplate {
 											RootPanel.get(idPrefix + "-objectDescription").getElement().setInnerText("");
 											fillTemplateDetails(AlfrescoPacket.wrap(CommunicationHub.parseJSON(CommunicationHub.unwrapJSONString(event.getResults()))), idPrefix);
 											pendingFileUploads--;
+											DOM.getElementById(idPrefix + "-objectDetailButton").removeAttribute("hidden");
 											refreshInformation();
 										}
 									});
 		formPanel.addSubmitHandler(new SubmitHandler() {
 								@Override
 								public void onSubmit(SubmitEvent event) {
-									if (fileUpload.getFilename()=="") {
+									String fn = fileUpload.getFilename();
+									String justFileName = fn.substring(fn.lastIndexOf("\\")+1);
+									PageAssembler.attachHandler(idPrefix + "-objectDetail", 
+																Event.ONCLICK, 
+																new AlfrescoNullCallback<AlfrescoPacket>() {
+																	@Override
+																	public void onEvent(Event event) {
+																		toggleSelection(idPrefix + "-object");
+																	}
+																});
+									if (fn=="") {
 										Window.alert("Can't upload something that isn't there");
+										fileUpload.setName("data");
 										DOM.getElementById(idPrefix + "-object").removeFromParent();
+										pendingFileUploads--;
 										event.cancel();
 									} else {
+										DOM.getElementById(idPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
+
+										if (justFileName.indexOf(".")!=-1&&justFileName.substring(justFileName.lastIndexOf(".")+1).toLowerCase().equals("zip")) { 
+											if (!Browser.isIE()) {
+												Window.alert("Need to convert "+justFileName+" to a blob so it can be unzipped and disaggregated on the client side");
+//												We need to write a blob class for non drag-and-drop operation.  Documented as a feature in RedMine. 
+//												
+//												Zip.checkSCORMandGrabEntries(file, new AlfrescoCallback<AlfrescoPacket>() {
+//													@Override public void onFailure(Throwable caught) {}
+//							
+//													@SuppressWarnings("unchecked")
+//													@Override
+//													public void onSuccess(AlfrescoPacket alfrescoPacket) {
+//														if (alfrescoPacket.hasKey("zipEntries")) {
+//															JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
+//															for (int x=0;x<zipEntries.length();x++)
+//																pendingZipUploads.add(zipEntries.get(x));
+//															doPendingUploads();
+//														}
+//													}
+//												});
+											}
+											else Window.alert("Your browser does not support automatic disaggregation for "+fn+" package.");
+										}				
 										RootPanel.get(idPrefix + "-objectDescription").add(new Image("images/orbit/loading.gif"));
+										DOM.getElementById(idPrefix + "-objectTitle").setInnerText(justFileName);
 										DOM.getElementById(idPrefix + "-objectDescription").setAttribute("style", "text-align:center");
 									}
 								}
@@ -374,7 +408,7 @@ public class EditScreen extends ScreenTemplate {
 		if (ddh!=null&&ddh.readQueue!=null)
 			acc += ddh.readQueue.size();
 		if (pendingZipUploads!=null)
-		acc += pendingZipUploads.size();
+			acc += pendingZipUploads.size();
 		acc += pendingFileUploads;
 		return acc;
 	}
@@ -455,6 +489,8 @@ public class EditScreen extends ScreenTemplate {
 			    																									false);
 															final String idNumPrefix = iDs.get(0).substring(0, iDs.get(0).indexOf("-"));
 															RootPanel.get(idNumPrefix + "-objectDescription").add(new Image("images/orbit/loading.gif"));
+															DOM.getElementById(idNumPrefix + "-objectTitle").setInnerText(filename);
+															DOM.getElementById(idNumPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
 															DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
 															CommunicationHub.sendForm(CommunicationHub.getAlfrescoUploadURL(),
 																					  filename,
@@ -470,6 +506,7 @@ public class EditScreen extends ScreenTemplate {
 																							@Override
 																							public void onSuccess(AlfrescoPacket alfrescoPacket) {
 																								RootPanel.get(idNumPrefix + "-objectDescription").clear();
+																								DOM.getElementById(idNumPrefix + "-objectDetailButton").removeAttribute("hidden");
 																								DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
 																								fillTemplateDetails(alfrescoPacket, idNumPrefix);
 																								doPendingUploads();
@@ -482,6 +519,7 @@ public class EditScreen extends ScreenTemplate {
 														doPendingUploads();
 												}
 											});
+			refreshInformation();
 		}
 	}
 	
@@ -505,7 +543,7 @@ public class EditScreen extends ScreenTemplate {
 									}
 								}
 							});
-						}				
+						}
 						
 						final Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
 																			    	  "x", 
@@ -513,7 +551,9 @@ public class EditScreen extends ScreenTemplate {
 																			    	  false);
 						final String idNumPrefix = iDs.get(0).substring(0, iDs.get(0).indexOf("-"));
 						RootPanel.get(idNumPrefix + "-objectDescription").add(new Image("images/orbit/loading.gif"));
+						DOM.getElementById(idNumPrefix  + "-objectTitle").setInnerText(file.getName());
 						DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
+						DOM.getElementById(idNumPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
 						CommunicationHub.sendForm(CommunicationHub.getAlfrescoUploadURL(), 
 												  file.getName(), 
 												  AlfrescoApi.currentDirectoryId, 
@@ -528,6 +568,7 @@ public class EditScreen extends ScreenTemplate {
 													@Override
 													public void onSuccess(AlfrescoPacket result) {
 														RootPanel.get(idNumPrefix + "-objectDescription").clear();
+														DOM.getElementById(idNumPrefix + "-objectDetailButton").removeAttribute("hidden");
 														DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
 														fillTemplateDetails(result, idNumPrefix);
 														readNext();

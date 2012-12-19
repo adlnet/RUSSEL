@@ -128,8 +128,36 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                                     </div>
                                     <div class="row meta">
                                         <div class="three columns phone-one"><span class="meta-label">Objectives</span></div>
-                                        <div class="nine columns phone-three"><span id="detailMetaObjectives" class="meta-value editable"><!-- Learning objective appears here. Integer porttitor justo sed ante venenatis lacinia in non nisi. Vestibulum convallis odio cursus dignissim.--></span>
-											<textarea style="display:none;" rows="4" class="input-text nice value-input" placeholder="Enter learning objective text here. This field will be hooked to formal definitions later." ><!-- Some text here --></textarea>
+                                        <div class="nine columns phone-three">
+                                        <div id="displayObjectives" class="meta-value">
+                                        	<ul id="detail-objective-list" class="objList">
+												<!-- NOTES: Put the full title + description as the 'title' value for tooltip support -->
+<!--											<li>
+													<a href="#" title="Remove" class="delete"></a>
+													<p id="metaObjectives" class="objective value full-width" title="Objective Title A. Description: text appears here">Objective Title A</p>
+													<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Search for an objective" value="Click to edit"> 
+												</li>
+-->
+											</ul>
+<!-- 										<a id="detailAddObjective" href="#">Add Existing</a> | 
+--> 
+											<a id="detailCreateObjective" href="#">Create New</a>
+											<div id="detailCreateObjectiveWrapper" style="display: none;">
+												<form id="detailCreateObjectiveForm" class="nice">
+													<input id="detailNewObjectiveTitle" type="text" class="input-text nice " placeholder="Title" value="">
+													<input id="detailNewObjectiveDesc" type="text" class="input-text nice " placeholder="Description" value="">
+<!--												<input id="detailNewObjectiveDef" type="text" class="input-text nice " placeholder="Definition" value=""> 
+													<select id="detailNewObjectiveType" class="input-text nice">
+														<option>Enabling</option>
+														<option>Terminal</option>
+													</select> 
+-->
+													<a id="detailCreateObjectiveApply" class="nice tiny radius blue button" href="#">Apply</a>
+													<a id="detailCreateObjectiveCancel" class="nice tiny radius white button" href="#">Cancel</a>
+													<a id="detailCreateObjectiveHelp" href="#" title="How to write an objective"><img src="images/help.png">Help</a>
+												</form>
+											</div>
+											</div>
 										</div>
                                     </div>  
                                     <div class="row meta">

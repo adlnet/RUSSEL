@@ -138,9 +138,38 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
         <div id="edit-objectives" class="section">
             <p class="bold">Learning Objectives</p>
-            <div>
-                <p id="metaObjectives" class="value full-width">Click to edit</p>
-                <textarea style="display:none;" rows="4" class="input-text nice value-input" placeholder="Enter learning objective text here. This field will be hooked to formal definitions later." ></textarea>
+            <div id="display-objectives">
+<!--            <p id="metaObjectives" class="value full-width">Click to edit</p> 
+                <textarea style="display:none;" rows="4" class="input-text nice value-input" placeholder="Enter learning objective text here. This field will be hooked to formal definitions later." ></textarea> 
+-->
+ 				<ul id="display-objective-list" class="objList">
+					<!-- NOTES: Put the full title + description as the 'title' value for tooltip support -->
+<!--				<li>
+						<a href="#" title="Remove" class="delete"></a>
+						<p id="metaObjectives" class="objective value full-width" title="Objective Title A. Description: text appears here">Objective Title A</p>
+						<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Search for an objective" value="Click to edit"> 
+					</li>
+-->
+				</ul>
+<!-- 			<a id="addObjective" href="#">Add Existing</a> | 
+--> 
+				<a id="createObjective" href="#">Create New</a>
+				<div id="createObjectiveWrapper" style="display: none;">
+					<form id="createObjectiveForm" class="nice">
+						<input id="newObjectiveTitle" type="text" class="input-text nice" placeholder="Title" value="">
+						<input id="newObjectiveDesc" type="text" class="input-text nice" placeholder="Description" value="">
+<!--					<input id="newObjectiveDef" type="text" class="input-text nice" placeholder="Definition" value=""> 
+						<select id="newObjectiveType" class="input-text nice">
+							<option>Enabling</option>
+							<option>Terminal</option>
+						</select> 
+-->
+						<a id="createObjectiveApply" class="nice tiny radius blue button" href="#">Apply</a>
+						<a id="createObjectiveCancel" class="nice tiny radius white button" href="#">Cancel</a>
+						<a id="createObjectiveHelp" href="#" title="How to write an objective"><img src="images/help.png">Help</a>
+					</form>
+				</div>
+
             </div>
         </div>
         
@@ -332,7 +361,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                 </p>
                 <p>
                     <span class="fieldLabel">Requirements:</span> 
-                    <span id="metaTechincalRequirements" class="value">Click to edit</span>
+                    <span id="metaTechnicalRequirements" class="value">Click to edit</span>
                     <input style="display:none;" type="text" class="input-text nice value-input" placeholder="Operating system, browser or media player" value="Click to edit">
                 </p>
                 

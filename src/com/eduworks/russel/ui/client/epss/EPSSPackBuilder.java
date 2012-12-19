@@ -41,12 +41,16 @@ import org.vectomatic.file.Blob;
 import com.eduworks.gwt.client.util.Zip;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
+import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
 import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class EPSSPackBuilder {
 	private static final String HTML_MIME = "text/html";
@@ -141,10 +145,21 @@ public class EPSSPackBuilder {
 																					   new AlfrescoCallback<AlfrescoPacket>() {
 																							@Override
 																							public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																								Window.open(alfrescoPacket.getValue("zipURL").toString(),
-																											"_blank",
-																											"");
-																								PageAssembler.closePopup("exportProjectModal");	
+																								//Window.alert(alfrescoPacket.getValue("zipURL").toString());
+																								RootPanel.get("epssDownloadArea").clear();
+																								Anchor a = new Anchor("Download readied package", alfrescoPacket.getValue("zipURL").toString());
+																								RootPanel.get("epssDownloadArea").add(a);
+																								a.getElement().setId("downloadPackage");
+																								a.getElement().setAttribute("download", pfm.projectTitle.replaceAll(" ", "_") + ".zip");
+																								PageAssembler.attachHandler("downloadPackage", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+																																			  	@Override
+																																			  	public void onEvent(Event event) {
+																																			  		PageAssembler.closePopup("exportProjectModal");	
+																																			  	}
+																																			  });
+//																								Window.open(alfrescoPacket.getValue("zipURL").toString(),
+//																											"_blank",
+//																											"");
 																							}
 																							
 																							@Override
@@ -188,7 +203,7 @@ public class EPSSPackBuilder {
 											@Override
 											public void onSuccess(AlfrescoPacket alfrescoPacket) {
 												Zip.addFileToZipBlob(zipWriter, 
-																	 "/media/" + filename, 
+																	 "/media/" + mediaList.size() + "-" + filename, 
 																	 buildBlob(alfrescoPacket.getMimeType(), alfrescoPacket.getContents()), 
 																	 new AlfrescoCallback<AlfrescoPacket>() {
 																		@Override

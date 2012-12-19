@@ -73,9 +73,18 @@ public interface HtmlTemplates extends ClientBundle {
 	@Source("templates/RusselDetailComment.html")
 	public TextResource getDetailComment();
 	
-	@Source("templates/RusselEPSSHomePanel.html")
-	public TextResource getEPSSHome();
+	@Source("templates/RusselSearchPanelWidget.html")
+	public TextResource getSearchPanelWidget();
 	
+	@Source("templates/RusselResultsPanel.html")
+	public TextResource getResultsPanel();
+	
+	@Source("templates/RusselUtilityPanel.html")
+	public TextResource getUtilityPanel();
+
+	@Source("templates/RusselFeatureHomePanel.html")
+	public TextResource getFeatureHomePanel();
+
 	@Source("templates/RusselEPSSEditPanel.html")
 	public TextResource getEPSSEdit();
 
@@ -88,20 +97,14 @@ public interface HtmlTemplates extends ClientBundle {
 	@Source("templates/RusselEPSSAssetPanelWidget.html")
 	public TextResource getEPSSAssetObjectPanelWidget();
 	
-	@Source("templates/RusselEPSSProjectPanelWidget.html")
+	@Source("templates/RusselEPSSHomePanelWidget.html")
 	public TextResource getEPSSProjectObjectPanelWidget();
 	
-	@Source("templates/RusselEPSSNewProjectPanelWidget.html")
+	@Source("templates/RusselEPSSHomePanelNewProjectWiget.html")
 	public TextResource getEPSSNewProjectWidget();
 	
 	@Source("templates/RusselEPSSEditSectionWidgets.html")
 	public TextResource getEPSSEditSectionWidgets();
-	
-	@Source("templates/RusselSearchPanel.html")
-	public TextResource getSearchPanel();
-	
-	@Source("templates/RusselSearchPanelWidget.html")
-	public TextResource getSearchPanelWidget();
 	
 	@Source("templates/RusselEPSSNoteAssetPanelWidget.html")
 	public TextResource getEPSSNoteAssetObjectWidget();

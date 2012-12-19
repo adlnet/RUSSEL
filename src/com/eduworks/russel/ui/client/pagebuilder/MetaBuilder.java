@@ -53,7 +53,15 @@ public class MetaBuilder {
 	private final native String doColors(String s) /*-{
 		return $wnd.getSecurityColor(s);
 	}-*/;
-	
+
+	private final native String putObjectives(String s, String id) /*-{
+		return $wnd.listObjectives(s, id);
+	}-*/;
+
+	private final native String getObjectives(String id) /*-{
+		return $wnd.compressObjectives(id);
+	}-*/;
+
 	public void addMetaDataToField(String field, String property, String id, AlfrescoPacket alfrescoPacket) {
 		String fieldVal = "Click to edit";
 		if (property.equalsIgnoreCase("cm:title") || property.equalsIgnoreCase("cmis:versionLabel") || property.equalsIgnoreCase("cmis:contentStreamLength") ||
@@ -63,22 +71,11 @@ public class MetaBuilder {
 		if (!alfrescoPacket.getPropertyValue(field, property).trim().equalsIgnoreCase(""))
 			fieldVal = alfrescoPacket.getPropertyValue(field, property);
 		
-		if (metaType.equals(EDIT_SCREEN)&&(property=="russel:class"||property=="russel:level"||property=="russel:dist"))
-			DOM.getElementById(id).setInnerHTML(doColors(fieldVal));
-		else 
-			((Label)PageAssembler.elementToWidget(id, PageAssembler.LABEL)).setText(fieldVal);
-	}
-	
-	public void addMetaDataToField(String field, String property, String id, AlfrescoPacket alfrescoPacket, String altName) {
-		String fieldVal = "Click to edit";
-		if (property.equalsIgnoreCase("cm:title") || property.equalsIgnoreCase("cmis:versionLabel") || property.equalsIgnoreCase("cmis:contentStreamLength") ||
-				property.equalsIgnoreCase("cmis:contentStreamMimeType"))
-			fieldVal = "N/A";
-
-		if (!alfrescoPacket.getPropertyValue(field, property).trim().equalsIgnoreCase(""))
-			fieldVal = alfrescoPacket.getPropertyValue(field, property);
-		
-		if (metaType.equals(EDIT_SCREEN)&&(property=="russel:class"||property=="russel:level"||property=="russel:dist"))
+		if ((metaType.equals(EDIT_SCREEN)&&(property=="russel:objective")) ||
+		    (metaType.equals(DETAIL_SCREEN)&&(property=="russel:objective"))) {
+			putObjectives(fieldVal, id);
+		}
+		else if (metaType.equals(EDIT_SCREEN)&&(property=="russel:class"||property=="russel:level"||property=="russel:dist"))
 			DOM.getElementById(id).setInnerHTML(doColors(fieldVal));
 		else 
 			((Label)PageAssembler.elementToWidget(id, PageAssembler.LABEL)).setText(fieldVal);
@@ -90,14 +87,14 @@ public class MetaBuilder {
 			addMetaDataToField(field, "cm:description", "metaDescription", ap);
 			addMetaDataToField(field, "cm:author", "metaPublisher", ap);
 			addMetaDataToField(field, "russel:class", "metaClassification", ap);
-			addMetaDataToField(field, "russel:objective", "metaObjectives", ap);
+			addMetaDataToField(field, "russel:objective", "display-objective-list", ap);
 			addMetaDataToField(field, "russel:activity", "metaInteractivity", ap);
 			addMetaDataToField(field, "russel:env", "metaEnvironment", ap);
 			addMetaDataToField(field, "russel:coverage", "metaCoverage", ap);
 			addMetaDataToField(field, "russel:agerange", "metaSkill", ap);
 			addMetaDataToField(field, "russel:language", "metaLanguage", ap);
 			addMetaDataToField(field, "russel:duration", "metaDuration", ap);
-			addMetaDataToField(field, "russel:techreqs", "metaTechincalRequirements", ap);
+			addMetaDataToField(field, "russel:techreqs", "metaTechnicalRequirements", ap);
 			addMetaDataToField(field, "russel:dist", "metaDistribution", ap);
 			addMetaDataToField(field, "russel:level", "metaLevel", ap);
 			addMetaDataToField(field, "russel:partof", "metaPartOf", ap);
@@ -111,14 +108,14 @@ public class MetaBuilder {
 			addMetaDataToField(field, "cm:description", "detailMetaDescription", ap);
 			addMetaDataToField(field, "cm:author", "detailMetaPublisher", ap);
 			addMetaDataToField(field, "russel:class", "detailMetaClassification", ap);
-			addMetaDataToField(field, "russel:objective", "detailMetaObjectives", ap);
+			addMetaDataToField(field, "russel:objective", "detail-objective-list", ap);
 			addMetaDataToField(field, "russel:activity", "detailMetaInteractivity", ap);
 			addMetaDataToField(field, "russel:env", "detailMetaEnvironment", ap);
 			addMetaDataToField(field, "russel:coverage", "detailMetaCoverage", ap);
 			addMetaDataToField(field, "russel:agerange", "detailMetaSkill", ap);
 			addMetaDataToField(field, "russel:language", "detailMetaLanguage", ap);
 			addMetaDataToField(field, "russel:duration", "detailMetaDuration", ap);
-			addMetaDataToField(field, "russel:techreqs", "detailMetaTechincalRequirements", ap);
+			addMetaDataToField(field, "russel:techreqs", "detailmetaTechnicalRequirements", ap);
 			addMetaDataToField(field, "russel:dist", "detailMetaDistribution", ap);
 			addMetaDataToField(field, "russel:level", "detailMetaLevel", ap);
 			addMetaDataToField(field, "russel:partof", "detailMetaPartOf", ap);
@@ -153,14 +150,14 @@ public class MetaBuilder {
 			addProperty("cm:description", "detailMetaDescription", ap);
 			addProperty("cm:author", "detailMetaPublisher", ap);
 			addProperty("russel:class", "detailMetaClassification", ap);
-			addProperty("russel:objective", "detailMetaObjectives", ap);
+			addObjectiveProperty(ap, "detail-objective-list");
 			addProperty("russel:activity", "detailMetaInteractivity", ap);
 			addProperty("russel:env", "detailMetaEnvironment", ap);
 			addProperty("russel:coverage", "detailMetaCoverage", ap);
 			addProperty("russel:agerange", "detailMetaSkill", ap);
 			addProperty("russel:language", "detailMetaLanguage", ap);
 			addProperty("russel:duration", "detailMetaDuration", ap);
-			addProperty("russel:techreqs", "detailMetaTechincalRequirements", ap);
+			addProperty("russel:techreqs", "detailmetaTechnicalRequirements", ap);
 			addProperty("russel:dist", "detailMetaDistribution", ap);
 			addProperty("russel:level", "detailMetaLevel", ap);
 			addProperty("russel:partof", "detailMetaPartOf", ap);
@@ -171,14 +168,14 @@ public class MetaBuilder {
 			addProperty("cm:description", "metaDescription", ap);
 			addProperty("cm:author", "metaPublisher", ap);
 			addProperty("russel:class", "metaClassification", ap);
-			addProperty("russel:objective", "metaObjectives", ap);
+			addObjectiveProperty(ap, "display-objective-list");
 			addProperty("russel:activity", "metaInteractivity", ap);
 			addProperty("russel:env", "metaEnvironment", ap);
 			addProperty("russel:coverage", "metaCoverage", ap);
 			addProperty("russel:agerange", "metaSkill", ap);
 			addProperty("russel:language", "metaLanguage", ap);
 			addProperty("russel:duration", "metaDuration", ap);
-			addProperty("russel:techreqs", "metaTechincalRequirements", ap);
+			addProperty("russel:techreqs", "metaTechnicalRequirements", ap);
 			addProperty("russel:dist", "metaDistribution", ap);
 			addProperty("russel:level", "metaLevel", ap);
 			addProperty("russel:partof", "metaPartOf", ap);
@@ -209,6 +206,17 @@ public class MetaBuilder {
 				ap.addKeyValue(property, "\"" + val.replaceAll("\"", "\'").replaceAll("\r", " ").replaceAll("\n", " ").trim() + "\"");
 			else
 				ap.addKeyValue(property, "[\"" + val.replaceAll("w+,w+", "\",\"").trim() + "\"]");
+		
+		return ap;
+	}
+
+	private AlfrescoPacket addObjectiveProperty(AlfrescoPacket ap, String elementID) {
+		String val = getObjectives(elementID);
+		
+		if (val==null)
+			val = "Click to edit";
+		if (!val.equalsIgnoreCase("Click to edit") && !val.equalsIgnoreCase("N/A"))
+			ap.addKeyValue("russel:objective", "\"" + val.replaceAll("\"", "\'").replaceAll("\r", " ").replaceAll("\n", " ").trim() + "\"");	
 		
 		return ap;
 	}

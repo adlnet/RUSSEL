@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
 import com.eduworks.russel.ui.client.Russel;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -50,6 +51,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.Label;
@@ -75,6 +77,7 @@ public class PageAssembler
 	final public static String HIDDEN = "hidden";
 	final public static String FILE = "file";
 	final public static String FORM = "form";
+	final public static String FRAME = "frame";
 	final public static String CONTENT_HEADER = "contentHeader";
 	final public static String CONTENT_FOOTER = "contentFooter";
 
@@ -221,6 +224,14 @@ public class PageAssembler
 		return convertedIDs;
 	}
 	
+	public static native JavaScriptObject getIFrameElement(Element iFrame, String objId) /*-{
+		var doc = iFrame.contentDocument || iFrame.contentWindow;
+		if (doc!=null)
+			return doc.getElementById(objId);
+		else
+			return null;
+	}-*/;
+	
 	/** @Returns if it worked */
 	public static boolean attachHandler(String elementName, final int eventTypes, final AlfrescoNullCallback<AlfrescoPacket> nullCallback) {
 		boolean result = false; 
@@ -230,7 +241,7 @@ public class PageAssembler
 			DOM.setEventListener(e, new EventListener() {
 										@Override
 										public void onBrowserEvent(Event event) {
-											if (event.getTypeInt()==eventTypes)
+											if (event.getTypeInt()==eventTypes&&nullCallback!=null)
 												nullCallback.onEvent(event);
 										}
 									});
@@ -247,7 +258,8 @@ public class PageAssembler
 			DOM.setEventListener(e, new EventListener() {
 										@Override
 										public void onBrowserEvent(Event event) {
-											nullCallback.onEvent(event);
+											if (nullCallback!=null)
+												nullCallback.onEvent(event);
 										}
 									});
 			result = true;
@@ -277,6 +289,8 @@ public class PageAssembler
 				result = FileUpload.wrap(e);
 			else if (typ==FORM)
 				result = FormPanel.wrap(e);
+			else if (typ==FRAME)
+				result = Frame.wrap(e);
 			DOM.sinkEvents(e, eventsSunk);
 			DOM.setEventListener(e, el);
 		} else {
@@ -296,6 +310,8 @@ public class PageAssembler
 				result = new FileUpload();
 			else if (typ==FORM)
 				result = new FormPanel();
+			else if (typ==FRAME)
+				result = new Frame();;
 		}
 		return result;
 	}
@@ -323,6 +339,8 @@ public class PageAssembler
 				result = FileUpload.wrap(e);
 			else if (typ==FORM)
 				result = FormPanel.wrap(e, true);
+			else if (typ==FRAME)
+				result = Frame.wrap(e);
 			DOM.sinkEvents(e, eventsSunk);
 			DOM.setEventListener(e, el);
 		} else {
@@ -342,6 +360,8 @@ public class PageAssembler
 				result = new FileUpload();
 			else if (typ==FORM)
 				result = new FormPanel();
+			else if (typ==FRAME)
+				result = new Frame();
 		}
 		return result;
 	}

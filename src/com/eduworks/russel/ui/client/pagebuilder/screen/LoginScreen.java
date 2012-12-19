@@ -33,10 +33,12 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
+import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
+import com.eduworks.russel.ui.client.Constants;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
@@ -46,6 +48,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -149,6 +152,26 @@ public class LoginScreen extends ScreenTemplate {
 																		public void onEvent(Event event) {
 																			Russel.view.loadScreen(new HomeScreen(), true);
 																		}
+																	 });
+		
+		PageAssembler.attachHandler("r-menuCollections", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+																		@Override
+																		public void onEvent(Event event) {
+																			FeatureScreen fs = new FeatureScreen();
+																			fs.featureType = FeatureScreen.COLLECTIONS_TYPE;
+																			Russel.view.loadScreen(fs, true);
+																		}
+																	 });
+
+		PageAssembler.attachHandler("r-menuProjects", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+																		@Override
+																		public void onEvent(Event event) {
+																			if (!Browser.isIE()) {
+																				FeatureScreen fs = new FeatureScreen();
+																				fs.featureType = FeatureScreen.PROJECTS_TYPE;
+																				Russel.view.loadScreen(fs, true);
+																			}
+																			else Window.alert(Constants.UNSUPPORTED_IE_FEATURE);																		}
 																	 });
 	}
 }

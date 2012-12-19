@@ -44,7 +44,7 @@ import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.eduworks.russel.ui.client.pagebuilder.screen.EditScreen;
-import com.eduworks.russel.ui.client.pagebuilder.screen.SearchScreen;
+import com.eduworks.russel.ui.client.pagebuilder.screen.ResultsScreen;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -61,9 +61,12 @@ public class AlfrescoSearchHandler {
 	public static final String RECENT_TYPE = "recent";
 	public static final String SEARCH_TYPE = "search";
 	public static final String PROJECT_TYPE = "project";
+	public static final String EDIT_TYPE = "edit";
 	public static final String ASSET_TYPE = "asset";
 	public static final String NOTES_TYPE = "notes";
 	public static final String TEMPLATE_TYPE = "template";
+	public static final String COLLECTION_TYPE = "collection";
+	public static final String STRATEGY_TYPE = "strategy";
 	public static final String NO_SEARCH_RESULTS = "<p>No Search Results Found.</p>";
 	
 	private boolean pendingSearch = false;
@@ -77,8 +80,6 @@ public class AlfrescoSearchHandler {
 	private String searchType;
 	private HTML noResults = null;
 	
-	//{"prop_cm_name":"","prop_cm_title":"","prop_cm_description":"","prop_mimetype":"","prop_cm_modified-date-range":"2012-07-13T00:00:00-07:00|2012-07-23T00:00:00-07:00","prop_cm_modifier":"","datatype":"cm:content"}
-	
 	private void buildTile(AlfrescoPacket searchTermPacket, int index, String objPanel, Element td) {
 		Vector<String> iDs = null;
 		if (searchTermPacket.getShareSearchRecords().get(index)!=null&&searchTermPacket.getShareSearchRecords().get(index).getNodeId()!=null) {
@@ -86,12 +87,18 @@ public class AlfrescoSearchHandler {
 				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getObjectPanelWidget().getText()), false);
 			else if (searchType.equals(SEARCH_TYPE))
 				iDs = PageAssembler.getInstance().inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getSearchPanelWidget().getText()), false);
+			else if (searchType.equals(COLLECTION_TYPE))
+				iDs = PageAssembler.getInstance().inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getSearchPanelWidget().getText()), false);
 			else if ((td != null) && (searchType.equals(PROJECT_TYPE)))
 				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSProjectObjectPanelWidget().getText()), false);
 			else if ((td != null) && (searchType.equals(ASSET_TYPE)))
 				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
 			else if ((td != null) && (searchType.equals(NOTES_TYPE)))
 				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()), false);
+			else if ((td != null) && (searchType.equals(STRATEGY_TYPE))) {
+				Window.alert("handling a strategy search");
+				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
+			}
 			String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
 			tileHandlers.add(new SearchTileHandler(this, idPrefix, searchType, searchTermPacket.getShareSearchRecords().get(index)));
 		}
@@ -114,8 +121,8 @@ public class AlfrescoSearchHandler {
 				rp.getElement().setAttribute("style", "");
 			
 			for (int x=0;x<searchTermPacket.getShareSearchRecords().length();x+=2) {
-				if (!searchType.equals(SEARCH_TYPE)) {
-					// SEARCH_TYPE uses the vertStack style, and it will not use the table-based layout that requires insertion of cell demarcations.
+				if (!searchType.equals(SEARCH_TYPE)&&!searchType.equals(COLLECTION_TYPE)) {
+					// SEARCH_TYPE and COLLECTION_TYPE use the vertStack style, and will not use the table-based layout that requires insertion of cell separators.
 					td = DOM.createTD();
 					td.setId(x +"-" + rp.getElement().getId());
 					rp.getElement().appendChild(td);					
@@ -124,7 +131,7 @@ public class AlfrescoSearchHandler {
 				buildTile(searchTermPacket, x+1, objPanel, td);
 			}
 			
-			processCallbacks();  // Number of tiles on the search results screen
+			processCallbacks();
 		}
 	}
 
@@ -186,12 +193,7 @@ public class AlfrescoSearchHandler {
 					AlfrescoPacket ap = AlfrescoPacket.makePacket();
 					if (customQuery!=null)
 						ap.addKeyValue("terms", customQuery + " AND ASPECT:\"russel:metaTest\"");
-					else if (searchType.equals(PROJECT_TYPE)) {
-						if (initialHook)
-							ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"");
-						else
-							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND ASPECT:\"russel:metaTest\"");
-					} else if (searchText=="")
+					else if (searchText=="")
 						ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"");
 					else
 						ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND ASPECT:\"russel:metaTest\"");
@@ -199,17 +201,39 @@ public class AlfrescoSearchHandler {
 					ap.addKeyValue("maxResults", 100);
 					ap.addKeyValue("sort", "");
 					ap.addKeyValue("site", "");
-					if (searchType.equals(PROJECT_TYPE)) 
+					
+					if (searchType.equals(PROJECT_TYPE)) {
 						ap.addKeyValue("query", "{\"datatype\":\"cm:content\",\"prop_mimetype\":\"russel/project\"}");
-					else
+						if (initialHook)
+							ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"");
+						else
+							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND ASPECT:\"russel:metaTest\"");						
+					} else
 						ap.addKeyValue("query", "{\"datatype\":\"cm:content\"}");
 					
 					if (searchType.equals(SEARCH_TYPE)) {
 						if (searchText=="")
-							ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"" + SearchScreen.buildSearchQueryString());
+							ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"" + ResultsScreen.buildSearchQueryString());
 						else
-							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND ASPECT:\"russel:metaTest\"" + SearchScreen.buildSearchQueryString());
-						ap.addKeyValue("sort", SearchScreen.buildSearchSortString());
+							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND ASPECT:\"russel:metaTest\"" + ResultsScreen.buildSearchQueryString());
+						ap.addKeyValue("sort", ResultsScreen.buildSearchSortString());
+					}
+					
+					if (searchType.equals(COLLECTION_TYPE)) {
+						if (searchText=="")
+							ap.addKeyValue("terms", "creator:" + AlfrescoApi.username + " AND ASPECT:\"russel:metaTest\"" + ResultsScreen.buildSearchQueryString());
+						else
+							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND creator:" + AlfrescoApi.username + " AND ASPECT:\"russel:metaTest\"" + ResultsScreen.buildSearchQueryString());
+						ap.addKeyValue("sort", ResultsScreen.buildSearchSortString());
+					}
+					
+					if (searchType.equals(STRATEGY_TYPE)) {
+						ap.addKeyValue("query", "{\"russel:objective\":\"cm:content\"}");
+						if (searchText=="")
+							ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"" + ResultsScreen.buildSearchQueryString());
+						else
+							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND ASPECT:\"russel:metaTest\"" + ResultsScreen.buildSearchQueryString());
+						ap.addKeyValue("sort", ResultsScreen.buildSearchSortString());
 					}
 					
 					if (searchText==""&&searchType.equals(RECENT_TYPE)) {
@@ -267,14 +291,17 @@ public class AlfrescoSearchHandler {
 				}
 			};
 	
-			
 					
 		PageAssembler.attachHandler(seachbarID, Event.ONKEYUP, new AlfrescoNullCallback<AlfrescoPacket>() {
 																	@Override
 																	public void onEvent(Event event) {
-																		if (event.getKeyCode() == KeyCodes.KEY_ENTER&&type!=SEARCH_TYPE&&type!=ASSET_TYPE&&type!=PROJECT_TYPE) {
-																			Russel.view.loadScreen(new SearchScreen(), true);
-																		} else {
+																		if (event.getKeyCode() == KeyCodes.KEY_ENTER&&type!=ASSET_TYPE&&type!=PROJECT_TYPE&&type!=STRATEGY_TYPE) {
+																			if (searchType == RECENT_TYPE)  searchType = SEARCH_TYPE;
+																			ResultsScreen rs = new ResultsScreen();
+																	   		rs.searchType = searchType;
+																			Russel.view.loadScreen(rs, true);
+																		} 
+																		else if (type!=EDIT_TYPE) {
 																			if (!pendingSearch) {
 																				pendingSearch = true;
 																				t.schedule(400);
@@ -293,6 +320,6 @@ public class AlfrescoSearchHandler {
 																		   	}
 																		   });
 		
-		t.schedule(250);
+		if (type != EDIT_TYPE) t.schedule(250);
 	}
 }

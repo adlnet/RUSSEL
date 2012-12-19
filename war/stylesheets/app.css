@@ -168,13 +168,20 @@ body#login {background-color: #b3b3b3;}
 /* -----------------------------------------
    Search Results Screen
 ----------------------------------------- */
+#searchOptions label {
+	font-size: 12px;
+	font-weight: bold;
+}
 
 #r-searchResultsActions label, 
 #r-searchResultsActions input, 
 #r-searchResultsActions select,
 #r-searchResultsActions #searchOptions {display:inline-block;}
-
 #r-searchResultsActions label {font-size: 18px;}
+#r-searchResultsActions #searchOptions label {
+	font-size: 12px;
+	font-weight: bold;
+}
 .resort {
 	display: inline-block;
 	vertical-align: middle;
@@ -876,6 +883,7 @@ body#login {background-color: #b3b3b3;}
 	border-bottom: 2px solid #666;}
 
 #r-metadataToolbar p { margin: 0 0 5px;}
+#r-metadataToolbar form { margin-bottom: 0;}
 
 #r-metadataToolbar #toolbar-header{
 	margin-left: -19px;
@@ -1017,13 +1025,13 @@ body#login {background-color: #b3b3b3;}
 	clear:both;
 }
 
-#r-obj-full .r-icon.document{ background-image: url(../images/icon-doc-large.png);}
-#r-obj-full .r-icon.image{ background-image: url(../images/icon-photo-large.png);}
-#r-obj-full .r-icon.course{ background-image: url(../images/icon-course-large.png);}
-#r-obj-full .r-icon.video{ background-image: url(../images/icon-video-large.png);}
-#r-obj-full .r-icon.project{ background-image: url(../images/icon-project-large.png);}
-#r-obj-full .r-icon.link{ background-image: url(../images/icon-link-large.png);}
-#r-obj-full .r-icon.audio{ background-image: url(../images/icon-TBD-large.png);}
+#r-obj-full .r-icon.document{ background-image: url(../images/icon-doc.png);}
+#r-obj-full .r-icon.image{ background-image: url(../images/icon-photo.png);}
+#r-obj-full .r-icon.course{ background-image: url(../images/icon-course.png);}
+#r-obj-full .r-icon.video{ background-image: url(../images/icon-video.png);}
+#r-obj-full .r-icon.project{ background-image: url(../images/icon-project.png);}
+#r-obj-full .r-icon.link{ background-image: url(../images/icon-link.png);}
+#r-obj-full .r-icon.audio{ background-image: url(../images/icon-TBD.png);}
 
 #r-obj-full .r-warning {
 	font-style:italic;
@@ -1140,6 +1148,145 @@ body#login {background-color: #b3b3b3;}
 	text-align: center;
 	padding: 10px
 }
+
+/* -----------------------------------------
+   Learning Objectives Editor
+----------------------------------------- */
+
+/* General Objective Framework */
+/* Objectives: Object Detail dialog Variations */
+
+#detail-objective-list li > input {width: 85%;}
+#detail-objective-list .delete {margin-right: 20px;}
+
+#detail-objective-list .objective,
+#display-objective-list .objective {margin-bottom: 0;}
+#display-objective-list .meta-value {display:block; padding-right: 0px;}
+#display-objective-list .meta-value.editable:hover {
+	cursor: pointer;
+	color: #2A85E8;
+	background: url(../images/icon-edit.png) top right no-repeat;
+}
+#detail-objective-list .objective.editable,
+#detail-objective-list .objective.value,
+#detail-objective-list .objective.meta-value, 
+#display-objective-list .objective.editable,
+#display-objective-list .objective.value,
+#display-objective-list .objective.meta-value {cursor: pointer;}
+
+#detail-objective-list li .delete {
+	display: none;
+	float:right;
+	width: 16px; 
+	height: 16px;
+	text-align: center;
+	cursor: pointer;
+	z-index: 60;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background: url(../images/btn-delete-idle.png) no-repeat;
+}
+#detail-objective-list li:hover .delete {display: block;}
+#detail-objective-list li .delete:hover {background-image: url(../images/btn-delete-over.png); }
+
+#detailCreateObjectiveWrapper {
+	margin-top: 10px;
+	padding: 10px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background-color: #eee;
+}
+#detailCreateObjectiveWrapper input {width: 100%;}
+#detailCreateObjectiveHelp {float: right;}
+#detailCreateObjectiveHelp img { vertical-align: middle; padding-right: 3px;}
+
+/* Objectives: Upload/Edit Screen Variations */
+
+#display-objective-list p {
+	text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+	-webkit-text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+#display-objective-list li {margin-bottom: 0;}
+#display-objective-list li p.full-width,
+#display-objective-list li input{width: 92%;}
+#display-objective-list li .delete {
+	display: none;
+	margin-right: 0px;
+	float:right;
+	width: 16px; 
+	height: 16px;
+	text-align: center;
+	cursor: pointer;
+	z-index: 60;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background: url(../images/btn-delete-idle-light.png) no-repeat; /* lighter color */
+}
+#display-objective-list li:hover .delete {display: block;}
+#display-objective-list li .delete:hover {background-image: url(../images/btn-delete-over.png); }
+
+#createObjectiveWrapper {
+	margin-top: 10px;
+	padding: 10px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background-color: #555;
+}
+#createObjectiveWrapper input {width: 100%; background-color: #eee;}
+#createObjectiveHelp {float: right;}
+#createObjectiveHelp img { vertical-align: middle; padding-right: 3px;}
+
+
+/* Objectives: EPSS Project Properties dialog Variations */
+
+#project-objective-list li > input {width: 85%;}
+#project-objective-list .delete {margin-right: 20px;}
+
+#project-objective-list .objective,
+#project-objective-list .objective {margin-bottom: 0;}
+#project-objective-list .meta-value {display:block; padding-right: 0px;}
+#project-objective-list .meta-value.editable:hover {
+	cursor: pointer;
+	color: #2A85E8;
+	background: url(../images/icon-edit.png) top right no-repeat;
+}
+#project-objective-list .objective.editable,
+#project-objective-list .objective.value,
+#project-objective-list .objective.meta-value {cursor: pointer;}
+
+#project-objective-list li .delete {
+	display: none;
+	float:right;
+	width: 16px; 
+	height: 16px;
+	text-align: center;
+	cursor: pointer;
+	z-index: 60;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background: url(../images/btn-delete-idle.png) no-repeat;
+}
+#project-objective-list li:hover .delete {display: block;}
+#project-objective-list li .delete:hover {background-image: url(../images/btn-delete-over.png); }
+
+#projectCreateObjectiveWrapper {
+	margin-top: 10px;
+	padding: 10px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background-color: #eee;
+}
+#projectCreateObjectiveWrapper input {width: 100%;}
+#projectCreateObjectiveHelp {float: right;}
+#projectCreateObjectiveHelp img { vertical-align: middle; padding-right: 3px;}
+#projectProperties #projectObjectives {margin-bottom: 18px;}
+#projectProperties #projectObjectives li {margin-bottom: 3px;}
+#projectProperties #projectObjectives form {margin-bottom: 0;}
+#projectProperties #projectObjectives li > input {width: 92%;}
+#projectProperties #projectObjectives #projectCreateObjectiveWrapper {background-color: #ddd;}
 
 /* -----------------------------------------
    Star Ratings - based on: http://www.komodomedia.com

@@ -55,9 +55,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Hidden;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class SearchTileHandler {
@@ -95,7 +93,8 @@ public class SearchTileHandler {
 																																		Window.alert("Fooing couldn't load project file " + caught);
 																																	}
 																																});
-																					else if (tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)||tileType.equals(AlfrescoSearchHandler.ASSET_TYPE)||tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE))
+																					else if (tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)||tileType.equals(AlfrescoSearchHandler.ASSET_TYPE)||
+																							 tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE)||tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)) 
 																						Russel.view.loadScreen(new DetailScreen(searchRecord, tile), false);
 																				}
 																			  });
@@ -124,8 +123,9 @@ public class SearchTileHandler {
 																																		Window.alert("Fooing couldn't load project file " + caught);
 																																	}
 																																});
-																					else if (tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)||tileType.equals(AlfrescoSearchHandler.ASSET_TYPE)||tileType.equals(AlfrescoSearchHandler.NOTES_TYPE)||
-																							 tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE))
+																					else if (tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)||tileType.equals(AlfrescoSearchHandler.ASSET_TYPE) ||
+																							 tileType.equals(AlfrescoSearchHandler.NOTES_TYPE) ||tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE)||
+																							 tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE))
 																						Russel.view.loadScreen(new DetailScreen(searchRecord, tile), false);
 																				}
 																			 });
@@ -174,6 +174,9 @@ public class SearchTileHandler {
 																					refreshTile(null);
 																					((Hidden)PageAssembler.elementToWidget("epssActiveRemoveAsset", PageAssembler.HIDDEN)).setValue("");
 																					((Hidden)PageAssembler.elementToWidget("epssActiveAddAsset", PageAssembler.HIDDEN)).setValue(searchRecord.getNodeId() + "," + searchRecord.getFilename());
+																					DOM.getElementById("epssUpdate").removeClassName("white");
+																					DOM.getElementById("epssUpdate").addClassName("blue");
+																					DOM.getElementById("r-save-alert").removeClassName("hide");
 																					PageAssembler.fireOnChange("epssActiveAddAsset");
 																				}
 																			});
@@ -209,11 +212,11 @@ public class SearchTileHandler {
 					}
 
 					@Override
-					public void onSuccess(AlfrescoPacket RatingRecord) {
-						((Label)PageAssembler.elementToWidget(idPrefix + "-objectRating", PageAssembler.LABEL)).setText(RatingRecord.getAverageRating() + " stars");
+					public void onSuccess(AlfrescoPacket ratingRecord) {
+						((Label)PageAssembler.elementToWidget(idPrefix + "-objectRating", PageAssembler.LABEL)).setText(ratingRecord.getAverageRating() + " stars");
 						long percent = 0;
-						if (RatingRecord.getAverageRating()>0)
-							percent = Math.round(RatingRecord.getAverageRating()/5.0 * 100);
+						if (ratingRecord.getAverageRating()>0)
+							percent = Math.round(ratingRecord.getAverageRating()/5.0 * 100);
 						if (Document.get().getElementById(idPrefix + "-objectRating")!=null)
 							Document.get().getElementById(idPrefix + "-objectRating").setAttribute("style", "width:"+percent+"%");
 

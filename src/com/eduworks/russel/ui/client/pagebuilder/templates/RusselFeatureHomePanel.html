@@ -31,7 +31,7 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 -->
     
-        <!-- Modal Dialogs -->
+    <!-- Modal Dialogs -->
     <div id="newProjectModal" class="reveal-modal">
         <h2>New Design Project</h2>
         <p class="lead">Please choose an instructional design strategy for this project</p>
@@ -42,12 +42,27 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
         <a class="white small nice button radius finger" onclick="$('#newProjectModal').trigger('reveal:close');" >Cancel</a> 
         <a class="close-reveal-modal">&#215;</a>
     </div>
+	<div id="newCollectionModal" class="reveal-modal">
+        <h2>Create a Collection</h2>
+        <form class="nice">
+			<input id="collectionTitle" type="text" placeholder="Collection name" class="input-text">
+		</form>
+        <a href="#" class="blue small nice button radius" onclick="$('#newCollectionModal').trigger('reveal:close');" >Save</a> 
+        <a href="#" class="white small nice button radius" onclick="$('#newCollectionModal').trigger('reveal:close');" >Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    <div id="editCollectionModal" class="reveal-modal">
+        <h2>Edit Collection</h2>
+        <p class="lead">Some options below.</p>
+        <a href="#" class="white small nice button radius" onclick="$('#editCollectionModal').trigger('reveal:close');" >Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
     <!-- END dialogs -->   
     
-        <!-- page content -->
+    <!-- page content -->
     
         <div id="content" class="row">
-            <div class="four columns">
+            <div class="four columns" id="r-pageTitle">
             	<h4>Projects</h4>
             </div>
          
@@ -66,35 +81,58 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
             </div>
         </div>
 
-
         <div id="content" class="row">
             <div class="twelve columns">
             
-            <div id="searchObjectPanelScroll" class="horzScrollBar">
-            <table class="">
-              <tr id="epssHomeProjectPanel">
-                <td>
-                
+            <div id="searchObjectPanelScroll" class="vertStack">
+			
                 <div class="tile large" tabindex="0"> 
-                    <div class="cube app new"> 
-                    	<div class="front">
+                    <div id="r-newEntity" class="cube app new"> 
+                    	<div class="front" id="r-newEntityFront">
                         	<p class="title">New Project</p>
                         </div>
-                    	<div class="back">
+                    	<div class="back" id="r-newEntityBack">
                             <p class="status">
-                            <span class="status-label">Latest additions: </span> <!--<br>
+                            <span class="status-label">Click to create a new project...</span> <!--<br>
                             <span class="icon project"></span> Bradleys in Iraq<br>
                             <span class="icon project"></span> Bradley M2, M3 Overview<br>
                             <span class="icon project"></span> SINCGARS Manual<br> -->
                             </p>
                         </div>
-                      </div>
-                      <a title="Start a new project" data-reveal-id="newProjectModal" class="hotspot finger"></a> <!-- primary click action here -->
-                 </div>
-                                  
-				</td> 
-				<!--
-                <td>
+                    </div>
+                    <a id="r-newEntityAction" title="Start a new project" data-reveal-id="newProjectModal" class="hotspot finger"></a> <!-- primary click action here -->
+                </div>
+				
+				<div id="r-MyFilesTile" class="tile hidden" tabindex="0"> 
+					<div class="cube file collection"> 
+						<div class="front"> 
+							<p class="title" ><span class="icon"></span>My Files</p>
+							<p class="description">Collection of files uploaded and created by you.</p>
+							<p class="paradata">
+								<!--  <span class="files">99</span> only show if more than zero -->
+							</p>
+							<p class="counter">14</p>
+						</div>
+						<div class="back"> 
+							<!-- <a href="#" title="Delete" class="delete"></a> -->
+							<a href="#" title="Select" class="select"></a>
+							<p class="status">
+								<span class="status-title">Click to review your personal collection...</span><br>
+								<!-- <span class="icon file"></span>Some file<br>
+								<span class="icon file"></span>Some file<br>
+								<span class="icon file"></span>Some file<br>
+								and 23 more...  -->
+							</p>
+							<div class="actions">
+								<!-- <a href="#" title="Open collection" class="">Open</a> -->
+								<!-- <a href="#" title="Find similar" class="">Related</a> -->
+							</div>
+						</div>
+				  	</div>
+					<a id="myFiles" title="Open collection" class="hotspot finger"></a> <!-- primary click action here -->
+			 	</div>
+
+<!--
                 <div class="tile large" tabindex="0"> 
                     <div class="cube file project"> 
                     	<div class="front" > 
@@ -120,10 +158,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                       </div>
 					<a href="EPSS Edit Project.html" title="Open project" class="hotspot"></a> <!-- primary click action here --
                  </div>
-                 
-                </td>
-                <td>
-                
+
                 <div class="tile" tabindex="0"> 
                     <div class="cube file project"> 
                     	<div class="front" > 
@@ -172,14 +207,10 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                         </div>
                       </div>
 					<a href="EPSS Edit Project.html" title="Open project" class="hotspot"></a> <!-- primary click action here --
-                 </div>
-                   
-                 </td>
-                  -->
-               </tr>
-            </table>
+                 </div>                
+-->
             </div>
-        	</div>
+          </div>
         </div> 
           
     <!-- END page content -->

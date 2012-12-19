@@ -1,3 +1,4 @@
+
 <!--
 Copyright (c) 2012 Eduworks Corporation
 All rights reserved.
@@ -30,16 +31,37 @@ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 -->
+    <!-- Modal Dialogs -->
+    <div id="newCollectionModal" class="reveal-modal">
+        <h2>Create a Collection</h2>
+        <form class="nice">
+			<input id="collectionTitle" type="text" placeholder="Collection name" class="input-text">
+		</form>
+        <a href="#" class="blue small nice button radius" onclick="$('#newCollectionModal').trigger('reveal:close');" >Save</a> 
+        <a href="#" class="white small nice button radius" onclick="$('#newCollectionModal').trigger('reveal:close');" >Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+
+    <div id="editCollectionModal" class="reveal-modal">
+        <h2>Edit Collection</h2>
+        <p class="lead">Some options below.</p>
+        
+        <a href="#" class="white small nice button radius" onclick="$('#editCollectionModal').trigger('reveal:close');" >Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    <!-- END dialogs -->
+
 
 <!-- page content -->
     
         <div class="row">
             <div class="twelve columns">
             	<form id="r-searchResultsActions" class="nice">
-            	<!-- <label>Search Results:  </label> -->
-            		<!-- <a id="showSearchOptions" href="#">More options</a> -->
-                    <div id="searchOptions"> <!-- style="display:none;" -->
-                    <label>Show:</label>
+            		<div id="r-pageTitle">
+            			<h4>My Files:  </h4>
+            		</div>
+            		<div id="searchOptions"> 
+                    <label>Show</label>
                     <select id="resultsSearchSelectShow">
                       <option>Everything</option>
                       <option>Packages</option>
@@ -49,7 +71,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                       <option>Audio</option>
                       <option>Links</option>
                     </select>
-                    <label>Distribution:</label>
+                    <label>Distribution</label>
                     <select id="resultsSearchSelectDistribution">
                       <option>Everything</option>
                       <option disabled="">Government Content:</option>
@@ -70,16 +92,16 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                       <option>NF - NOFORN</option>
                       <option>OT - Other</option> 
                     </select>
-                    <label>Sort by:</label>
-                    <select id="resultsSearchSelectSort">
+                    <label>Sort by</label>
+                    <select id="resultsSearchSelectSort" disabled="disabled">
                       <option>Default</option>
                       <option>Ratings</option>
                       <option>Usage</option>
                       <option>Comments</option>
                       <option>Modified Date</option>
                     </select>
-                    <span id="resultsSearchSelectReverse" title="Reverse sort order" class="resort"></span>
-                    </div>
+                    <!-- <span id="resultsSearchSelectReverse" title="Reverse sort order" class="resort"></span> -->
+					</div>
                 </form>
             </div>
          </div>
@@ -94,7 +116,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 			<div class="twelve columns">
 		
 			<div id="searchPanelWidgetScroll" class="vertStack">
-			               
+              
  <!--           <div class="tile large" tabindex="0"> 
                     <div class="cube file course"> 
                     	<div class="front" > 
@@ -129,7 +151,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                       <a href="#" title="Click to open" class="hotspot"></a> 
                  </div>
 -->
-                
+                 
             </div>
         	</div>
         </div> 

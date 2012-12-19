@@ -33,45 +33,86 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.russel.ui.client.Russel;
-import com.eduworks.russel.ui.client.epss.ProjectFileModel;
-import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
+import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RootPanel;
 
-public class EPSSHomeScreen extends ScreenTemplate {
+public class UtilityScreen extends ScreenTemplate {
+	
+	public static final String ACCOUNT_TYPE = "account";
+	public static final String USERS_TYPE = "users";
+	public static final String GROUPS_TYPE = "groups";
+	
+	public String utilType;
+	private String pageTitle;
+	private String alfURL;
+	
 	public void display() {
-		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getEPSSHome().getText()));
+		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getUtilityPanel().getText()));
+		
 		PageAssembler.getInstance().buildContents();
 		
-		DOM.getElementById("r-menuProjects").addClassName("active");
 		DOM.getElementById("r-menuCollections").removeClassName("active");
+		DOM.getElementById("r-menuProjects").removeClassName("active");
 		DOM.getElementById("r-menuWorkspace").removeClassName("active");
 		
-		PageAssembler.attachHandler("epss-gagne", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
-																   	   @Override
-																   	   public void onEvent(Event event) {
-																   		   Russel.view.loadScreen(new EPSSEditScreen(new ProjectFileModel(ProjectFileModel.GAGNE_TEMPLATE)), true);
-																	   }
-																   });
-
-		PageAssembler.attachHandler("epss-sim", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
-																		@Override
-																		public void onEvent(Event event) {
-																			Russel.view.loadScreen(new EPSSEditScreen(new ProjectFileModel(ProjectFileModel.SIMULATION_TEMPLATE)), true);
-																		}
-		   															});
-
-//		PageAssembler.attachHandler("epss-aim", Event.ONCLICK, Russel.nonFunctional);
+		if (utilType.equals(ACCOUNT_TYPE)) {
+			pageTitle = "Account Settings";
+			alfURL = "share/page/user/admin/profile";
+		} 
+		else if (utilType.equals(USERS_TYPE)) {
+			pageTitle = "Manage Users";
+			alfURL = "share/page/console/admin-console/users";
+		} 
+		else if (utilType.equals(GROUPS_TYPE)) {
+			pageTitle = "Manage Groups";
+			alfURL = "share/page/console/admin-console/groups";			
+		}
+		else {
+			pageTitle = "Unknown Alfresco Utility";
+			alfURL = null;			
+		}
 		
-		AlfrescoSearchHandler ash = new AlfrescoSearchHandler();
-		AlfrescoPacket ap = AlfrescoPacket.makePacket();
-		ash.hook("r-menuSearchBar", "epssHomeProjectPanel", AlfrescoSearchHandler.PROJECT_TYPE);
+		DOM.getElementById("r-pageTitle").setInnerHTML("<h4>"+pageTitle+"</h4>");
+		
+		if (!alfURL.equals(null)) {
+			String frameSrc = CommunicationHub.ROOT_URL + alfURL + "?" + CommunicationHub.randomString(); 
+	 		final Frame f = new Frame();
+	 		f.getElement().setAttribute("seamless", "seamless");
+	 		f.getElement().setAttribute("style", "border:0px; width:100%; display:none;");
+	 		f.addLoadHandler(new LoadHandler() {
+								@Override
+								public void onLoad(LoadEvent event) {
+									new Timer() {
+										public void run() {
+											Element e = ((Element)PageAssembler.getIFrameElement(f.getElement(), "alf-hd"));
+											if (e!=null)
+												e.removeFromParent();
+											e = ((Element)PageAssembler.getIFrameElement(f.getElement(), "alf-filters"));
+											if (e!=null)
+												e.removeFromParent();
+											e = ((Element)PageAssembler.getIFrameElement(f.getElement(), "alf-ft"));
+											if (e!=null)
+												e.removeFromParent();
+											e = ((Element)PageAssembler.getIFrameElement(f.getElement(), "alf-content"));
+											if (e!=null)
+												e.setAttribute("style", "margin-left:0px;");
+											f.getElement().setAttribute("style", "border:0px; width:100%; display:block; height:" + (f.getElement().getScrollHeight()+380) + "px");
+										}
+									}.schedule(400);
+								}
+							});
+	 		f.setUrl(frameSrc);
+	 		RootPanel.get("r-alfrescoUtil").add(f);
+		}
 	}
 }
