@@ -35,7 +35,6 @@ package com.eduworks.russel.ui.client.epss;
 
 import java.util.Vector;
 
-import org.vectomatic.arrays.ArrayBuffer;
 import org.vectomatic.file.Blob;
 
 import com.eduworks.gwt.client.util.Zip;
@@ -47,6 +46,7 @@ import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
@@ -58,12 +58,14 @@ public class EPSSPackBuilder {
 	private static final String DTD_MIME = "application/xml-dtd";
 	private Vector<String> mediaList = new Vector<String>();
 	private ProjectFileModel pfm;
+	private String missingFiles;
 	private Vector<String> filenameAndPath = new Vector<String>();
 	private JavaScriptObject zipWriter;
 	private Blob scormZip;
 	
 	public EPSSPackBuilder (ProjectFileModel pfm) {
 		this.pfm = pfm;
+		missingFiles = "";
 		buildFileList();
 	}
 	
@@ -147,6 +149,9 @@ public class EPSSPackBuilder {
 																							public void onSuccess(AlfrescoPacket alfrescoPacket) {
 																								//Window.alert(alfrescoPacket.getValue("zipURL").toString());
 																								RootPanel.get("epssDownloadArea").clear();
+																								if (missingFiles!="") {
+																									DOM.getElementById("epssDownloadArea").setInnerHTML("<p><strong>Missing assets detected.</strong><br/>The following files will NOT be included in the export:<br/>"+missingFiles+"</p>");
+																								}
 																								Anchor a = new Anchor("Download readied package", alfrescoPacket.getValue("zipURL").toString());
 																								RootPanel.get("epssDownloadArea").add(a);
 																								a.getElement().setId("downloadPackage");
@@ -204,7 +209,7 @@ public class EPSSPackBuilder {
 											public void onSuccess(AlfrescoPacket alfrescoPacket) {
 												Zip.addFileToZipBlob(zipWriter, 
 																	 "/media/" + mediaList.size() + "-" + filename, 
-																	 buildBlob(alfrescoPacket.getMimeType(), alfrescoPacket.getContents()), 
+																	 ProjectFileModel.buildBlob(alfrescoPacket.getMimeType(), alfrescoPacket.getContents()), 
 																	 new AlfrescoCallback<AlfrescoPacket>() {
 																		@Override
 																		public void onFailure(Throwable caught) {
@@ -222,11 +227,16 @@ public class EPSSPackBuilder {
 											
 											@Override
 											public void onFailure(Throwable caught) {
-												Window.alert("Fooing getting media files " + caught);
+												missingFile(filename);
+//												Window.alert("Fooing getting media file "+filename);
 												addMediaFile();
 											}
 										});
 		}
+	}
+	private void missingFile(String filename) {
+		// Not sure what we want to do here...
+		missingFiles = missingFiles + "  - " + filename + "<br/>";     
 	}
 	
 	private void BuildMediaList() {
@@ -247,79 +257,79 @@ public class EPSSPackBuilder {
 			Blob filedata = null;
 			
 			if (filename.equals("adlcp_v1p3.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlcp_v1p3().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlcp_v1p3().getText());
 			else if (filename.equals("adlnav_v1p3.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlnav_v1p3().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlnav_v1p3().getText());
 			else if (filename.equals("adlseq_v1p3.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlseq_v1p3().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlseq_v1p3().getText());
 			else if (filename.equals("/common/anyElement.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonAnyElement().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonAnyElement().getText());
 			else if (filename.equals("/common/datatypes.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonDataTypes().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonDataTypes().getText());
 			else if (filename.equals("/common/elementNames.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonElementNames().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonElementNames().getText());
 			else if (filename.equals("/common/elementTypes.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonElementTypes().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonElementTypes().getText());
 			else if (filename.equals("/common/rootElement.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonRootElement().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonRootElement().getText());
 			else if (filename.equals("/common/vocabTypes.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonVocabTypes().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonVocabTypes().getText());
 			else if (filename.equals("/common/vocabValues.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonVocabValues().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonVocabValues().getText());
 			else if (filename.equals("datatypes.dtd"))
-				filedata = buildBlob(DTD_MIME, SCORMTemplates.INSTANCE.getDatatypes().getText());
+				filedata = ProjectFileModel.buildBlob(DTD_MIME, SCORMTemplates.INSTANCE.getDatatypes().getText());
 			else if (filename.equals("/extend/custom.xml"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getExtendCustom().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getExtendCustom().getText());
 			else if (filename.equals("/extend/strict.xml"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getExtendStrict().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getExtendStrict().getText());
 			else if (filename.equals("imsmanifest.xml"))
-				filedata = buildBlob(HTML_MIME, SCORMTemplates.INSTANCE.getImsmanifest().getText());
+				filedata = ProjectFileModel.buildBlob(HTML_MIME, SCORMTemplates.INSTANCE.getImsmanifest().getText());
 			else if (filename.equals("imsss_v1p0.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0().getText());
 			else if (filename.equals("imsss_v1p0auxresource.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0auxresource().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0auxresource().getText());
 			else if (filename.equals("imsss_v1p0control.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0control().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0control().getText());
 			else if (filename.equals("imsss_v1p0delivery.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0delivery().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0delivery().getText());
 			else if (filename.equals("imsss_v1p0limit.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0limit().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0limit().getText());
 			else if (filename.equals("imsss_v1p0objective.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0objective().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0objective().getText());
 			else if (filename.equals("imsss_v1p0random.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0random().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0random().getText());
 			else if (filename.equals("imsss_v1p0rollup.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0rollup().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0rollup().getText());
 			else if (filename.equals("imsss_v1p0seqrule.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0seqrule().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0seqrule().getText());
 			else if (filename.equals("imsss_v1p0util.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0util().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0util().getText());
 			else if (filename.equals("initPage.html"))
-				filedata = buildBlob(HTML_MIME, SCORMTemplates.INSTANCE.getInitPage().getText());
+				filedata = ProjectFileModel.buildBlob(HTML_MIME, SCORMTemplates.INSTANCE.getInitPage().getText());
 			else if (filename.equals("lom.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLom().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLom().getText());
 			else if (filename.equals("lomCustom.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomCustom().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomCustom().getText());
 			else if (filename.equals("lomLoose.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomLoose().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomLoose().getText());
 			else if (filename.equals("lomStrict.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomStrict().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomStrict().getText());
 			else if (filename.equals("/unique/loose.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getUniqueLoose().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getUniqueLoose().getText());
 			else if (filename.equals("/unique/strict.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getUniqueStrict().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getUniqueStrict().getText());
 			else if (filename.equals("/vocab/adlmd_vocabv1p0.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabAdlmd_Vocabv1p0().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabAdlmd_Vocabv1p0().getText());
 			else if (filename.equals("/vocab/custom.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabCustom().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabCustom().getText());
 			else if (filename.equals("/vocab/loose.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabLoose().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabLoose().getText());
 			else if (filename.equals("/vocab/strict.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabLoose().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabLoose().getText());
 			else if (filename.equals("xml.xsd"))
-				filedata = buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getXml().getText());
+				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getXml().getText());
 			else if (filename.equals("XMLScheme.dtd"))
-				filedata = buildBlob(DTD_MIME, SCORMTemplates.INSTANCE.getXMLSchema().getText());
+				filedata = ProjectFileModel.buildBlob(DTD_MIME, SCORMTemplates.INSTANCE.getXMLSchema().getText());
 			Zip.addFileToZipBlob(zipWriter, 
 								 filename, 
 								 filedata, 
@@ -338,15 +348,22 @@ public class EPSSPackBuilder {
 		}
 	}
 	
-	private native Blob buildBlob(String typ, String contents) /*-{
-		var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
-		bb.append(contents);
-		return bb.getBlob(typ);
-	}-*/;
-	
-	private native Blob buildBlob(String typ, ArrayBuffer contents) /*-{
-		var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
-		bb.append(contents);
-		return bb.getBlob(typ);
-	}-*/;
+//	private native Blob ProjectFileModel.buildBlob(String typ, String contents) /*-{
+//		var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
+//		if (bb!=undefined) {
+//			bb.append(contents);
+//			return bb.getBlob(typ);
+//		} else if (window.blob!=undefined) {
+//			var bb = window.blob([contents], { "type": "\"" + type + "\"" });
+//			return bb;
+//		} else {
+//			Window.alert("Blob building is failing");
+//		}
+//	}-*/;
+//	
+//	private native Blob ProjectFileModel.buildBlob(String typ, ArrayBuffer contents) /*-{
+//		var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
+//		bb.append(contents);
+//		return bb.getBlob(typ);
+//	}-*/;
 }

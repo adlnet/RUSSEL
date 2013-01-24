@@ -203,11 +203,12 @@ public class AlfrescoSearchHandler {
 					ap.addKeyValue("site", "");
 					
 					if (searchType.equals(PROJECT_TYPE)) {
-						ap.addKeyValue("query", "{\"datatype\":\"cm:content\",\"prop_mimetype\":\"russel/project\"}");
+						ap.addKeyValue("query", "{\"datatype\":\"cm:content\"}");
+						ap.addKeyValue("sort", "cm:modified|false");
 						if (initialHook)
-							ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"");
+							ap.addKeyValue("terms", "rpf AND -zip AND ASPECT:\"russel:metaTest\"");
 						else
-							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND ASPECT:\"russel:metaTest\"");						
+							ap.addKeyValue("terms", removeExtraANDS(searchText) + " AND rpf AND -zip AND ASPECT:\"russel:metaTest\"");						
 					} else
 						ap.addKeyValue("query", "{\"datatype\":\"cm:content\"}");
 					

@@ -35,6 +35,7 @@ package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import java.util.Vector;
 
+import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
@@ -91,7 +92,7 @@ public class DetailScreen extends ScreenTemplate {
 		DOM.getElementById("detailLevel1").setAttribute("disabled", "");
 		DOM.getElementById("detailDistribution1").setAttribute("disabled", ""); 
 
-		if (record.getFilename().substring(record.getFilename().lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
+		if ((record.getFilename().substring(record.getFilename().lastIndexOf(".")+1).equalsIgnoreCase("rpf")) && (!Browser.isIE())) {
 			DOM.getElementById("r-editEPSSContainer").removeAttribute("style");
 			PageAssembler.attachHandler("r-editEPSS", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 														   	@Override
@@ -185,7 +186,7 @@ public class DetailScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("r-deleteDoc", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 																		@Override
 																		public void onEvent(Event event) {
-																			if (PageAssembler.showConfirmBox("Are you sure you wish to delete this item?"))
+																			if (Window.confirm("Are you sure you wish to delete this item?"))
 																				AlfrescoApi.deleteDocument(record.getNodeId(), new AlfrescoCallback<AlfrescoPacket>() {
 																							@Override
 																							public void onFailure(Throwable caught) {
@@ -275,6 +276,16 @@ public class DetailScreen extends ScreenTemplate {
 		if (ext.equalsIgnoreCase("png")||ext.equalsIgnoreCase("tiff")||ext.equalsIgnoreCase("tif")||ext.equalsIgnoreCase("bmp")||ext.equalsIgnoreCase("jpg")||ext.equalsIgnoreCase("jpeg")||ext.equalsIgnoreCase("gif")) {
 			DOM.getElementById("r-preview").setInnerHTML("");
 			RootPanel.get("r-preview").add(new Image(AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename())));
+		} else if (ext.equalsIgnoreCase("rlk")) {
+			AlfrescoApi.getObjectString(record.getNodeId(), record.getFilename(), new AlfrescoCallback<AlfrescoPacket>() {
+			 	@Override
+			 	public void onSuccess(AlfrescoPacket alfrescoPacket) {
+			 		DOM.getElementById("r-preview").setInnerHTML("<a href=\"" + alfrescoPacket.getRawString() + "\" target=\"_blank\">" + alfrescoPacket.getRawString() + "</a>");
+			 	}
+			 	
+			 	@Override
+			 	public void onFailure(Throwable caught) {}
+			 });
 		} else if (ext.equalsIgnoreCase("txt")||ext.equalsIgnoreCase("rtf")||ext.equalsIgnoreCase("log")||ext.equalsIgnoreCase("tep")) {
 			AlfrescoApi.getObjectString(record.getNodeId(), record.getFilename(), new AlfrescoCallback<AlfrescoPacket>() {
 													 	@Override
@@ -294,7 +305,7 @@ public class DetailScreen extends ScreenTemplate {
 			String htmlString = "<audio controls=\"controls\"><source src=\"" + AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()) + "\" type=\"" + audioType + "\"></source></audio>";			
 			RootPanel.get("r-preview").getElement().setInnerHTML(htmlString);
 		} else if (ext.equalsIgnoreCase("swf")) {
-			String htmlString = "<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" data=\"" + AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()) + "\" height=\"100%\" width=\"100%\">" +
+			String htmlString = "<object id=\"FlashID\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" data=\"" + AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()) + "\" height=\"100%\" width=\"100%\">" +
 									"<param name=\"movie\" value=\"" + AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()) + "\">" + 
 									"<param name=\"quality\" value=\"high\">" +
 									"<param name=\"wmode\" value=\"transparent\">" +
@@ -303,7 +314,7 @@ public class DetailScreen extends ScreenTemplate {
 									"<param name=\"BGCOLOR\" value=\"#000000\">" +
 									"<param name=\"expressinstall\" value=\"Scripts/expressInstall.swf\">" +
 									"<!--[if !IE]>-->" +
-								    	"<object id=\"FlashID\" type=\"application/x-shockwave-flash\" data=\"" + AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()) + "\" height=\"100%\" width=\"100%\">" +
+								    	"<object id=\"FlashID2\" type=\"application/x-shockwave-flash\" data=\"" + AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()) + "\" height=\"100%\" width=\"100%\">" +
 								    "<!--<![endif]-->" +
 								    "<param name=\"movie\" value=\"" + AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()) + "\">" +
 								    "<param name=\"quality\" value=\"high\">" +
@@ -320,9 +331,16 @@ public class DetailScreen extends ScreenTemplate {
 								    	"</object>" +
 								    "<!--<![endif]-->"+
 							    "</object>" +
-							    "<script type=\"text/javascript\">" +
-									"swfobject.registerObject(\"FlashID\")" +
-								"</script>";
+							    "<!--[if !IE]>-->" +
+			                        "<script type=\"text/javascript\">" +
+			                            "swfobject.registerObject(\"FlashID2\");" +
+			                        "</script>" +
+		                        "<!--<![endif]-->" +
+		                        "<!--[if IE]>" +
+			                        "<script type=\"text/javascript\">" +
+			                            "swfobject.registerObject(\"FlashID\");" +
+			                        "</script>" +
+		                        "<![endif]-->";
 			RootPanel.get("r-preview").getElement().setInnerHTML(htmlString);
 		} else
 			DOM.getElementById("r-preview").setInnerHTML("<p>No Preview Available</p>");

@@ -80,7 +80,7 @@ public class AssetExtractor {
 					 ext.equalsIgnoreCase("rtf")||ext.equalsIgnoreCase("tex")||ext.equalsIgnoreCase("txt")||ext.equalsIgnoreCase("wpd")||ext.equalsIgnoreCase("wps")||ext.equalsIgnoreCase("xlr")||ext.equalsIgnoreCase("xls")||
 					 ext.equalsIgnoreCase("xlsx")||ext.equalsIgnoreCase("indd")||ext.equalsIgnoreCase("pct")||ext.equalsIgnoreCase("pdf")||ext.equalsIgnoreCase("ppt")||ext.equalsIgnoreCase("pptx"))
 				acc = DOCUMENT;
-			else if (ext.equalsIgnoreCase("html")||ext.equalsIgnoreCase("htm"))
+			else if (ext.equalsIgnoreCase("rlk"))
 				acc = LINK;
 			else
 				acc = DOCUMENT;
@@ -110,7 +110,7 @@ public class AssetExtractor {
 			ext.equalsIgnoreCase("rtf")||ext.equalsIgnoreCase("tex")||ext.equalsIgnoreCase("txt")||ext.equalsIgnoreCase("wpd")||ext.equalsIgnoreCase("wps")||
 			ext.equalsIgnoreCase("3g2")||ext.equalsIgnoreCase("3gp")||ext.equalsIgnoreCase("asf")||ext.equalsIgnoreCase("asx")||ext.equalsIgnoreCase("avi")||
 			ext.equalsIgnoreCase("flv")||ext.equalsIgnoreCase("mov")||ext.equalsIgnoreCase("mp4")||ext.equalsIgnoreCase("mpg")||ext.equalsIgnoreCase("rm")||
-			ext.equalsIgnoreCase("srt")||ext.equalsIgnoreCase("swf")||ext.equalsIgnoreCase("vob"))
+			ext.equalsIgnoreCase("srt")||ext.equalsIgnoreCase("swf")||ext.equalsIgnoreCase("vob")||ext.equalsIgnoreCase("rpf")||ext.equalsIgnoreCase("rlk"))
 			acc = true;
 		else if ((fileKSize>10)&&(ext.equalsIgnoreCase("aif")||ext.equalsIgnoreCase("iff")||ext.equalsIgnoreCase("m3u")||ext.equalsIgnoreCase("m4a")||
 				 ext.equalsIgnoreCase("mid")||ext.equalsIgnoreCase("mp3")||ext.equalsIgnoreCase("mpa")||ext.equalsIgnoreCase("ra")||ext.equalsIgnoreCase("swa")||

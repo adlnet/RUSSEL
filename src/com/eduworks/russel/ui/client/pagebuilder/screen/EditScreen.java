@@ -41,6 +41,7 @@ import org.vectomatic.dnd.DropPanel;
 import org.vectomatic.file.Blob;
 import org.vectomatic.file.File;
 
+import com.eduworks.gwt.client.util.Base64;
 import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.gwt.client.util.Zip;
 import com.eduworks.gwt.russel.ui.client.handler.DragDropHandler;
@@ -50,6 +51,7 @@ import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
 import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
 import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
 import com.eduworks.russel.ui.client.Russel;
+import com.eduworks.russel.ui.client.epss.ProjectFileModel;
 import com.eduworks.russel.ui.client.extractor.AssetExtractor;
 import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
@@ -120,16 +122,34 @@ public class EditScreen extends ScreenTemplate {
 	
 		PageAssembler.attachHandler("r-saveAs", Event.ONCLICK, Russel.nonFunctional);
 		
+//		PageAssembler.attachHandler("zipImport", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+//																	@Override
+//																	public void onEvent(Event event) {
+//																		AlfrescoApi.importZipPackage(thumbIDs.get(editIDs.lastElement()),
+//																									 new AlfrescoCallback<AlfrescoPacket>() {
+//																								     	@Override
+//																								     	public void onFailure(Throwable caught) {
+//																								     		Window.alert("foobar'ed");
+//																								     	}
+//																								     	
+//																								     	@Override
+//																								     	public void onSuccess(AlfrescoPacket alfrescoPacket) {
+//																								     		Window.alert(alfrescoPacket.toJSONString());
+//																								     	}
+//																									 });
+//																	}
+//																});
+		
 		PageAssembler.attachHandler("r-editDelete", 
 									Event.ONCLICK, 
 									new AlfrescoNullCallback<AlfrescoPacket>() {
 										@Override
 										public void onEvent(Event event) {
 											if (editIDs.size()==1) {
-												if (PageAssembler.showConfirmBox("Are you sure you wish to delete the selected item?"))
+												if (Window.confirm("Are you sure you wish to delete the selected item?"))
 													deleteObjects();
 											} else if (editIDs.size()>=2) {
-												if (PageAssembler.showConfirmBox("Are you sure you wish to delete " + editIDs.size() + " items?"))
+												if (Window.confirm("Are you sure you wish to delete " + editIDs.size() + " items?"))
 													deleteObjects();
 											}
 										}
@@ -195,20 +215,59 @@ public class EditScreen extends ScreenTemplate {
 			}
 		});
 
-//		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
-//																		@Override
-//																		public void onEvent(Event event) {
-//																			Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
-//																																    "x", 
-//																																    new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
-//																																    true);
-//																			final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
-//																			buildEmptyUploadTile(idPrefix);
-//																			thumbIDs.put(idPrefix + "-object", null);
-//																			doFileCancel();
-//																		}
-//																	});
-		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, Russel.nonFunctional); 
+		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+																		@Override
+																		public void onEvent(Event event) {
+																			if (((TextBox)PageAssembler.elementToWidget("editTitleLinkField", PageAssembler.TEXT)).getText()!="") {
+																				String rawFilename = ((TextBox)PageAssembler.elementToWidget("editTitleLinkField", PageAssembler.TEXT)).getText();
+																				String filename = "";
+																				for (int filenameIndex=0;filenameIndex<rawFilename.length();filenameIndex++)
+																					if ((rawFilename.codePointAt(filenameIndex)>=48&&rawFilename.codePointAt(filenameIndex)<=57)||
+																						(rawFilename.codePointAt(filenameIndex)>=65&&rawFilename.codePointAt(filenameIndex)<=90)||
+																						(rawFilename.codePointAt(filenameIndex)>=97&&rawFilename.codePointAt(filenameIndex)<=122))
+																						filename += rawFilename.charAt(filenameIndex);
+																				String urlBody = ((TextBox)PageAssembler.elementToWidget("editLinkField", PageAssembler.TEXT)).getText();
+																				if (urlBody.indexOf("://")==-1)
+																					urlBody = "http://" + urlBody;
+																				AlfrescoApi.createObjectNode(filename + ".rlk", 
+																											 Base64.encode(urlBody), 
+																											 "russel/link", 
+																											 "User Homes/" + AlfrescoApi.username, 
+																											 AlfrescoApi.DOCUMENT_OBJECT, 
+																											 new AlfrescoCallback<AlfrescoPacket>() {
+																												@Override
+																												public void onSuccess(final AlfrescoPacket alfrescoAtom) {
+																													String nodeRef = alfrescoAtom.getPropertyValue("@propertyDefinitionId", "cmis:objectId");
+																													AlfrescoApi.addAspectToNode(nodeRef.substring(nodeRef.lastIndexOf("/")+1), 
+																																				new String[]{"russel:metaTest"}, 
+																																				new AlfrescoCallback<AlfrescoPacket>() {
+																																					@Override 
+																																					public void onSuccess(AlfrescoPacket alfrescoAspect) {
+																																						Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
+																																																			    "x", 
+																																																			    new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
+																																																			    true);
+																																						final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
+																																						fillTemplateDetails(alfrescoAtom, idPrefix);
+																																						doLinkCancel();
+																																					}
+																																					
+																																					@Override
+																																					public void onFailure(Throwable caught) {
+																																						
+																																					}
+																																				});
+																												}
+																												
+																												@Override
+																												public void onFailure(Throwable caught) {
+																													Window.alert("Can't have a duplicate name please try again");
+																												}
+																											});
+																			} else 
+																				Window.alert("Can't have a blank title");
+																		}
+																	}); 
 		
 		PageAssembler.attachHandler("r-editSave", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 																	@Override
@@ -244,7 +303,7 @@ public class EditScreen extends ScreenTemplate {
 		refreshInformation();
 	}
 	
-	private void buildEmptyLinkTile(final String idPrefix) {
+	private void addLinkHandlers(final String idPrefix) {
 		PageAssembler.attachHandler(idPrefix + "-object", 
 									Event.ONCLICK, 
 									new AlfrescoNullCallback<AlfrescoPacket>() {
@@ -254,6 +313,14 @@ public class EditScreen extends ScreenTemplate {
 										}
 									});
 		
+		PageAssembler.attachHandler(idPrefix + "-objectDescription", 
+									Event.ONCLICK, 
+									new AlfrescoNullCallback<AlfrescoPacket>() {
+										@Override
+										public void onEvent(Event event) {
+											toggleSelection(idPrefix + "-object");
+										}
+									});
 	}  
 	private void uploadLinkTile(TextBox textBox) {
 		Window.alert("Caught upload link submission"+textBox.getValue());
@@ -274,6 +341,11 @@ public class EditScreen extends ScreenTemplate {
 											fillTemplateDetails(AlfrescoPacket.wrap(CommunicationHub.parseJSON(CommunicationHub.unwrapJSONString(event.getResults()))), idPrefix);
 											pendingFileUploads--;
 											DOM.getElementById(idPrefix + "-objectDetailButton").removeAttribute("hidden");
+											String filename = fileUpload.getFilename();
+											if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
+//												Need to add server-side update to the PFM node id
+											}
+
 											refreshInformation();
 										}
 									});
@@ -301,23 +373,10 @@ public class EditScreen extends ScreenTemplate {
 
 										if (justFileName.indexOf(".")!=-1&&justFileName.substring(justFileName.lastIndexOf(".")+1).toLowerCase().equals("zip")) { 
 											if (!Browser.isIE()) {
-												Window.alert("Need to convert "+justFileName+" to a blob so it can be unzipped and disaggregated on the client side");
+												Window.alert("Warning: "+justFileName+" will not be broken up into assets.  To disaggregate a ZIP file, please use the Drag and Drop interface.");
 //												We need to write a blob class for non drag-and-drop operation.  Documented as a feature in RedMine. 
-//												
-//												Zip.checkSCORMandGrabEntries(file, new AlfrescoCallback<AlfrescoPacket>() {
-//													@Override public void onFailure(Throwable caught) {}
-//							
-//													@SuppressWarnings("unchecked")
-//													@Override
-//													public void onSuccess(AlfrescoPacket alfrescoPacket) {
-//														if (alfrescoPacket.hasKey("zipEntries")) {
-//															JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
-//															for (int x=0;x<zipEntries.length();x++)
-//																pendingZipUploads.add(zipEntries.get(x));
-//															doPendingUploads();
-//														}
-//													}
-//												});
+//												OR we can use the new Alfresco beans to support disaggregation on the server side.
+
 											}
 											else Window.alert("Your browser does not support automatic disaggregation for "+fn+" package.");
 										}				
@@ -355,14 +414,14 @@ public class EditScreen extends ScreenTemplate {
 		if (editIDs.size()>0) {
 			DOM.getElementById("r-metadataToolbar").removeClassName("hide");
 			CommunicationHub.sendHTTP(CommunicationHub.GET, 
-									  CommunicationHub.getAlfrescoNodeURL(thumbIDs.get(editIDs.firstElement())), 
+									  CommunicationHub.getAlfrescoNodeURL(thumbIDs.get(editIDs.lastElement())), 
 									  null,
 									  false,
 									  new AlfrescoCallback<AlfrescoPacket>() {
 										@Override
 										public void onSuccess(final AlfrescoPacket nodeAP) {
 											CommunicationHub.sendHTTP(CommunicationHub.GET,
-																	  CommunicationHub.getAlfrescoTagsURL(thumbIDs.get(editIDs.firstElement())),
+																	  CommunicationHub.getAlfrescoTagsURL(thumbIDs.get(editIDs.lastElement())),
 																	  null,
 																	  false, 
 																	  new AlfrescoCallback<AlfrescoPacket>() {
@@ -483,6 +542,22 @@ public class EditScreen extends ScreenTemplate {
 													if (filename.lastIndexOf(".")!=-1) {
 														if (filename.lastIndexOf("/")!=-1) filename = filename.substring(filename.lastIndexOf("/")+1);
 														if (AssetExtractor.checkAsset(filename, ((Blob)alfrescoPacket.getValue("zipEntryData").cast()))) {
+															if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("zip")&&Window.confirm("Do you wish to disaggregate the zip " + alfrescoPacket.getValue("zipEntryFilename") + " package?")) {
+																Zip.grabEntries(((Blob)alfrescoPacket.getValue("zipEntryData").cast()), new AlfrescoCallback<AlfrescoPacket>() {
+																	@Override public void onFailure(Throwable caught) {}
+											
+																	@SuppressWarnings("unchecked")
+																	@Override
+																	public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																		if (alfrescoPacket.hasKey("zipEntries")) {
+																			JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
+																			for (int x=0;x<zipEntries.length();x++)
+																				pendingZipUploads.add(zipEntries.get(x));
+																			doPendingUploads();
+																		}
+																	}
+																});
+															}
 															final Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
 			    																									"x", 
 			    																									new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
@@ -509,6 +584,10 @@ public class EditScreen extends ScreenTemplate {
 																								DOM.getElementById(idNumPrefix + "-objectDetailButton").removeAttribute("hidden");
 																								DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
 																								fillTemplateDetails(alfrescoPacket, idNumPrefix);
+																								String filename = alfrescoPacket.getFilename();
+																								if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
+																									ProjectFileModel.updatePfmNodeId(alfrescoPacket);
+																								}
 																								doPendingUploads();
 																							}
 																						});
@@ -528,23 +607,26 @@ public class EditScreen extends ScreenTemplate {
 					@Override
 					public void run(final File file)
 					{
-						if (file.getName().indexOf(".")!=-1&&file.getName().substring(file.getName().indexOf(".")+1).toLowerCase().equals("zip")) { 
-							Zip.checkSCORMandGrabEntries(file, new AlfrescoCallback<AlfrescoPacket>() {
-								@Override public void onFailure(Throwable caught) {}
-		
-								@SuppressWarnings("unchecked")
-								@Override
-								public void onSuccess(AlfrescoPacket alfrescoPacket) {
-									if (alfrescoPacket.hasKey("zipEntries")) {
-										JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
-										for (int x=0;x<zipEntries.length();x++)
-											pendingZipUploads.add(zipEntries.get(x));
-										doPendingUploads();
+						String filename = file.getName();
+						if (filename.lastIndexOf(".")!=-1&&filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("zip")) { 
+							if (Window.confirm("Do you wish to disaggregate the zip " + filename + " package?")) {
+								Zip.grabEntries(file, new AlfrescoCallback<AlfrescoPacket>() {
+									@Override public void onFailure(Throwable caught) {}
+			
+									@SuppressWarnings("unchecked")
+									@Override
+									public void onSuccess(AlfrescoPacket alfrescoPacket) {
+										if (alfrescoPacket.hasKey("zipEntries")) {
+											JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
+											for (int x=0;x<zipEntries.length();x++)
+												pendingZipUploads.add(zipEntries.get(x));
+											doPendingUploads();
+										}
 									}
-								}
-							});
+								});
+							}
 						}
-						
+
 						final Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
 																			    	  "x", 
 																			    	  new HTML(HtmlTemplates.INSTANCE.getEditPanelWidget().getText()),
@@ -571,6 +653,10 @@ public class EditScreen extends ScreenTemplate {
 														DOM.getElementById(idNumPrefix + "-objectDetailButton").removeAttribute("hidden");
 														DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
 														fillTemplateDetails(result, idNumPrefix);
+														String filename = result.getFilename();
+														if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
+															ProjectFileModel.updatePfmNodeId(result);
+														}
 														readNext();
 													}
 												});

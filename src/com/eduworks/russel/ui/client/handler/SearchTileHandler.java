@@ -133,7 +133,7 @@ public class SearchTileHandler {
 		PageAssembler.attachHandler(idPrefix + "-objectDelete", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 																					@Override
 																					public void onEvent(Event event) {
-																						if (PageAssembler.showConfirmBox("Are you sure you wish to delete this item?"))
+																						if (Window.confirm("Are you sure you wish to delete this item?"))
 																							AlfrescoApi.deleteDocument(searchRecord.getNodeId(), new AlfrescoCallback<AlfrescoPacket>() {
 																																					@Override
 																																					public void onFailure(Throwable caught) {
@@ -151,8 +151,7 @@ public class SearchTileHandler {
 		PageAssembler.attachHandler(idPrefix + "-objectRemove", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 																					@Override
 																					public void onEvent(Event event) {
-																						Element e = DOM.getElementById(idPrefix + "-assetNote");
-																						e.removeFromParent();
+																						removeTile();
 																						((Hidden)PageAssembler.elementToWidget("epssActiveRemoveAsset", PageAssembler.HIDDEN)).setValue(searchRecord.getNodeId());
 																						((Hidden)PageAssembler.elementToWidget("epssActiveAddAsset", PageAssembler.HIDDEN)).setValue("");
 																						PageAssembler.fireOnChange("epssActiveRemoveAsset");
@@ -196,6 +195,20 @@ public class SearchTileHandler {
 		PageAssembler.attachHandler(idPrefix + "-objectDuplicate", Event.ONCLICK, Russel.nonFunctional);
 	}
 	
+	public void missingFileTile() {
+   		DOM.getElementById(idPrefix + "-objectState").addClassName("missing");
+   		DOM.getElementById(idPrefix + "-objectAlerts").removeClassName("hide");
+   		DOM.getElementById(idPrefix + "-objectOpen").addClassName("hide");
+   		((Label)PageAssembler.elementToWidget(idPrefix + "-objectTitle", PageAssembler.LABEL)).setText("MISSING FILE");
+   		((Label)PageAssembler.elementToWidget(idPrefix + "-objectDescription", PageAssembler.LABEL)).setText(searchRecord.getFilename());
+   		((Label)PageAssembler.elementToWidget(idPrefix + "-objectTitleBack", PageAssembler.LABEL)).setText("'"+ searchRecord.getFilename()+"' has been deleted.");
+	}
+
+	public void removeTile() {
+		if (DOM.getElementById(idPrefix + "-assetNote")!=null)
+			DOM.getElementById(idPrefix + "-assetNote").removeFromParent();
+	}
+	
 	public void refreshTile(final AlfrescoNullCallback<AlfrescoPacket> callback) {
 		((Label)PageAssembler.elementToWidget(idPrefix + "-objectState", PageAssembler.LABEL)).setStyleName("cube file");
 		((Label)PageAssembler.elementToWidget(idPrefix + "-objectState", PageAssembler.LABEL)).addStyleName(AssetExtractor.getFileType(searchRecord.getFilename()));
@@ -206,8 +219,11 @@ public class SearchTileHandler {
 				  new AlfrescoCallback<AlfrescoPacket>() {
 					@Override
 					public void onFailure(Throwable caught) {
-						Window.alert(caught.getMessage());
-				    	if (callback!=null)
+						AlfrescoPacket errorPacket = AlfrescoPacket.wrap(CommunicationHub.parseJSON(caught.getMessage()));
+						if (errorPacket.getHttpStatus()=="404")
+							missingFileTile();
+						else Window.alert(caught.getMessage());
+						if (callback!=null)
 				    		callback.onEvent(null);
 					}
 

@@ -45,8 +45,10 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 :: 3D Tiles for Apps, Objects, and Collections
 :: Edit Details Screen
 :: Object Details Screen
+:: Learning Objectives Editor
 :: Star Ratings
 :: EPSS Screens
+:: Collection Screen
 */
 
 
@@ -107,7 +109,8 @@ body {background-color: #f2f2f2;}
 
 #r-searchBox,
 #r-menuSearchBar,
-#r-projectAssetSearch { 
+#r-projectAssetSearch, 
+#r-collectionAssetSearch { 
 	padding-left: 8px;
 	border-radius:12px;
 	-moz-border-radius:12px;
@@ -536,6 +539,12 @@ body#login {background-color: #b3b3b3;}
 	background: url(../images/star_small.gif) left -10px repeat-x;
 }
 
+.tile .file.missing .front,
+.tile .file.missing .front .title,
+.tile .file.missing .front .paradata {
+	background-color: #bfbfbf !important;
+}
+
 .tile .file .back .status {
 	top: 16px;
 	margin: 0;
@@ -581,6 +590,9 @@ body#login {background-color: #b3b3b3;}
 
 .tile .file.video .front .title .icon {background-image: url(../images/icon-video.png);}
 .tile .file.video .back {background-image: url(../images/file-video-back.png);}
+
+.tile .file.audio .front .title .icon {background-image: url(../images/icon-audio.png);}
+.tile .file.audio .back {background-image: url(../images/file-audio-back.png);}
 
 .tile .file.link .front .title .icon {background-image: url(../images/icon-link.png);}
 .tile .file.link .back {background-image: url(../images/file-link-back.png);}
@@ -1002,7 +1014,7 @@ body#login {background-color: #b3b3b3;}
 #r-obj-full #r-objectives,
 #r-obj-full #r-paradata,
 #r-obj-full #r-metadata-show,
-#r-obj-full #-metadata-hide{padding:8px}
+#r-obj-full #-metadata-hide{padding:8px;}
 
 #r-obj-full .r-goldStandard {
 	float: left;
@@ -1025,12 +1037,12 @@ body#login {background-color: #b3b3b3;}
 	clear:both;
 }
 
-#r-obj-full .r-icon.document{ background-image: url(../images/icon-doc.png);}
-#r-obj-full .r-icon.image{ background-image: url(../images/icon-photo.png);}
-#r-obj-full .r-icon.course{ background-image: url(../images/icon-course.png);}
-#r-obj-full .r-icon.video{ background-image: url(../images/icon-video.png);}
-#r-obj-full .r-icon.project{ background-image: url(../images/icon-project.png);}
-#r-obj-full .r-icon.link{ background-image: url(../images/icon-link.png);}
+#r-obj-full .r-icon.document{ background-image: url(../images/icon-doc-large.png);}
+#r-obj-full .r-icon.image{ background-image: url(../images/icon-photo-large.png);}
+#r-obj-full .r-icon.course{ background-image: url(../images/icon-course-large.png);}
+#r-obj-full .r-icon.video{ background-image: url(../images/icon-video-large.png);}
+#r-obj-full .r-icon.project{ background-image: url(../images/icon-project-large.png);}
+#r-obj-full .r-icon.link{ background-image: url(../images/icon-link-large.png);}
 #r-obj-full .r-icon.audio{ background-image: url(../images/icon-TBD.png);}
 
 #r-obj-full .r-warning {
@@ -1146,7 +1158,7 @@ body#login {background-color: #b3b3b3;}
 
 #r-comments .more-comments {
 	text-align: center;
-	padding: 10px
+	padding: 10px;
 }
 
 /* -----------------------------------------
@@ -1434,6 +1446,29 @@ body#login {background-color: #b3b3b3;}
 }
 
 
+#findAssets {margin-bottom: 10px;}
+
+/* -----------------------------------------
+   Collection Screen
+----------------------------------------- */
+
+
+/* ---- New Collection dialog ---- */
+
+/* Dynamic smart collection inputs */
+#newCollectionModal input,
+#newCollectionModal select  {display: inline; margin: 3px;}
+
+.smartRule {
+	padding-left: 1.5em; 
+	margin: 2px 0;
+	border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	}
+.smartRule.select {background: #FFC url(../images/section-minimized.png) 5px 50% no-repeat;}
+
+#collectionAddFiles {float:right;}
 
 
 

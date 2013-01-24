@@ -95,10 +95,6 @@ public class PageAssembler
 		$wnd.$('#' + elementId).change();
 	}-*/;
 	
-	public static final native boolean showConfirmBox(String msg) /*-{
-		return confirm(msg);
-	}-*/;
-	
 	private static final void fillBuildNumber() {
 		((Label)elementToWidget("buildNumber", LABEL)).setText(Russel.buildNumber);										
 	}

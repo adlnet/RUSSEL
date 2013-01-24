@@ -32,7 +32,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 -->
 
 	<!-- Modal Dialogs -->
-    <div id="addFileModal" class="reveal-modal">
+    <div id="addFileModal" style="z-index:302" class="reveal-modal">
         <h2>Add File</h2>
         <p class="lead">Browse for the file you wish to upload.</p>
         <iframe name="hiddenPostFrame" style="display:none;"></iframe>
@@ -50,13 +50,14 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
         <a class="close-reveal-modal" onclick="$(resetAddFileModal());">&#215;</a>
     </div>
     
-    <div id="addLinkModal" class="reveal-modal">
+    <div id="addLinkModal" style="z-index:303" class="reveal-modal">
         <h2>Add Link</h2>
         <p class="lead">Enter the URL you would like to add to the repository.</p>
         
 		<form id="x-addLinkForm" class="linksToUpload nice" method="POST" encoding="multipart/form-data">
 			<div class="classicURLField" style="display:block">
-				<input type="text" class="input-text nice" placeholder="http://" />
+				<span style="color:red;float:left">* </span><input id="editTitleLinkField" type="text" class="input-text nice" placeholder="Title" />
+				<input id="editLinkField" type="text" class="input-text nice" placeholder="Web Address" />
 			</div>
 		</form>
 		<hr>
@@ -78,6 +79,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
                   <dd class=""><a href="#" data-reveal-id="addLinkModal" onclick="$(resetAddLinkModal());">Add Link</a></dd>
                   <dd class=""><a id="r-editDelete" class="finger">Delete</a></dd>
                   <dd class="">Select <a id="r-editSelectAll" class="finger">All</a> | <a id="r-editSelectNone" class="finger">None</a></dd>
+                  <!-- <dd class="" id="zipImport"><a class="finger">Run import</a></dd> -->
                </dl>
             </div>
 			

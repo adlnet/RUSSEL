@@ -141,7 +141,7 @@ function listObjectives(nodeObjectives, targetDiv) {
 	else if (targetDiv == "project-objective-list") {
 		var screen = PROJECT_SCREEN;
 	}
-	else alert("Unknown objective list target.")
+	else alert("Unknown objective list target.");
 	
 	editingObjectiveIndex = "-1";
 	document.getElementById(targetDiv).innerHTML="";
@@ -833,6 +833,176 @@ $('#r-editSave').unbind('click').live('click', function() {
                         $('#r-save-alert').addClass('hide');
                        });
 
+
+
+
+/* MOVED THIS PART */
+/* -------------------------------------------------------- */
+/* ----- ANDY's PLACEHOLDER SCRIPTS for reference only ---- */
+/* -------------------------------------------------------- */
+
+/* Delete 3D Tile */
+//$('.tile .delete').unbind('click').live('click', function() {
+//	var tileObj = $(this).closest('.tile');
+//	var $tileCel = $(this).closest('td');
+//    tileObj.fadeOut(250, function() {
+//		tileObj.remove();
+//		if($tileCel.text().trim()=="") {
+//			$tileCel.remove(); /* Delete empty cell */
+//			/* TO DO: shuffle down tiles in columns after this one to fill in any empty cell. */
+//		}
+//	});
+//	return false;
+//});
+
+/* ---- RUSSELS screens ---- */
+
+/* Search results: Show more options */
+$('#showSearchOptions').unbind('click').live('click', function() {
+	$(this).remove();
+	$('#searchOptions').fadeIn('fast');
+	return false;
+});
+
+
+
+/* Object Details Screen: Show more details */
+$("#r-metadata-hide").unbind('click').live('click', function() {
+	$(this).slideUp('fast');
+	$('#r-metadata-show').slideDown('fast');
+	return false;
+});
+
+/* Object Details Screen: Show more details */
+$("#r-metadata .section a.header").unbind('click').live('click', function() {
+	var $section = $(this).parent();
+	var $content = $(this).next();
+	
+	if ($section.hasClass('collapsed')) {
+		$section.removeClass('collapsed');
+		$content.slideDown('fast');
+	} else {
+		$section.addClass('collapsed');
+		$content.slideUp('fast');
+	}
+	return false;
+});
+
+
+
+
+
+/* $("#r-metadataToolbar .section .value, #r-metadata .meta-value.editable, #r-objectives .meta-value.editable").unbind();  */
+/* Object Details and upload screens - Edit metadata: Switch text to editable input form */
+$("#r-metadataToolbar .section .value, #r-metadata .meta-value.editable, #r-metaDescription .meta-value.editable").unbind('click').live('click', function() {
+	var $textObj = $(this);
+	var $inputObj = $(this).next();
+	var $objValue = $(this).text();
+	if ($.trim($objValue)=="Click to edit") {
+		$objValue=null;
+	}
+	$inputObj.val($objValue);
+	$textObj.fadeOut(50, function() {
+	$inputObj.fadeIn(50);
+		$inputObj.focus();
+		$inputObj.select();
+	});
+	return false;
+});
+
+/* Object Details: delete comment */
+$('#r-comments .delete').unbind('click').live('click', function() {
+    $(this).closest('.user-comment').fadeOut(250, function() {
+		$(this).closest('td').remove();
+	});
+	return false;
+});
+
+
+/* Deselect drop-down menu when value changes */
+$('select').unbind('change').live('change', function() {
+  $(this).blur();
+});
+
+/*  $("#r-metadataToolbar .section .value-input, #r-metadata .section .value-input, #r-objectives .value-input").unbind(); */
+/* Edit Metadata Screen: Switch input form back to text */
+$("#r-metadataToolbar .section .value-input, #r-metadata .section .value-input, #r-metaDescription .value-input").unbind('blur').live('blur', function() {
+	var $textObj = $(this).prev();
+	var $inputObj = $(this);
+	var $objValue = $(this).val();
+	if ($.trim($objValue)=="") {
+		$objValue = "Click to edit";
+	}
+	
+	checkFouo($objValue);
+	
+	$objValue = getSecurityColor($objValue);
+	
+	if ($objValue!="Click to edit") {
+		if ($('#r-detailEditUpdate').size()!=0) {
+			$('#r-detailEditUpdate').removeClass('white');
+			$('#r-detailEditUpdate').addClass('blue');
+			$('#r-detailSaveAlert').removeClass('hide');
+		}
+		
+		if ($('#r-editSave').size()!=0) {
+			$('#r-editSave').removeClass('white');
+			$('#r-editSave').addClass('blue');
+			$('#r-save-alert').removeClass('hide');
+		}
+	}
+	
+	$textObj.html($objValue);
+	$inputObj.fadeOut(50, function() {
+		$textObj.fadeIn(50);
+	});
+});
+
+
+
+/* Expand or collapse sections */
+$("#more-section a.header").unbind('click').live('click', function() {
+	$(this).parent().toggleClass("collapsed");
+	return false;
+});
+
+/* ALERT BOXES ------------ */
+$(".alert-box").delegate("a.close", "click", function(event) {
+event.preventDefault();
+  $(this).closest(".alert-box").fadeOut(function(event){
+    $(this).remove();
+  });
+});
+
+
+/* DROPDOWN NAV ------------- */
+var lockNavBar = false;
+$('.nav-bar a.flyout-toggle').unbind('click').click( function(e) {
+	e.preventDefault();
+	var flyout = $(this).siblings('.flyout');
+	if (lockNavBar === false) {
+		$('.nav-bar .flyout').not(flyout).slideUp(500);
+		flyout.slideToggle(500, function(){
+			lockNavBar = false;
+		});
+	}
+	lockNavBar = true;
+});
+if (Modernizr.touch) {
+	$('.nav-bar>li.has-flyout>a.main').css({
+	  'padding-right' : '75px'
+	});
+	$('.nav-bar>li.has-flyout>a.flyout-toggle').css({
+	  'border-left' : '1px dashed #eee'
+	});
+} else {
+	$('.nav-bar>li.has-flyout').hover(function() {
+	  $(this).children('.flyout').show();
+	}, function() {
+	  $(this).children('.flyout').hide();
+	})
+}
+
 function boxedCustomAppJavascript() {
 	jQuery(document).ready(function ($) {
 	
@@ -870,15 +1040,6 @@ function boxedCustomAppJavascript() {
 			$.foundation.customForms.appendCustomMarkup();
 		}
 	
-		/* ALERT BOXES ------------ */
-		$(".alert-box").delegate("a.close", "click", function(event) {
-	    event.preventDefault();
-		  $(this).closest(".alert-box").fadeOut(function(event){
-		    $(this).remove();
-		  });
-		});
-	
-	
 		/* PLACEHOLDER FOR FORMS ------------- */
 		/* Remove this and jquery.placeholder.min.js if you don't need :) */
 	
@@ -887,178 +1048,17 @@ function boxedCustomAppJavascript() {
 		/* TOOLTIPS ------------ */
 		$(this).tooltips();
 	
-	
-	
 		/* UNCOMMENT THE LINE YOU WANT BELOW IF YOU WANT IE6/7/8 SUPPORT AND ARE USING .block-grids */
 	//	$('.block-grid.two-up>li:nth-child(2n+1)').css({clear: 'left'});
 	//	$('.block-grid.three-up>li:nth-child(3n+1)').css({clear: 'left'});
 	//	$('.block-grid.four-up>li:nth-child(4n+1)').css({clear: 'left'});
 	//	$('.block-grid.five-up>li:nth-child(5n+1)').css({clear: 'left'});
 	
-	
-	
-		/* DROPDOWN NAV ------------- */
-	
-		var lockNavBar = false;
-		$('.nav-bar a.flyout-toggle').unbind('click').click( function(e) {
-			e.preventDefault();
-			var flyout = $(this).siblings('.flyout');
-			if (lockNavBar === false) {
-				$('.nav-bar .flyout').not(flyout).slideUp(500);
-				flyout.slideToggle(500, function(){
-					lockNavBar = false;
-				});
-			}
-			lockNavBar = true;
-		});
-	  if (Modernizr.touch) {
-	    $('.nav-bar>li.has-flyout>a.main').css({
-	      'padding-right' : '75px'
-	    });
-	    $('.nav-bar>li.has-flyout>a.flyout-toggle').css({
-	      'border-left' : '1px dashed #eee'
-	    });
-	  } else {
-	    $('.nav-bar>li.has-flyout').hover(function() {
-	      $(this).children('.flyout').show();
-	    }, function() {
-	      $(this).children('.flyout').hide();
-	    })
-	  }
-	
-	
 		/* DISABLED BUTTONS ------------- */
 		/* Gives elements with a class of 'disabled' a return: false; */
 	});
 	
-	/* -------------------------------------------------------- */
-	/* ----- ANDY's PLACEHOLDER SCRIPTS for reference only ---- */
-	/* -------------------------------------------------------- */
-	
-	/* Delete 3D Tile */
-	$('.tile .delete').unbind('click').live('click', function() {
-		var tileObj = $(this).closest('.tile');
-		var $tileCel = $(this).closest('td');
-	    tileObj.fadeOut(250, function() {
-			tileObj.remove();
-			if($tileCel.text().trim()=="") {
-				$tileCel.remove(); /* Delete empty cell */
-				/* TO DO: shuffle down tiles in columns after this one to fill in any empty cell. */
-			}
-		});
-		return false;
-	});
-	
-	/* ---- RUSSELS screens ---- */
-	
-	/* Search results: Show more options */
-	$('#showSearchOptions').unbind('click').live('click', function() {
-		$(this).remove();
-		$('#searchOptions').fadeIn('fast');
-		return false;
-	});
-	
 
-	
-	/* Object Details Screen: Show more details */
-	$("#r-metadata-hide").unbind('click').live('click', function() {
-		$(this).slideUp('fast');
-		$('#r-metadata-show').slideDown('fast');
-		return false;
-	});
-	
-	/* Object Details Screen: Show more details */
-	$("#r-metadata .section a.header").unbind('click').live('click', function() {
-		var $section = $(this).parent();
-		var $content = $(this).next();
-		
-		if ($section.hasClass('collapsed')) {
-			$section.removeClass('collapsed');
-			$content.slideDown('fast');
-		} else {
-			$section.addClass('collapsed');
-			$content.slideUp('fast');
-		}
-		return false;
-	});
-
-
-
-	
-	
-	/* $("#r-metadataToolbar .section .value, #r-metadata .meta-value.editable, #r-objectives .meta-value.editable").unbind();  */
-	/* Object Details and upload screens - Edit metadata: Switch text to editable input form */
-	$("#r-metadataToolbar .section .value, #r-metadata .meta-value.editable, #r-metaDescription .meta-value.editable").unbind('click').live('click', function() {
-		var $textObj = $(this);
-		var $inputObj = $(this).next();
-		var $objValue = $(this).text();
-		if ($.trim($objValue)=="Click to edit") {
-			$objValue=null;
-		}
-		$inputObj.val($objValue);
-		$textObj.fadeOut(50, function() {
-		$inputObj.fadeIn(50);
-			$inputObj.focus();
-			$inputObj.select();
-		});
-		return false;
-	});
-	
-	/* Object Details: delete comment */
-	$('#r-comments .delete').unbind('click').live('click', function() {
-	    $(this).closest('.user-comment').fadeOut(250, function() {
-			$(this).closest('td').remove();
-		});
-		return false;
-	});
-	
-	
-	/* Deselect drop-down menu when value changes */
-	$('select').unbind('change').live('change', function() {
-	  $(this).blur();
-	});
-	
-	/*  $("#r-metadataToolbar .section .value-input, #r-metadata .section .value-input, #r-objectives .value-input").unbind(); */
-	/* Edit Metadata Screen: Switch input form back to text */
-	$("#r-metadataToolbar .section .value-input, #r-metadata .section .value-input, #r-metaDescription .value-input").unbind('blur').blur( function() {
-		var $textObj = $(this).prev();
-		var $inputObj = $(this);
-		var $objValue = $(this).val();
-		if ($.trim($objValue)=="") {
-			$objValue = "Click to edit";
-		}
-		
-		checkFouo($objValue);
-		
-		$objValue = getSecurityColor($objValue);
-		
-		if ($objValue!="Click to edit") {
-			if ($('#r-detailEditUpdate').size()!=0) {
-				$('#r-detailEditUpdate').removeClass('white');
-				$('#r-detailEditUpdate').addClass('blue');
-				$('#r-detailSaveAlert').removeClass('hide');
-			}
-			
-			if ($('#r-editSave').size()!=0) {
-				$('#r-editSave').removeClass('white');
-				$('#r-editSave').addClass('blue');
-				$('#r-save-alert').removeClass('hide');
-			}
-		}
-		
-		$textObj.html($objValue);
-		$inputObj.fadeOut(50, function() {
-			$textObj.fadeIn(50);
-		});
-	});
-	
-
-	
-	/* Expand or collapse sections */
-	$("#more-section a.header").unbind('click').live('click', function() {
-		$(this).parent().toggleClass("collapsed");
-		return false;
-	});
 	
 	
 

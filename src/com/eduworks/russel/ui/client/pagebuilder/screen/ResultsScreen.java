@@ -150,7 +150,7 @@ public class ResultsScreen extends ScreenTemplate {
 		else if (type==PACKAGE)
 			acc = "\".zip\" OR \".rar\" OR \".zipx\" OR \".gz\" OR \".7z\" OR \".pkg\" OR \".jar\" OR \".deb\" OR \".rpm\" OR \".sit\" OR \".sitx\" OR \".tar.gz\"";
 		else if (type==LINK)
-			acc = "\".html\" OR \".htm";
+			acc = "\".rlk\"";
 		else if (type==AUDIO)
 			acc = "\".aif\" OR \".iff\" OR \".m3u\" OR \".m4a\" OR \".mid\" OR \".mp3\" OR \".mpa\" OR \".ra\" OR \".swa\" OR \".wav\" OR \".wma\"";
 		return acc;

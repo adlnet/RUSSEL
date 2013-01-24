@@ -129,7 +129,7 @@ public class LoginScreen extends ScreenTemplate {
 		((TextBox)PageAssembler.elementToWidget("loginName", PageAssembler.TEXT)).setFocus(true);
 	}
 	
-	/** Setup for template event handlers */
+	/* Setup for template event handlers */
 	private void prepTemplateHooks() {
 		PageAssembler.attachHandler("r-menuLogout", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
 																       @Override

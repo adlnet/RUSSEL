@@ -101,9 +101,9 @@
 		var that = this, blobReader;
 
 		function init(callback, onerror) {
-			var blobBuilder = new BlobBuilder();
-			blobBuilder.append(text);
-			blobReader = new BlobReader(blobBuilder.getBlob("text/plain"));
+//			var blobBuilder = new BlobBuilder();
+//			blobBuilder.append(text);
+			blobReader = new BlobReader(new Blob([text], {"type":"\"text/plain\""}));
 			blobReader.init(function() {
 				that.size = blobReader.size;
 				callback();
@@ -272,14 +272,17 @@
 
 	function TextWriter() {
 		var that = this, blobBuilder;
+		var blobArray;
 
 		function init(callback, onerror) {
-			blobBuilder = new BlobBuilder();
+			//blobBuilder = new BlobBuilder();
+			blobArray = [];
 			callback();
 		}
 
 		function writeUint8Array(array, callback, onerror) {
-			blobBuilder.append(array.buffer);
+			//blobBuilder.append(array.buffer);
+			blobArray.push(array.buffer);
 			callback();
 		}
 
@@ -289,7 +292,8 @@
 				callback(e.target.result);
 			};
 			reader.onerror = onerror;
-			reader.readAsText(blobBuilder.getBlob("text/plain"));
+			//reader.readAsText(blobBuilder.getBlob("text/plain"));
+			reader.readAsText(new Blob(blobArray, {"type":"\"text/plain\""}));
 		}
 
 		that.init = init;
@@ -343,14 +347,15 @@
 		}
 
 		function writeUint8Array(array, callback, onerror) {
-			var blobBuilder = new BlobBuilder();
-			blobBuilder.append(array.buffer);
+			//var blobBuilder = new BlobBuilder();
+			//blobBuilder.append(array.buffer);
 			writer.onwrite = function() {
 				writer.onwrite = null;
 				callback();
 			};
 			writer.onerror = onerror;
-			writer.write(blobBuilder.getBlob(contentType));
+			//writer.write(blobBuilder.getBlob(contentType));
+			writer.write(new Blob([array.buffer],{"type":"\""+contentType+"\""}));
 		}
 
 		function getData(callback) {
@@ -366,19 +371,23 @@
 
 	function BlobWriter(contentType) {
 		var blobBuilder, that = this;
+		var blobArray;
 
 		function init(callback, onerror) {
-			blobBuilder = new BlobBuilder();
+			//blobBuilder = new BlobBuilder();
+			blobArray = [];
 			callback();
 		}
 
 		function writeUint8Array(array, callback, onerror) {
-			blobBuilder.append(array.buffer);
+			//blobBuilder.append(array.buffer);
+			blobArray.push(array.buffer);
 			callback();
 		}
 
 		function getData(callback) {
-			callback(blobBuilder.getBlob(contentType));
+			//callback(blobBuilder.getBlob(contentType));
+			callback(new Blob(blobArray,{"type":"\""+contentType+"\""}));
 		}
 
 		that.init = init;

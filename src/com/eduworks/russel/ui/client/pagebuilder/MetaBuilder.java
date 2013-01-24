@@ -115,11 +115,12 @@ public class MetaBuilder {
 			addMetaDataToField(field, "russel:agerange", "detailMetaSkill", ap);
 			addMetaDataToField(field, "russel:language", "detailMetaLanguage", ap);
 			addMetaDataToField(field, "russel:duration", "detailMetaDuration", ap);
-			addMetaDataToField(field, "russel:techreqs", "detailmetaTechnicalRequirements", ap);
+			addMetaDataToField(field, "russel:techreqs", "detailMetaTechnicalRequirements", ap);
 			addMetaDataToField(field, "russel:dist", "detailMetaDistribution", ap);
 			addMetaDataToField(field, "russel:level", "detailMetaLevel", ap);
 			addMetaDataToField(field, "russel:partof", "detailMetaPartOf", ap);
 			addMetaDataToField(field, "russel:requires", "detailMetaRequires", ap);
+			addMetaDataToField(field, "russel:epssStrategy", "detailEpssStrategies", ap);
 			addMetaDataToField(field, "cmis:contentStreamMimeType", "detailMetaFormat", ap);
 			addMetaDataToField(field, "cmis:versionLabel", "detailMetaVersion", ap);
 			addMetaDataToField(field, "cmis:contentStreamLength", "detailMetaSize", ap);
@@ -157,11 +158,12 @@ public class MetaBuilder {
 			addProperty("russel:agerange", "detailMetaSkill", ap);
 			addProperty("russel:language", "detailMetaLanguage", ap);
 			addProperty("russel:duration", "detailMetaDuration", ap);
-			addProperty("russel:techreqs", "detailmetaTechnicalRequirements", ap);
+			addProperty("russel:techreqs", "detailMetaTechnicalRequirements", ap);
 			addProperty("russel:dist", "detailMetaDistribution", ap);
 			addProperty("russel:level", "detailMetaLevel", ap);
 			addProperty("russel:partof", "detailMetaPartOf", ap);
 			addProperty("russel:requires", "detailMetaRequires", ap);
+			addProperty("russel:epssStrategy", "detailEpssStrategies", ap);
 			addProperty("tags", "detailMetaKeywords", container);
 		} else {
 			addProperty("cm:title", "metaTitle", ap);
@@ -220,4 +222,14 @@ public class MetaBuilder {
 		
 		return ap;
 	}
+
+	public static String convertToMetaPacket(AlfrescoPacket ap) {
+		AlfrescoPacket container = AlfrescoPacket.makePacket();
+		if (!ap.toJSONString().equals("{}"))
+			container.addKeyValue("properties", ap.toJSONWrappedString());
+		if (container.toJSONString().equals("{}"))
+			return null;
+		return container.toJSONString();
+	}	 
+	
 }

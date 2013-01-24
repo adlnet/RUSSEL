@@ -32,7 +32,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 -->
 
 <!-- Modal Dialogs -->
-        <div id="projectProperties" class="reveal-modal">
+        <div id="projectProperties" style="z-index:301" class="reveal-modal">
             <h2>Project Properties</h2>
             <p class="lead">Developer Notes</p>
             <textarea id="epssProjectNotes" rows="4" class="input-text nice" placeholder="Add notes for this entire project"></textarea>
@@ -72,16 +72,16 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
             <select id="projectParadata" class="input-text nice">
                 <option value="">Usage Data Options</option>
                 <option value="1">Do not publish usage data.</option>
-                <option value="2">Publish usage data upon save.</option>
+                <option value="2">Publish usage data upon update.</option>
                 <option value="3">Publish usage data upon export.</option>
-                <option value="4">Publish usage data upon save and export.</option>
+                <option value="4">Publish usage data upon update and export.</option>
             </select>
             <a id="epssSaveProperties" class="blue small nice button radius finger">Save</a> 
             <a id="epssCancelProperties" class="white small nice finger button radius">Cancel</a> 
             <a id="epssCloseProperties"class="close-reveal-modal">&#215;</a>
         </div>
         
-        <div id="exportProjectModal" class="reveal-modal">
+        <div id="exportProjectModal" style="z-index:302" class="reveal-modal">
             <h2>Export</h2>
             <p class="lead">Share this project by choosing one of the following</p>
             <div id="epssDownloadArea">
@@ -238,7 +238,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 						<input id="r-projectAssetSearch" type="text" class="expand input-text" placeholder="Enter search terms...">
                     </div>
                     <div id="searchTerms" class="eight columns">
-                        <a id="epssTerm1" class="searchTerm small white button finger">Grab attention</a>
+                        <a id="epssTerm1" class="searchTerm small white button finger">Gain attention</a>
                         <a id="epssTerm2" class="searchTerm small white button finger">Demonstration</a>
                         <a id="epssTerm3" class="searchTerm small white button finger">video</a>
                         <a id="epssTerm4" class="searchTerm small white button finger">Storytelling</a>
