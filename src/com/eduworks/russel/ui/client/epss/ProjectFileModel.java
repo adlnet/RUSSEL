@@ -36,12 +36,13 @@ package com.eduworks.russel.ui.client.epss;
 import org.vectomatic.arrays.ArrayBuffer;
 import org.vectomatic.file.Blob;
 
+import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.api.AlfrescoURL;
+import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
 import com.eduworks.gwt.client.util.StringTokenizer;
 import com.eduworks.gwt.client.util.Uint8Array;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
 import com.google.gwt.core.client.JsArrayInteger;
 import com.google.gwt.user.client.Window;
@@ -146,9 +147,9 @@ public class ProjectFileModel {
 					public void onSuccess(AlfrescoPacket nodeAp) {
 						ProjectFileModel pfm = new ProjectFileModel(nodeAp);
 						pfm.projectNodeId = ap.getNodeId();
-						CommunicationHub.sendFormUpdate(CommunicationHub.getAlfrescoUploadURL(),
+						CommunicationHub.sendFormUpdate(AlfrescoURL.getAlfrescoUploadURL(),
 								pfm.projectTitle.replaceAll(" ", "_") + ".rpf", 
-								CommunicationHub.ALFRESCO_STORE_TYPE + "://" + CommunicationHub.ALFRESCO_STORE_ID + "/" + pfm.projectNodeId, 
+								AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + pfm.projectNodeId, 
 								pfm.makeJSONBlob(), 
 								"russel:metaTest", 
 								new AlfrescoCallback<AlfrescoPacket>() {
@@ -192,7 +193,7 @@ public class ProjectFileModel {
 
 	public void updateAlfrescoAssetUsage(final String section, final String assetId, String assetFilename, final Boolean add) {
 		CommunicationHub.sendHTTP(CommunicationHub.GET,
-								  CommunicationHub.getAlfrescoNodeURL(assetId),
+								  AlfrescoURL.getAlfrescoNodeURL(assetId),
 								  null,
 								  false, 
 								  new AlfrescoCallback<AlfrescoPacket>() {
@@ -200,14 +201,13 @@ public class ProjectFileModel {
 									public void onSuccess(AlfrescoPacket ap) {
 										AlfrescoPacket apNew = updateIsdUsage(ap, projectTemplate, section, add);
 										String postString = MetaBuilder.convertToMetaPacket(apNew);
-//										Window.alert("Saving: "+postString);
 										if (postString!=null)
 											AlfrescoApi.setObjectProperties(assetId,
 																			postString, 
 																			new AlfrescoCallback<AlfrescoPacket>() {
 																				@Override
 																				public void onSuccess(final AlfrescoPacket nullPack) {
-//																					Window.alert("Updated asset paradata ");
+
 																				}
 																				
 																				@Override
@@ -271,35 +271,35 @@ public class ProjectFileModel {
 		}
 	}-*/;
 	
-	/* EPSS Editor / Parse existing ISD usage and report */
-	public static Boolean reportIsdUsage(String nodeUsage) {
-		StringTokenizer useList, tempList; 
-		String useStr;
-		String templateStr="";
-		String strategyStr=""; 
-		String countStr="";
-		String msgStr="The current node is used in the following ISD situations: ";
-		
-		if (nodeUsage != null)  {
-			useList = new StringTokenizer(nodeUsage, USAGE_DELIMITER);
-			while (useList.hasMoreTokens()) {
-				useStr = useList.nextToken();
-				tempList = new StringTokenizer(useStr, USAGE_STRATEGY_DELIMITER); 
-				if (tempList.hasMoreTokens()) {
-					templateStr = tempList.nextToken();
-					tempList = new StringTokenizer(tempList.nextToken(), USAGE_COUNT_DELIMITER);
-					if (tempList.countTokens() == 2) {
-						strategyStr = tempList.nextToken();
-						countStr = tempList.nextToken();
-					}
-				}
-				//TODO: Determine if/where we will list these for display to the user.
-				msgStr = msgStr + "           Template="+templateStr+"       Strategy="+strategyStr+"       Count="+countStr; 
-			}
-		}
-		Window.alert(msgStr);
-		return true;
-	}
+//	/* EPSS Editor / Parse existing ISD usage and report */
+//	public static Boolean reportIsdUsage(String nodeUsage) {
+//		StringTokenizer useList, tempList; 
+//		String useStr;
+//		String templateStr="";
+//		String strategyStr=""; 
+//		String countStr="";
+//		String msgStr="The current node is used in the following ISD situations: ";
+//		
+//		if (nodeUsage != null)  {
+//			useList = new StringTokenizer(nodeUsage, USAGE_DELIMITER);
+//			while (useList.hasMoreTokens()) {
+//				useStr = useList.nextToken();
+//				tempList = new StringTokenizer(useStr, USAGE_STRATEGY_DELIMITER); 
+//				if (tempList.hasMoreTokens()) {
+//					templateStr = tempList.nextToken();
+//					tempList = new StringTokenizer(tempList.nextToken(), USAGE_COUNT_DELIMITER);
+//					if (tempList.countTokens() == 2) {
+//						strategyStr = tempList.nextToken();
+//						countStr = tempList.nextToken();
+//					}
+//				}
+//				//TODO: Determine if/where we will list these for display to the user.
+//				msgStr = msgStr + "           Template="+templateStr+"       Strategy="+strategyStr+"       Count="+countStr; 
+//			}
+//		}
+//		Window.alert(msgStr);
+//		return true;
+//	}
 
 	/* EPSS Editor / Combine a template, strategy, and count into usage data entry. Ensure that input strings don't contain delimiters. */
 	public static String buildIsdUsageEntry(String template, String strategy, String count) {

@@ -33,12 +33,11 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
 import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HTML;
@@ -58,23 +57,33 @@ public class ResultsScreen extends ScreenTemplate {
 	public String searchType;
 	private String pageTitle;
 
-	AlfrescoSearchHandler ash;
+	private AlfrescoSearchHandler ash;
+	public void lostFocus() {
+		ash.stop();
+	}
 	
 	public void display() {
-		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getDetailModel().getText()));
 		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getResultsPanel().getText()));
 		PageAssembler.getInstance().buildContents();
 		
 		DOM.getElementById("r-menuProjects").removeClassName("active");
 		DOM.getElementById("r-menuWorkspace").removeClassName("active");
 		
-		if (searchType.equals(AlfrescoSearchHandler.SEARCH_TYPE)) {
+		if (searchType.equals(AlfrescoSearchHandler.SEARCH_TYPE) || 
+			searchType.equals(AlfrescoSearchHandler.EDIT_TYPE)) {
 			pageTitle = "Search Results";
 			DOM.getElementById("r-menuCollections").removeClassName("active");
+			DOM.getElementById("searchOptions").removeClassName("hidden");    
 		} 
 		else if (searchType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)) {
 			pageTitle = "My Files";
 			DOM.getElementById("r-menuCollections").addClassName("active");
+			DOM.getElementById("searchOptions").removeClassName("hidden");    
+		} 
+		else if (searchType.equals(AlfrescoSearchHandler.FLR_TYPE)) {
+			pageTitle = "Federal Learning Registry Resources";   
+			DOM.getElementById("r-menuCollections").addClassName("active"); 
+			DOM.getElementById("searchOptions").addClassName("hidden");    
 		} 
 		else {
 //			Window.alert("ResultsScreen received request for "+searchType);
@@ -88,28 +97,28 @@ public class ResultsScreen extends ScreenTemplate {
 		ash.hook("r-menuSearchBar", "searchPanelWidgetScroll", searchType);
 	
 	
-		PageAssembler.attachHandler("resultsSearchSelectShow", Event.ONCHANGE, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("resultsSearchSelectShow", Event.ONCHANGE, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				ash.forceSearch();
 			}
 		});
 	
-		PageAssembler.attachHandler("resultsSearchSelectDistribution", Event.ONCHANGE, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("resultsSearchSelectDistribution", Event.ONCHANGE, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				ash.forceSearch();
 			}
 		});
 	
-		PageAssembler.attachHandler("resultsSearchSelectSort", Event.ONCHANGE, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("resultsSearchSelectSort", Event.ONCHANGE, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				ash.forceSearch();
 			}
 		});
 	
-		PageAssembler.attachHandler("resultsSearchSelectReverse", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("resultsSearchSelectReverse", Event.ONCLICK, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				ash.forceSearch();
@@ -130,10 +139,10 @@ public class ResultsScreen extends ScreenTemplate {
 		String acc = "";
 		ListBox lb = (ListBox)PageAssembler.elementToWidget("resultsSearchSelectShow", PageAssembler.SELECT);
 		if ((lb.getSelectedIndex() != OUTOFRANGE) && (lb.getItemText(lb.getSelectedIndex())!=EVERYTHING))
-			acc += " AND cm:name:(" + getFileExtensionString(lb.getItemText(lb.getSelectedIndex())) + ")";
+			acc += " cm:name:(" + getFileExtensionString(lb.getItemText(lb.getSelectedIndex())) + ")";
 		lb = (ListBox)PageAssembler.elementToWidget("resultsSearchSelectDistribution", PageAssembler.SELECT);
 		if ((lb.getSelectedIndex() != OUTOFRANGE) && (lb.getItemText(lb.getSelectedIndex())!=EVERYTHING))
-			acc += " AND russel:dist:\"" + lb.getItemText(lb.getSelectedIndex()) + "\"";
+			acc += " russel:dist:\"" + lb.getItemText(lb.getSelectedIndex()) + "\"";
 		return acc;
 	}
 		
@@ -150,7 +159,7 @@ public class ResultsScreen extends ScreenTemplate {
 		else if (type==PACKAGE)
 			acc = "\".zip\" OR \".rar\" OR \".zipx\" OR \".gz\" OR \".7z\" OR \".pkg\" OR \".jar\" OR \".deb\" OR \".rpm\" OR \".sit\" OR \".sitx\" OR \".tar.gz\"";
 		else if (type==LINK)
-			acc = "\".rlk\"";
+			acc = "\".rlr\" OR \".rlk\"";
 		else if (type==AUDIO)
 			acc = "\".aif\" OR \".iff\" OR \".m3u\" OR \".m4a\" OR \".mid\" OR \".mp3\" OR \".mpa\" OR \".ra\" OR \".swa\" OR \".wav\" OR \".wma\"";
 		return acc;

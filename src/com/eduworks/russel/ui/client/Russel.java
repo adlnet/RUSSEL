@@ -33,32 +33,70 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client;
 
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenDispatch;
+import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenDispatch;
+import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
+import com.eduworks.russel.ui.client.pagebuilder.screen.LoginScreen;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class Russel extends Constants implements EntryPoint, ValueChangeHandler<String>
 {
-	public static String buildNumber;
+	public static final String SESSION_EXPIRED = "Your session has expired. Please login again.";
 	public static ScreenDispatch view = new ScreenDispatch();
+	public static Timer loginCheck = new Timer() {
+		@Override
+		public void run() {
+			AlfrescoApi.validateTicket(new AlfrescoCallback<AlfrescoPacket>() {
+				@Override
+				public void onSuccess(AlfrescoPacket alfrescoPacket) {}
+				
+				@Override
+				public void onFailure(Throwable caught) {
+					loginCheck.cancel();
+					view.clearHistory();
+					view.loadScreen(new LoginScreen(), true);
+					final Element oldErrorDialog = (Element)Document.get().getElementById("errorDialog");
+					if (oldErrorDialog != null) oldErrorDialog.removeFromParent();
+
+					final HTML errorDialog = new HTML(HtmlTemplates.INSTANCE.getErrorWidget().getText());
+					RootPanel.get("errorContainer").add(errorDialog);
+					((Label)PageAssembler.elementToWidget("errorMessage", PageAssembler.LABEL)).setText(SESSION_EXPIRED);
+					PageAssembler.attachHandler("errorClose", Event.ONMOUSEUP, new EventCallback() {
+																					@Override
+																					public void onEvent(Event event) {
+																							errorDialog.removeFromParent();
+																					}
+																				});
+				}
+			});
+		}
+	}; 
 	
-	public static AlfrescoNullCallback<AlfrescoPacket> nonFunctional = new AlfrescoNullCallback<AlfrescoPacket>() {
-																			@Override
-																			public void onEvent(Event event) {
-																				Window.alert(Constants.INCOMPLETE_FEATURE_MESSAGE);
-																			}
-																		};
+	public static EventCallback nonFunctional = new EventCallback() {
+													@Override
+													public void onEvent(Event event) {
+														Window.alert(Constants.INCOMPLETE_FEATURE_MESSAGE);
+													}
+												};
 	
 	
 	@Override
@@ -79,11 +117,9 @@ public class Russel extends Constants implements EntryPoint, ValueChangeHandler<
 		History.addValueChangeHandler(this);
 				
 		Window.addWindowClosingHandler(new ClosingHandler() {
-			
 			@Override
 			public void onWindowClosing(ClosingEvent event) {
-				// TODO Auto-generated method stub
-				Window.alert("onWindowClosingMessage -- will address in polish sprint");
+				
 			}
 		});
 		CommunicationHub.sendHTTP(CommunicationHub.GET, 
@@ -93,7 +129,8 @@ public class Russel extends Constants implements EntryPoint, ValueChangeHandler<
 								  new AlfrescoCallback<AlfrescoPacket>() {
 									@Override
 									public void onSuccess(AlfrescoPacket alfrescoPacket) {
-										buildNumber = alfrescoPacket.getRawString().substring(alfrescoPacket.getRawString().lastIndexOf("=")+1);
+										PageAssembler.setBuildNumber(alfrescoPacket.getRawString().substring(alfrescoPacket.getRawString().lastIndexOf("=")+1));
+										view.setDefaultScreen(new LoginScreen());
 										History.fireCurrentHistoryState();
 									}
 									

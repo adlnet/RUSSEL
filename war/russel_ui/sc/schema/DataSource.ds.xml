@@ -1,274 +1,376 @@
 isc.DataSource.create({
-    Constructor:"DataSource",
+    allowAdvancedCriteria:true,
     ID:"DataSource",
     addGlobalId:"false",
-    fields:{
-        ID:{
-            required:"true",
-            type:"string",
-            xmlAttribute:"true"
-        },
-        inheritsFrom:{
-            title:"Superclass",
-            type:"string"
-        },
-        useParentFieldOrder:{
-            type:"boolean"
-        },
-        useLocalFieldsOnly:{
-            type:"boolean"
-        },
-        restrictToParentFields:{
-            type:"boolean"
-        },
-        dataFormat:{
-            title:"DataFormat",
-            type:"string",
+    Constructor:"DataSource",
+    fields:[
+        {
             xmlAttribute:"true",
+            type:"string",
+            name:"ID"
+        },
+        {
+            title:"Superclass",
+            type:"string",
+            name:"inheritsFrom"
+        },
+        {
+            type:"boolean",
+            name:"useParentFieldOrder"
+        },
+        {
+            type:"boolean",
+            name:"useLocalFieldsOnly"
+        },
+        {
+            type:"boolean",
+            name:"restrictToParentFields"
+        },
+        {
+            xmlAttribute:"true",
+            title:"DataFormat",
             valueMap:{
                 custom:"Custom Binding",
                 iscServer:"ISC Java Server",
                 json:"JSON Web Service",
                 xml:"XML / WSDL Web Service"
-            }
-        },
-        noAutoFetch:{
-            type:"boolean",
-            xmlAttribute:"true"
-        },
-        serverType:{
-            title:"Server Type",
+            },
             type:"string",
+            name:"dataFormat"
+        },
+        {
             xmlAttribute:"true",
+            type:"boolean",
+            name:"useStrictJSON"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"noAutoFetch"
+        },
+        {
+            xmlAttribute:"true",
+            title:"Server Type",
             valueMap:{
                 custom:"Custom Server Binding",
                 sql:"ISC Server SQL Connectors"
-            }
+            },
+            type:"string",
+            name:"serverType"
         },
-        callbackParam:{
+        {
+            xmlAttribute:"true",
             title:"Callback Parameter",
             type:"string",
-            xmlAttribute:"true"
+            name:"callbackParam"
         },
-        requestProperties:{
-            type:"Object"
+        {
+            type:"Object",
+            name:"requestProperties"
         },
-        fields:{
-            childTagName:"field",
-            multiple:"true",
+        {
             propertiesOnly:"true",
+            childTagName:"field",
             type:"DataSourceField",
-            uniqueProperty:"name"
+            multiple:"true",
+            name:"fields"
         },
-        addGlobalId:{
+        {
             title:"Add Global ID",
-            type:"boolean"
+            type:"boolean",
+            name:"addGlobalId"
         },
-        showPrompt:{
-            type:"boolean"
+        {
+            type:"boolean",
+            name:"showPrompt"
         },
-        dataSourceVersion:{
+        {
+            xmlAttribute:"true",
             title:"DataSource Version",
-            type:"number",
             visibility:"internal",
-            xmlAttribute:"true"
+            type:"number",
+            name:"dataSourceVersion"
         },
-        dbName:{
+        {
+            xmlAttribute:"true",
             title:"Database Name",
             type:"string",
-            xmlAttribute:"true"
+            name:"dbName"
         },
-        schema:{
+        {
+            xmlAttribute:"true",
             title:"Schema",
             type:"string",
-            xmlAttribute:"true"
+            name:"schema"
         },
-        tableName:{
+        {
+            xmlAttribute:"true",
             title:"Table Name",
             type:"string",
-            xmlAttribute:"true"
+            name:"tableName"
         },
-        serverObject:{
-            type:"ServerObject"
+        {
+            type:"ServerObject",
+            name:"serverObject"
         },
-        operationBindings:{
+        {
+            type:"OperationBinding",
             multiple:"true",
-            type:"OperationBinding"
+            name:"operationBindings"
         },
-        serviceNamespace:{
+        {
+            xmlAttribute:"true",
             type:"string",
-            xmlAttribute:"true"
+            name:"serviceNamespace"
         },
-        dataURL:{
+        {
+            xmlAttribute:"true",
             type:"string",
-            xmlAttribute:"true"
+            name:"dataURL"
         },
-        dataProtocol:{
+        {
+            xmlAttribute:"true",
             type:"string",
-            xmlAttribute:"true"
+            name:"dataProtocol"
         },
-        dataTransport:{
+        {
+            xmlAttribute:"true",
             type:"string",
-            xmlAttribute:"true"
+            name:"dataTransport"
         },
-        defaultParams:{
-            type:"Object"
+        {
+            type:"Object",
+            name:"defaultParams"
         },
-        soapAction:{
-            type:"string"
+        {
+            type:"string",
+            name:"soapAction"
         },
-        jsonPrefix:{
-            type:"string"
+        {
+            type:"string",
+            name:"jsonPrefix"
         },
-        jsonSuffix:{
-            type:"string"
+        {
+            type:"string",
+            name:"jsonSuffix"
         },
-        messageTemplate:{
-            type:"string"
+        {
+            type:"string",
+            name:"messageTemplate"
         },
-        defaultCriteria:{
+        {
+            visibility:"internal",
             propertiesOnly:"true",
             type:"Object",
-            visibility:"internal"
+            name:"defaultCriteria"
         },
-        tagName:{
+        {
+            visibility:"xmlBinding",
             type:"string",
-            visibility:"xmlBinding"
+            name:"tagName"
         },
-        recordXPath:{
-            type:"XPath"
+        {
+            type:"XPath",
+            name:"recordXPath"
         },
-        recordName:{
-            type:"string"
-        },
-        xmlNamespaces:{
-            type:"Object"
-        },
-        dropExtraFields:{
-            type:"boolean"
-        },
-        schemaNamespace:{
+        {
             type:"string",
+            name:"recordName"
+        },
+        {
+            type:"Object",
+            name:"xmlNamespaces"
+        },
+        {
+            type:"boolean",
+            name:"dropExtraFields"
+        },
+        {
+            xmlAttribute:"true",
             visibility:"internal",
-            xmlAttribute:"true"
+            type:"string",
+            name:"schemaNamespace"
         },
-        mustQualify:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"mustQualify"
         },
-        xsdSimpleContent:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"xsdSimpleContent"
         },
-        xsdAnyElement:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"xsdAnyElement"
         },
-        xsdAbstract:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"xsdAbstract"
         },
-        title:{
+        {
             title:"Title",
-            type:"string"
+            type:"string",
+            name:"title"
         },
-        titleField:{
+        {
             title:"Title Field",
-            type:"string"
+            type:"string",
+            name:"titleField"
         },
-        pluralTitle:{
+        {
             title:"Plural Title",
-            type:"string"
+            type:"string",
+            name:"pluralTitle"
         },
-        clientOnly:{
+        {
+            xmlAttribute:"true",
             title:"Client Only",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"clientOnly"
         },
-        testFileName:{
+        {
+            xmlAttribute:"true",
             title:"Test File Name",
             type:"URL",
-            xmlAttribute:"true"
+            name:"testFileName"
         },
-        testData:{
+        {
+            type:"Object",
             multiple:"true",
-            type:"Object"
+            name:"testData"
         },
-        types:{
+        {
+            type:"Object",
             multiple:"true",
+            name:"cacheData"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"cacheAllData"
+        },
+        {
+            visibility:"internal",
             propertiesOnly:"true",
             type:"DataSourceField",
+            multiple:"true",
             uniqueProperty:"ID",
-            visibility:"internal"
+            name:"types"
         },
-        groups:{
-            multiple:"true",
+        {
+            visibility:"internal",
             type:"string",
-            visibility:"internal"
-        },
-        methods:{
             multiple:"true",
+            name:"groups"
+        },
+        {
+            visibility:"internal",
             type:"MethodDeclaration",
-            visibility:"internal"
+            multiple:"true",
+            name:"methods"
         },
-        showSuperClassActions:{
-            type:"boolean"
-        },
-        createStandalone:{
-            type:"boolean"
-        },
-        useFlatFields:{
-            type:"boolean"
-        },
-        showLocalFieldsOnly:{
+        {
             type:"boolean",
-            xmlAttribute:"true"
+            name:"showSuperClassActions"
         },
-        globalNamespaces:{
-            type:"Object"
-        },
-        autoDeriveSchema:{
+        {
             type:"boolean",
-            xmlAttribute:"true"
+            name:"createStandalone"
         },
-        useLocalValidators:{
-            type:"boolean"
-        },
-        autoDeriveTitles:{
-            type:"boolean"
-        },
-        qualifyColumnNames:{
+        {
             type:"boolean",
-            xmlAttribute:"true"
+            name:"useFlatFields"
         },
-        validateRelatedRecords:{
-            type:"boolean"
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"showLocalFieldsOnly"
         },
-        requiresAuthentication:{
-            type:"boolean"
+        {
+            type:"Object",
+            name:"globalNamespaces"
         },
-        requiresRoles:{
-            type:"boolean"
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"autoDeriveSchema"
         },
-        requires:{
-            type:"string"
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"autoDeriveFKs"
         },
-        beanClassName:{
+        {
+            type:"boolean",
+            name:"useLocalValidators"
+        },
+        {
+            type:"boolean",
+            name:"autoDeriveTitles"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"qualifyColumnNames"
+        },
+        {
+            type:"boolean",
+            name:"validateRelatedRecords"
+        },
+        {
+            type:"boolean",
+            name:"requiresAuthentication"
+        },
+        {
+            type:"boolean",
+            name:"requiresRoles"
+        },
+        {
             type:"string",
-            xmlAttribute:"true"
+            name:"requires"
         },
-        autoJoinTransactions:{
+        {
+            xmlAttribute:"true",
+            type:"string",
+            name:"beanClassName"
+        },
+        {
+            xmlAttribute:"true",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"autoJoinTransactions"
         },
-        sparseUpdates:{
-            type:"boolean"
+        {
+            type:"boolean",
+            name:"sparseUpdates"
         },
-        noNullUpdates:{
-            type:"boolean"
+        {
+            type:"boolean",
+            name:"noNullUpdates"
         },
-        canExport:{
-            type:"boolean"
+        {
+            type:"boolean",
+            name:"canExport"
+        },
+        {
+            type:"boolean",
+            name:"progressiveLoading"
+        },
+        {
+            type:"boolean",
+            name:"allowAdvancedCriteria"
+        },
+        {
+            type:"string",
+            name:"scriptImport"
+        },
+        {
+            idAllowed:"true",
+            type:"Object",
+            name:"script"
         }
-    }
+    ]
 })

@@ -33,16 +33,16 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
 import com.eduworks.gwt.client.util.Browser;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
 import com.eduworks.russel.ui.client.Constants;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.safehtml.shared.UriUtils;
@@ -58,9 +58,12 @@ import com.google.gwt.user.client.ui.TextBox;
 
 
 public class LoginScreen extends ScreenTemplate {
-	final String LOGIN_BAD_LOGIN = "Login name or password is not valid.";
+	private final String LOGIN_BAD_LOGIN = "Login name or password is not valid.";
+	private final String SERVER_UNAVAILABLE = "The server is unavailable."; 
 
-	private AlfrescoNullCallback<AlfrescoPacket> loginListener = new AlfrescoNullCallback<AlfrescoPacket>() {
+	public void lostFocus() {
+ 	}
+	private EventCallback loginListener = new EventCallback() {
 		@Override
 		public void onEvent(Event event) {
 			if (event.getTypeInt() == Event.ONCLICK || event.getKeyCode() == KeyCodes.KEY_ENTER) {
@@ -82,6 +85,7 @@ public class LoginScreen extends ScreenTemplate {
 																					HtmlTemplates.INSTANCE.getFooter().getText(),
 																					"contentPane");
 											prepTemplateHooks();
+											Russel.loginCheck.scheduleRepeating(1800000);
 											Russel.view.loadScreen(new HomeScreen(), true);
 										}
 									}
@@ -94,8 +98,11 @@ public class LoginScreen extends ScreenTemplate {
 										final HTML errorDialog = new HTML(HtmlTemplates.INSTANCE.getErrorWidget().getText());
 										RootPanel.get("errorContainer").add(errorDialog);
 										enableLogin(true);
-										((Label)PageAssembler.elementToWidget("errorMessage", PageAssembler.LABEL)).setText(LOGIN_BAD_LOGIN);
-										PageAssembler.attachHandler("errorClose", Event.ONMOUSEUP, new AlfrescoNullCallback<AlfrescoPacket>() {
+										if (caught.getMessage().indexOf("502")!=-1||caught.getMessage().indexOf("503")!=-1)
+											((Label)PageAssembler.elementToWidget("errorMessage", PageAssembler.LABEL)).setText(SERVER_UNAVAILABLE);
+										else
+											((Label)PageAssembler.elementToWidget("errorMessage", PageAssembler.LABEL)).setText(LOGIN_BAD_LOGIN);
+										PageAssembler.attachHandler("errorClose", Event.ONMOUSEUP, new EventCallback() {
 																										@Override
 																										public void onEvent(Event event) {
 																												errorDialog.removeFromParent();
@@ -131,30 +138,34 @@ public class LoginScreen extends ScreenTemplate {
 	
 	/* Setup for template event handlers */
 	private void prepTemplateHooks() {
-		PageAssembler.attachHandler("r-menuLogout", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-menuLogout", Event.ONCLICK, new EventCallback() {
 																       @Override
 																       public void onEvent(Event event) {
 																    	   AlfrescoApi.logout(new AlfrescoCallback<AlfrescoPacket>() {
 																								@Override
 																								public void onSuccess(AlfrescoPacket result) {
+																									Russel.loginCheck.cancel();
+																									Russel.view.clearHistory();
 																									Russel.view.loadScreen(new LoginScreen(), true);
 																								}
 																								
 																								@Override
 																								public void onFailure(Throwable caught) {
+																									Russel.loginCheck.cancel();
+																									Russel.view.clearHistory();
 																									Russel.view.loadScreen(new LoginScreen(), true);
 																								}
 																							  });
 																		}
 																	});
-		PageAssembler.attachHandler("r-menuWorkspace", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-menuWorkspace", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			Russel.view.loadScreen(new HomeScreen(), true);
 																		}
 																	 });
 		
-		PageAssembler.attachHandler("r-menuCollections", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-menuCollections", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			FeatureScreen fs = new FeatureScreen();
@@ -163,7 +174,7 @@ public class LoginScreen extends ScreenTemplate {
 																		}
 																	 });
 
-		PageAssembler.attachHandler("r-menuProjects", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-menuProjects", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			if (!Browser.isIE()) {

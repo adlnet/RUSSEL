@@ -37,12 +37,12 @@ import java.util.Vector;
 
 import org.vectomatic.file.Blob;
 
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.util.Zip;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
@@ -156,7 +156,7 @@ public class EPSSPackBuilder {
 																								RootPanel.get("epssDownloadArea").add(a);
 																								a.getElement().setId("downloadPackage");
 																								a.getElement().setAttribute("download", pfm.projectTitle.replaceAll(" ", "_") + ".zip");
-																								PageAssembler.attachHandler("downloadPackage", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+																								PageAssembler.attachHandler("downloadPackage", Event.ONCLICK, new EventCallback() {
 																																			  	@Override
 																																			  	public void onEvent(Event event) {
 																																			  		PageAssembler.closePopup("exportProjectModal");	

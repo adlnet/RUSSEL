@@ -1,24 +1,6 @@
 isc.DataSource.create({
+    allowAdvancedCriteria:true,
     ID:"QuartzScheduler",
-    dbName:"ANY_DATA",
-    serverConstructor:"com.isomorphic.scheduler.QuartzScheduler",
-    fields:{
-        name:{
-            canEdit:false,
-            name:"name",
-            type:"text"
-        },
-        state:{
-            canEdit:false,
-            name:"state",
-            type:"intEnum",
-            valueMap:{
-                "0":"Shutdown",
-                "1":"Standby",
-                "2":"Started"
-            }
-        }
-    },
     operationBinding:[
         {
             operationId:"start",
@@ -39,6 +21,23 @@ isc.DataSource.create({
                 className:"com.isomorphic.scheduler.QuartzScheduler",
                 methodName:"doit"
             }
+        }
+    ],
+    fields:[
+        {
+            name:"name",
+            type:"text",
+            canEdit:false
+        },
+        {
+            valueMap:{
+                "0":"Shutdown",
+                "1":"Standby",
+                "2":"Started"
+            },
+            name:"state",
+            type:"intEnum",
+            canEdit:false
         }
     ]
 })

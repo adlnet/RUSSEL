@@ -1,32 +1,28 @@
 <HTML>
+
 <!-- This is a blank html file used by the Isomorphic SmartClient framework -->
 <SCRIPT>
 
 
-if (!window.isc && (window.opener != null || window.top != window)) {
+
+
+
+if (!window.isc && document.domain && document.domain.indexOf(".") != -1 
+	&& !(new RegExp("^(\\d{1,3}\\.){3}\\d{1,3}$").test(document.domain))) 
+{
+    
+    var set = false;
     while (document.domain.indexOf(".") != -1) {
         try {
-            // >IDocument
-            // This attempt to reference a resource in another domain does not fail in certain 
-            // modern browsers (Safari, Chrome) because there seems to be a more liberal 
-            // interpretation of the same origin policy going on.  So, the flow here now is:
-            // - The reference to window.opener.isc will fail with a security exception in 
-            //   some browsers, and thus drop into the catch
-            // - In other browsers, we will not get the security exception, but window.opener.isc
-            //   will be undef, which also tells us we've got a domain mismatch
-            // <IDocument
-            if (window.opener && window.opener.isc === undefined) {
-                try {
-                    document.domain = document.domain.replace(/.*?\./, '');
-                } catch (ee) {
-                    break;
-                }
-            } else {
-                break;
-            }
+            if (window.opener && window.opener.isc) break;
+            if (window.top.isc) break;
+            
+            if (!set) { document.domain = document.domain; set = true; }
+            else { document.domain = document.domain.replace(/.*?\./, ''); }
         } catch (e) {
             try {
-                document.domain = document.domain.replace(/.*?\./, '');
+                if (!set) { document.domain = document.domain; set = true }
+                else { document.domain = document.domain.replace(/.*?\./, ''); }
             } catch (ee) {
                 break;
             }
@@ -35,4 +31,5 @@ if (!window.isc && (window.opener != null || window.top != window)) {
 }
 
 </SCRIPT>
+
 </HTML>

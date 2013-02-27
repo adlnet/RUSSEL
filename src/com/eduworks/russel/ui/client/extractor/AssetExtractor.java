@@ -42,6 +42,8 @@ public class AssetExtractor {
 	public static final String VIDEO = "video";
 	public static final String PROJECT = "project";
 	public static final String LINK = "link";
+	public static final String FLR = "flr";
+
 	
 	//private Vector<String> potentialAssets = new Vector<String>();
 		
@@ -80,7 +82,7 @@ public class AssetExtractor {
 					 ext.equalsIgnoreCase("rtf")||ext.equalsIgnoreCase("tex")||ext.equalsIgnoreCase("txt")||ext.equalsIgnoreCase("wpd")||ext.equalsIgnoreCase("wps")||ext.equalsIgnoreCase("xlr")||ext.equalsIgnoreCase("xls")||
 					 ext.equalsIgnoreCase("xlsx")||ext.equalsIgnoreCase("indd")||ext.equalsIgnoreCase("pct")||ext.equalsIgnoreCase("pdf")||ext.equalsIgnoreCase("ppt")||ext.equalsIgnoreCase("pptx"))
 				acc = DOCUMENT;
-			else if (ext.equalsIgnoreCase("rlk"))
+			else if (ext.equalsIgnoreCase("rlk")||ext.equalsIgnoreCase("rlr"))
 				acc = LINK;
 			else
 				acc = DOCUMENT;
@@ -110,20 +112,20 @@ public class AssetExtractor {
 			ext.equalsIgnoreCase("rtf")||ext.equalsIgnoreCase("tex")||ext.equalsIgnoreCase("txt")||ext.equalsIgnoreCase("wpd")||ext.equalsIgnoreCase("wps")||
 			ext.equalsIgnoreCase("3g2")||ext.equalsIgnoreCase("3gp")||ext.equalsIgnoreCase("asf")||ext.equalsIgnoreCase("asx")||ext.equalsIgnoreCase("avi")||
 			ext.equalsIgnoreCase("flv")||ext.equalsIgnoreCase("mov")||ext.equalsIgnoreCase("mp4")||ext.equalsIgnoreCase("mpg")||ext.equalsIgnoreCase("rm")||
-			ext.equalsIgnoreCase("srt")||ext.equalsIgnoreCase("swf")||ext.equalsIgnoreCase("vob")||ext.equalsIgnoreCase("rpf")||ext.equalsIgnoreCase("rlk"))
+			ext.equalsIgnoreCase("srt")||ext.equalsIgnoreCase("swf")||ext.equalsIgnoreCase("vob")||ext.equalsIgnoreCase("rpf")||ext.equalsIgnoreCase("rlr")||ext.equalsIgnoreCase("rlk"))
 			acc = true;
-		else if ((fileKSize>10)&&(ext.equalsIgnoreCase("aif")||ext.equalsIgnoreCase("iff")||ext.equalsIgnoreCase("m3u")||ext.equalsIgnoreCase("m4a")||
+		else if ((fileKSize>10)&&((ext.equalsIgnoreCase("aif")||ext.equalsIgnoreCase("iff")||ext.equalsIgnoreCase("m3u")||ext.equalsIgnoreCase("m4a")||
 				 ext.equalsIgnoreCase("mid")||ext.equalsIgnoreCase("mp3")||ext.equalsIgnoreCase("mpa")||ext.equalsIgnoreCase("ra")||ext.equalsIgnoreCase("swa")||
-				 ext.equalsIgnoreCase("wav")||ext.equalsIgnoreCase("wma")))
+				 ext.equalsIgnoreCase("wav")||ext.equalsIgnoreCase("wma"))))
 			acc = true;
-		else if ((fileKSize>50)&&(ext.equalsIgnoreCase("gif")||ext.equalsIgnoreCase("giff")||ext.equalsIgnoreCase("jpeg")||ext.equalsIgnoreCase("jpg")||ext.equalsIgnoreCase("png")))
+		else if ((fileKSize>50)&&((ext.equalsIgnoreCase("gif")||ext.equalsIgnoreCase("giff")||ext.equalsIgnoreCase("jpeg")||ext.equalsIgnoreCase("jpg")||ext.equalsIgnoreCase("png"))))
 			acc = true;
-		else if ((fileKSize>100)&&(ext.equalsIgnoreCase("key")||ext.equalsIgnoreCase("pps")||ext.equalsIgnoreCase("ppt")||ext.equalsIgnoreCase("pptx")||ext.equalsIgnoreCase("yuv")||
-				 ext.equalsIgnoreCase("psd")||ext.equalsIgnoreCase("dds")))
+		else if ((fileKSize>100)&&((ext.equalsIgnoreCase("key")||ext.equalsIgnoreCase("pps")||ext.equalsIgnoreCase("ppt")||ext.equalsIgnoreCase("pptx")||ext.equalsIgnoreCase("yuv")||
+				 ext.equalsIgnoreCase("psd")||ext.equalsIgnoreCase("dds"))))
 			acc = true;
-		else if ((fileKSize>200)&&(ext.equalsIgnoreCase("pspimage")||ext.equalsIgnoreCase("tga")||ext.equalsIgnoreCase("tif")||ext.equalsIgnoreCase("tiff")))
+		else if ((fileKSize>200)&&((ext.equalsIgnoreCase("pspimage")||ext.equalsIgnoreCase("tga")||ext.equalsIgnoreCase("tif")||ext.equalsIgnoreCase("tiff"))))
 			acc = true;
-		else if ((fileKSize>400)&&(ext.equalsIgnoreCase("bmp")||ext.equalsIgnoreCase("dng")))
+		else if ((fileKSize>400)&&((ext.equalsIgnoreCase("bmp")||ext.equalsIgnoreCase("dng"))))
 			acc = true;
 		
 		extractAssetsFromPlainText(filedata);

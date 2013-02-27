@@ -1,16 +1,17 @@
 isc.DataSource.create({
-    Constructor:"SimpleType",
+    allowAdvancedCriteria:true,
     ID:"SimpleType",
     addGlobalId:false,
-    inheritsFrom:"DataSourceField",
-    fields:{
-        inheritsFrom:{
+    Constructor:"SimpleType",
+    fields:[
+        {
             name:"inheritsFrom",
             type:"string"
         },
-        editorType:{
+        {
             name:"editorType",
             type:"string"
         }
-    }
+    ],
+    inheritsFrom:"DataSourceField"
 })

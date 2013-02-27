@@ -49,6 +49,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 :: Star Ratings
 :: EPSS Screens
 :: Collection Screen
+:: Status Window
 */
 
 
@@ -78,7 +79,7 @@ body {background-color: #f2f2f2;}
 
 #content {border: none;}
 
-.reveal-modal .vertical.tabs a:hover {background-color: #00A6FC; color:#fff !important;}
+.reveal-modal .vertical.tabs a:hover { z-index: 301; background-color: #00A6FC; color:#fff !important;}
 
 /* -----------------------------------------
    Header Styles
@@ -597,6 +598,8 @@ body#login {background-color: #b3b3b3;}
 .tile .file.link .front .title .icon {background-image: url(../images/icon-link.png);}
 .tile .file.link .back {background-image: url(../images/file-link-back.png);}
 
+.tile .file.external .front .title .icon {background-image: url(../images/icon-external.png);}
+.tile .file.external .back {background-image: url(../images/file-external-back.png);}
 .tile .file.project .front .title .icon {background-image: url(../images/icon-project.png);}
 .tile .file.project .back {background-image: url(../images/file-project-back.png);}
 
@@ -729,6 +732,7 @@ body#login {background-color: #b3b3b3;}
 .tile.large .file.image .back {background-image: url(../images/file-image-back-large.png);}
 .tile.large .file.video .back {background-image: url(../images/file-video-back-large.png);}
 .tile.large .file.link .back {background-image: url(../images/file-link-back-large.png);}
+.tile.large .file.external .back {background-image: url(../images/file-external-back-large.png);}
 .tile.large .file.project .back {background-image: url(../images/file-project-back-large.png);}
 .tile.large .file.collection .back {background-image: url(../images/app-collections-back-large.png);}
 
@@ -839,6 +843,7 @@ body#login {background-color: #b3b3b3;}
 .r-obj-small .r-icon.course{ background-image: url(../images/icon-course.png);}
 .r-obj-small .r-icon.video{ background-image: url(../images/icon-video.png);}
 .r-obj-small .r-icon.link{ background-image: url(../images/icon-link.png);}
+.r-obj-small .r-icon.external{ background-image: url(../images/icon-external.png);}
 .r-obj-small .r-icon.project{ background-image: url(../images/icon-project.png);}
 .r-obj-small .r-icon.audio{ background-image: url(../images/icon-TBD.png);}
 
@@ -1043,6 +1048,7 @@ body#login {background-color: #b3b3b3;}
 #r-obj-full .r-icon.video{ background-image: url(../images/icon-video-large.png);}
 #r-obj-full .r-icon.project{ background-image: url(../images/icon-project-large.png);}
 #r-obj-full .r-icon.link{ background-image: url(../images/icon-link-large.png);}
+#r-obj-full .r-icon.external{ background-image: url(../images/icon-external-large.png);}
 #r-obj-full .r-icon.audio{ background-image: url(../images/icon-TBD.png);}
 
 #r-obj-full .r-warning {
@@ -1121,6 +1127,12 @@ body#login {background-color: #b3b3b3;}
 	cursor: pointer;
 	color: #2A85E8;
 	background: url(../images/icon-edit.png) top right no-repeat;
+}
+
+#r-obj-full #detailEpssStrategies {margin-bottom:5px;}
+#r-obj-full #detailEpssStrategies .info {
+	border-bottom: 1px dotted #555;
+	cursor: help;
 }
 
 /* User Comments */
@@ -1470,6 +1482,87 @@ body#login {background-color: #b3b3b3;}
 
 #collectionAddFiles {float:right;}
 
+/* -----------------------------------------
+   Status Window
+----------------------------------------- */
+
+.animate {
+	/* applied to elements prior to changes */
+	-webkit-transition: all .25s;
+	-moz-transition:    all .25s;
+	-o-transition:      all .25s;
+	-ms-transition:     all .25s;
+	transition:         all .25s;
+}
+
+#statusWindow {
+	position: fixed;
+	padding-right: 20px;
+	
+	top: 100px;
+	right: -15px;
+	width: 50px;
+	
+	z-index: 1000;
+	background-color:#fff;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+	border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+}
+
+#statusWindow.expand {
+	width: 300px;
+	max-width: 100%;
+}
+
+#statusWindow #icon-container {
+	position: relative;
+	width: 50px;
+}
+
+#statusWindow #title {display:none; margin: 10px; cursor: pointer;}
+#statusWindow.expand #title {display:inline-block;}
+
+#statusWindow.expand #icon-container{
+	position: absolute;
+	right: 20px;
+	top: 0;
+}
+
+#statusWindow #icon {
+	display: block;
+	width: 50px;
+	height: 50px;
+	cursor: pointer;
+}
+
+#statusWindow  #count {
+	display: block;
+	position: absolute; 
+    top:8px;
+    right:5px;
+    padding:1px 2px 1px 2px;
+    background-color:red;
+    color:white;
+    font: bold 11px Verdana, Tahoma, Arial, sans-serif;
+    border-radius:30px;
+    box-shadow: -1px 1px 2px gray;
+}
+
+#statusWindow #icon.busy {background: url(../images/status-busy.gif) center no-repeat;}
+#statusWindow #icon.done {background: url(../images/status-done.gif) center no-repeat;}
+#statusWindow #icon.error {background: url(../images/status-error.png) center no-repeat;}
+
+#statusWindow #statusList {
+	margin-left: 10px;
+	max-height: 200px;
+	overflow: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+#statusWindow #statusList li {margin: 0;}
+#statusWindow #statusList .fileName { font-style:italic;}
 
 
 

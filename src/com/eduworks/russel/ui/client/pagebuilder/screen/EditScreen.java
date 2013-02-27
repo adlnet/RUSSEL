@@ -41,23 +41,27 @@ import org.vectomatic.dnd.DropPanel;
 import org.vectomatic.file.Blob;
 import org.vectomatic.file.File;
 
+import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.api.AlfrescoURL;
+import com.eduworks.gwt.client.net.api.FLRApi;
+import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.net.callback.FLRCallback;
+import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.FLRPacket;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
+import com.eduworks.gwt.client.ui.handler.DragDropHandler;
 import com.eduworks.gwt.client.util.Base64;
 import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.gwt.client.util.Zip;
-import com.eduworks.gwt.russel.ui.client.handler.DragDropHandler;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.epss.ProjectFileModel;
 import com.eduworks.russel.ui.client.extractor.AssetExtractor;
 import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.DOM;
@@ -79,9 +83,9 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class EditScreen extends ScreenTemplate {
-	private static String IMS_MANIFEST = "imsmanifest.xml";
-	private static String NO_PENDING_UPLOADS = "No Pending Uploads";
-	private static String PENDING_UPLOADS = " Pending Uploads";
+	private static final String IMS_MANIFEST = "imsmanifest.xml";
+	private static final String NO_PENDING_UPLOADS = "No Pending Uploads";
+	private static final String PENDING_UPLOADS = " Pending Uploads";
 	private Vector<String> editIDs = new Vector<String>();
 	private HashMap<String, String> thumbIDs = new HashMap<String, String>();
 	private Vector<AlfrescoPacket> pendingEdits;
@@ -90,6 +94,12 @@ public class EditScreen extends ScreenTemplate {
 	private MetaBuilder meta = new MetaBuilder(MetaBuilder.EDIT_SCREEN);
 	private DragDropHandler ddh = null;
 		
+	public void lostFocus() {
+//		ddh.readQueue.clear();
+//		pendingZipUploads.clear();
+//		pendingFileUploads = 0;
+	}
+	
 	public EditScreen(Vector<AlfrescoPacket> pendingEdits) {
 		this.pendingEdits = pendingEdits;
 	}
@@ -103,8 +113,12 @@ public class EditScreen extends ScreenTemplate {
 		thumbIDs = new HashMap<String, String>();
 		pendingZipUploads = new Vector<AlfrescoPacket>();
 		pendingFileUploads = 0;
-		
-		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getDetailModel().getText()));
+
+		if (DOM.getElementById("r-generalMetadata") == null) {
+			PageAssembler.getInstance().inject("contentPane", "x", new HTML(HtmlTemplates.INSTANCE.getDetailModal().getText()), true);
+			PageAssembler.getInstance().inject("objDetailPanelWidget", "x", new HTML(HtmlTemplates.INSTANCE.getDetailPanel().getText()), true);
+		}
+
 		if (Browser.isIE()) { 
 			PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getEditPanel().getText()));
 			PageAssembler.getInstance().buildContents();
@@ -122,27 +136,49 @@ public class EditScreen extends ScreenTemplate {
 	
 		PageAssembler.attachHandler("r-saveAs", Event.ONCLICK, Russel.nonFunctional);
 		
-//		PageAssembler.attachHandler("zipImport", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
-//																	@Override
-//																	public void onEvent(Event event) {
-//																		AlfrescoApi.importZipPackage(thumbIDs.get(editIDs.lastElement()),
-//																									 new AlfrescoCallback<AlfrescoPacket>() {
-//																								     	@Override
-//																								     	public void onFailure(Throwable caught) {
-//																								     		Window.alert("foobar'ed");
-//																								     	}
-//																								     	
-//																								     	@Override
-//																								     	public void onSuccess(AlfrescoPacket alfrescoPacket) {
-//																								     		Window.alert(alfrescoPacket.toJSONString());
-//																								     	}
-//																									 });
-//																	}
-//																});
+		PageAssembler.attachHandler("zipImport", Event.ONCLICK, new EventCallback() {
+																	@Override
+																	public void onEvent(Event event) {
+																		AlfrescoApi.importZipPackage(thumbIDs.get(editIDs.lastElement()),
+																									 new AlfrescoCallback<AlfrescoPacket>() {
+																								     	@Override
+																								     	public void onFailure(Throwable caught) {
+																								     		Window.alert("foobar'ed");
+																								     	}
+																								     	
+																								     	@Override
+																								     	public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																								     		Window.alert(alfrescoPacket.toJSONString());
+																								     	}
+																									 });
+																	}
+																});
+		
+		PageAssembler.attachHandler("zipExport", Event.ONCLICK, new EventCallback() {
+																	@Override
+																	public void onEvent(Event event) {
+																		AlfrescoPacket zipPack = AlfrescoPacket.makePacket();
+																		zipPack.addKeyValue("toZip", "[{\"id\":\"" + AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + thumbIDs.get(editIDs.lastElement()) + "\"}]");
+																		AlfrescoApi.exportZipPackage("test.zip",
+																									 zipPack,
+																									 new AlfrescoCallback<AlfrescoPacket>() {
+																								     	@Override
+																								     	public void onFailure(Throwable caught) {
+																								     		Window.alert("foobar'ed");
+																								     	}
+																								     	
+																								     	@Override
+																								     	public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																								     		Window.alert(alfrescoPacket.toJSONString());
+																								     	}
+																									 });
+																	}
+																});
+
 		
 		PageAssembler.attachHandler("r-editDelete", 
 									Event.ONCLICK, 
-									new AlfrescoNullCallback<AlfrescoPacket>() {
+									new EventCallback() {
 										@Override
 										public void onEvent(Event event) {
 											if (editIDs.size()==1) {
@@ -157,7 +193,7 @@ public class EditScreen extends ScreenTemplate {
 		
 		PageAssembler.attachHandler("r-editSelectAll", 
 									Event.ONCLICK, 
-									new AlfrescoNullCallback<AlfrescoPacket>() {
+									new EventCallback() {
 										@Override
 										public void onEvent(Event event) {
 											selectAllObjects();
@@ -166,14 +202,24 @@ public class EditScreen extends ScreenTemplate {
 		
 		PageAssembler.attachHandler("r-editSelectNone", 
 									Event.ONCLICK, 
-									new AlfrescoNullCallback<AlfrescoPacket>() {
+									new EventCallback() {
 										@Override
 										public void onEvent(Event event) {
 											selectionClear();
 										}
 									});
 		
-		PageAssembler.attachHandler("r-editAddFile", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-harvestFLR", 
+									Event.ONCLICK, 
+									new EventCallback() {
+										@Override
+										public void onEvent(Event event) {
+											launchFlrHarvest();
+											//launchFlrPost("This is a test of the Eduworks broadcast system.");
+										}
+									});
+
+		PageAssembler.attachHandler("r-editAddFile", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			Vector<String> iDs = PageAssembler.getInstance().inject("r-previewArea", 
@@ -187,13 +233,13 @@ public class EditScreen extends ScreenTemplate {
 																		}
 																	});
 		
-		PageAssembler.attachHandler("r-editAddFile-reset", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-editAddFile-reset", Event.ONCLICK, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				doFileReset();
 			}
 		});
-		PageAssembler.attachHandler("r-editAddFile-cancel", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-editAddFile-cancel", Event.ONCLICK, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				doFileReset();
@@ -201,13 +247,13 @@ public class EditScreen extends ScreenTemplate {
 			}
 		});
 
-		PageAssembler.attachHandler("r-editAddLink-reset", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-editAddLink-reset", Event.ONCLICK, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				doLinkReset();
 			}
 		});
-		PageAssembler.attachHandler("r-editAddLink-cancel", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-editAddLink-cancel", Event.ONCLICK, new EventCallback() {
 			@Override
 			public void onEvent(Event event) {
 				doLinkReset();
@@ -215,7 +261,7 @@ public class EditScreen extends ScreenTemplate {
 			}
 		});
 
-		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			if (((TextBox)PageAssembler.elementToWidget("editTitleLinkField", PageAssembler.TEXT)).getText()!="") {
@@ -269,7 +315,7 @@ public class EditScreen extends ScreenTemplate {
 																		}
 																	}); 
 		
-		PageAssembler.attachHandler("r-editSave", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-editSave", Event.ONCLICK, new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
 																			new Timer() {
@@ -306,7 +352,7 @@ public class EditScreen extends ScreenTemplate {
 	private void addLinkHandlers(final String idPrefix) {
 		PageAssembler.attachHandler(idPrefix + "-object", 
 									Event.ONCLICK, 
-									new AlfrescoNullCallback<AlfrescoPacket>() {
+									new EventCallback() {
 										@Override
 										public void onEvent(Event event) {
 											toggleSelection(idPrefix + "-object");
@@ -315,7 +361,7 @@ public class EditScreen extends ScreenTemplate {
 		
 		PageAssembler.attachHandler(idPrefix + "-objectDescription", 
 									Event.ONCLICK, 
-									new AlfrescoNullCallback<AlfrescoPacket>() {
+									new EventCallback() {
 										@Override
 										public void onEvent(Event event) {
 											toggleSelection(idPrefix + "-object");
@@ -330,9 +376,11 @@ public class EditScreen extends ScreenTemplate {
 		final FormPanel formPanel = (FormPanel)PageAssembler.elementToWidget("addFileForm", PageAssembler.FORM);
 		final FileUpload fileUpload = (FileUpload)PageAssembler.elementToWidget("addFileData", PageAssembler.FILE);
 		final Hidden hiddenDestination = (Hidden)PageAssembler.elementToWidget("addFileDestination", PageAssembler.HIDDEN);
+		final Hidden hiddenOverwrite = (Hidden)PageAssembler.elementToWidget("addFileOverwrite", PageAssembler.HIDDEN);
 		formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
-		formPanel.setAction(CommunicationHub.getAlfrescoUploadURL());
+		formPanel.setAction(AlfrescoURL.getAlfrescoUploadURL());
 		hiddenDestination.setValue(AlfrescoApi.currentDirectoryId);
+		hiddenOverwrite.setValue("false");
 		pendingFileUploads++;
 		formPanel.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 										@Override
@@ -356,7 +404,7 @@ public class EditScreen extends ScreenTemplate {
 									String justFileName = fn.substring(fn.lastIndexOf("\\")+1);
 									PageAssembler.attachHandler(idPrefix + "-objectDetail", 
 																Event.ONCLICK, 
-																new AlfrescoNullCallback<AlfrescoPacket>() {
+																new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
 																		toggleSelection(idPrefix + "-object");
@@ -414,14 +462,14 @@ public class EditScreen extends ScreenTemplate {
 		if (editIDs.size()>0) {
 			DOM.getElementById("r-metadataToolbar").removeClassName("hide");
 			CommunicationHub.sendHTTP(CommunicationHub.GET, 
-									  CommunicationHub.getAlfrescoNodeURL(thumbIDs.get(editIDs.lastElement())), 
+									  AlfrescoURL.getAlfrescoNodeURL(thumbIDs.get(editIDs.lastElement())), 
 									  null,
 									  false,
 									  new AlfrescoCallback<AlfrescoPacket>() {
 										@Override
 										public void onSuccess(final AlfrescoPacket nodeAP) {
 											CommunicationHub.sendHTTP(CommunicationHub.GET,
-																	  CommunicationHub.getAlfrescoTagsURL(thumbIDs.get(editIDs.lastElement())),
+																	  AlfrescoURL.getAlfrescoTagsURL(thumbIDs.get(editIDs.lastElement())),
 																	  null,
 																	  false, 
 																	  new AlfrescoCallback<AlfrescoPacket>() {
@@ -528,6 +576,34 @@ public class EditScreen extends ScreenTemplate {
 			DOM.getElementById(thumbId).removeFromParent();
 	}
 	
+//	private void launchFlrPost(String data) {
+//		FLRApi.putFLRdata(data, new FLRCallback<FLRPacket>() {
+//			@Override
+//			public void onSuccess(FLRPacket result) {
+//				Window.alert("putFLRdata reports success      " + result.toJSONString());
+//			}
+//			
+//			@Override
+//			public void onFailure(Throwable caught) {
+//				Window.alert("putFLRdata reports failure"+caught.getMessage());
+//			}			
+//		});
+//	}
+	
+	private void launchFlrHarvest() {
+		FLRApi.getFLRdata(new FLRCallback<FLRPacket>() {
+			@Override
+			public void onSuccess(FLRPacket result) {
+				Window.alert("getFLRdata reports success      " + result.toJSONString());
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("getFLRdata reports failure"+caught.getMessage());
+			}			
+		});
+	}
+	
 
 	
 	private void doPendingUploads() {
@@ -567,7 +643,7 @@ public class EditScreen extends ScreenTemplate {
 															DOM.getElementById(idNumPrefix + "-objectTitle").setInnerText(filename);
 															DOM.getElementById(idNumPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
 															DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
-															CommunicationHub.sendForm(CommunicationHub.getAlfrescoUploadURL(),
+															CommunicationHub.sendForm(AlfrescoURL.getAlfrescoUploadURL(),
 																					  filename,
 																					  AlfrescoApi.currentDirectoryId, 
 																					  ((Blob)alfrescoPacket.getValue("zipEntryData").cast()),
@@ -636,7 +712,7 @@ public class EditScreen extends ScreenTemplate {
 						DOM.getElementById(idNumPrefix  + "-objectTitle").setInnerText(file.getName());
 						DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
 						DOM.getElementById(idNumPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
-						CommunicationHub.sendForm(CommunicationHub.getAlfrescoUploadURL(), 
+						CommunicationHub.sendForm(AlfrescoURL.getAlfrescoUploadURL(), 
 												  file.getName(), 
 												  AlfrescoApi.currentDirectoryId, 
 												  file, 
@@ -683,7 +759,7 @@ public class EditScreen extends ScreenTemplate {
 		final String nodeID = jsonResult.getNodeId();
 		thumbIDs.put(idNumPrefix + "-object", nodeID);
 		((Label)PageAssembler.elementToWidget(idNumPrefix + "-objectTitle", PageAssembler.LABEL)).setText(jsonResult.getFilename());
-		PageAssembler.attachHandler(idNumPrefix + "-objectDetail", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idNumPrefix + "-objectDetail", Event.ONCLICK, new EventCallback() {
 																  	@Override
 																  	public void onEvent(Event event) {
 																  		Russel.view.loadScreen(new DetailScreen(jsonResult), true);
@@ -702,7 +778,7 @@ public class EditScreen extends ScreenTemplate {
 										});
 		PageAssembler.attachHandler(idNumPrefix + "-objectDescription", 
 									Event.ONCLICK, 
-									new AlfrescoNullCallback<AlfrescoPacket>() {
+									new EventCallback() {
 										@Override
 										public void onEvent(Event event) {
 											toggleSelection(idNumPrefix + "-object");

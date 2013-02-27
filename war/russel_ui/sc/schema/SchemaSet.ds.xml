@@ -1,25 +1,26 @@
 isc.DataSource.create({
-    Constructor:"SchemaSet",
+    allowAdvancedCriteria:true,
     ID:"SchemaSet",
     addGlobalId:false,
-    fields:{
-        schemaNamespace:{
+    Constructor:"SchemaSet",
+    fields:[
+        {
             name:"schemaNamespace",
             type:"url"
         },
-        schemaImports:{
-            multiple:true,
+        {
             name:"schemaImports",
-            type:"Object"
+            type:"Object",
+            multiple:true
         },
-        qualifyAll:{
+        {
             name:"qualifyAll",
             type:"boolean"
         },
-        schema:{
-            multiple:true,
+        {
             name:"schema",
-            type:"DataSource"
+            type:"DataSource",
+            multiple:true
         }
-    }
+    ]
 })

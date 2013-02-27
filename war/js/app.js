@@ -857,6 +857,13 @@ $('#r-editSave').unbind('click').live('click', function() {
 
 /* ---- RUSSELS screens ---- */
 
+/* File Status: Show or hide details */
+$('#statusWindow #icon, #statusWindow #title').unbind('click').live('click', function() {
+	$('#statusWindow').toggleClass('expand');
+	$('#statusWindow #statusList').slideToggle('fast');
+	return false;
+});
+
 /* Search results: Show more options */
 $('#showSearchOptions').unbind('click').live('click', function() {
 	$(this).remove();
@@ -864,7 +871,50 @@ $('#showSearchOptions').unbind('click').live('click', function() {
 	return false;
 });
 
+/* New Collection: show or hide smart collection options */
+$("#colType2Label").unbind('click').live('click', function() {
+	if($('#colType2').is(':checked')) {
+		$("#smartColOptions").slideDown('fast');
+	}
+});
+$("#colType1Label").unbind('click').live('click', function() {
+	if($('#colType1').is(':checked')) {
+		$("#smartColOptions").slideUp('fast');
+	}
+});
 
+/* New Collection: check and uncheck smart collection rules */
+$(".smartRuleCheck").unbind('click').live('click', function() {
+	var ck = $(this);
+	var rule = ck.parent();
+	rule.toggleClass("select");
+	
+	if (ck.is(':checked')) {
+		$(ck).siblings().removeAttr('disabled');
+	} else {
+		$(ck).siblings().attr('disabled', 'disabled');
+	}
+});
+
+/* Collection Files: Show/hide search options */
+$("#collectionAddFiles").unbind('click').live('click', function() {
+	var btn = $(this);
+	$(btn).toggleClass('white', 'blue');
+	$('#findAssets').slideToggle('fast');
+	if ($(btn).hasClass('white')) {
+		$(btn).html('Hide File Search');
+	} else {
+		$(btn).html('Add Files');
+	}
+});
+
+/* Collection Files: Show search results when user presses ENTER */
+$('#r-collectionAssetSearch').unbind('keypress').live('keypress', function (e) {
+  if (e.which == 13) {
+    // Submit search terms and how results
+	$('#collectionFileSearchResults').slideDown('fast');
+  }
+});
 
 /* Object Details Screen: Show more details */
 $("#r-metadata-hide").unbind('click').live('click', function() {

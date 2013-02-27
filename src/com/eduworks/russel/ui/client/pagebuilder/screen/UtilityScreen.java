@@ -33,10 +33,10 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.DOM;
@@ -51,10 +51,14 @@ public class UtilityScreen extends ScreenTemplate {
 	public static final String ACCOUNT_TYPE = "account";
 	public static final String USERS_TYPE = "users";
 	public static final String GROUPS_TYPE = "groups";
+	public static final String REPSETTINGS_TYPE = "repository";
 	
 	public String utilType;
 	private String pageTitle;
 	private String alfURL;
+	
+	public void lostFocus() {
+	}
 	
 	public void display() {
 		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getUtilityPanel().getText()));
@@ -77,6 +81,10 @@ public class UtilityScreen extends ScreenTemplate {
 			pageTitle = "Manage Groups";
 			alfURL = "share/page/console/admin-console/groups";			
 		}
+		else if (utilType.equals(REPSETTINGS_TYPE)) {
+			pageTitle = "Repository Settings";
+			alfURL = null;			
+		}
 		else {
 			pageTitle = "Unknown Alfresco Utility";
 			alfURL = null;			
@@ -84,7 +92,7 @@ public class UtilityScreen extends ScreenTemplate {
 		
 		DOM.getElementById("r-pageTitle").setInnerHTML("<h4>"+pageTitle+"</h4>");
 		
-		if (!alfURL.equals(null)) {
+		if (alfURL != null) {
 			String frameSrc = CommunicationHub.ROOT_URL + alfURL + "?" + CommunicationHub.randomString(); 
 	 		final Frame f = new Frame();
 	 		f.getElement().setAttribute("seamless", "seamless");
@@ -113,6 +121,9 @@ public class UtilityScreen extends ScreenTemplate {
 							});
 	 		f.setUrl(frameSrc);
 	 		RootPanel.get("r-alfrescoUtil").add(f);
+		}
+		else if (utilType.equals(REPSETTINGS_TYPE)) {
+			DOM.getElementById("r-alfrescoUtil").setInnerHTML("new repository settings form will go here...");
 		}
 	}
 }

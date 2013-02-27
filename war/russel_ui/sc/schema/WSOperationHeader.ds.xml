@@ -1,15 +1,16 @@
 isc.DataSource.create({
+    allowAdvancedCriteria:true,
     ID:"WSOperationHeader",
     addGlobalId:false,
-    fields:{
-        encoding:{
+    fields:[
+        {
             name:"encoding"
         },
-        message:{
+        {
             name:"message"
         },
-        part:{
+        {
             name:"part"
         }
-    }
+    ]
 })

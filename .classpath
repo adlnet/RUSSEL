@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="test-classes" path="test"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_04"/>
 	<classpathentry kind="lib" path="lib/gwt-dnd-3.1.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/EwAppGwt"/>
 	<classpathentry kind="lib" path="lib/lib-gwt-file-0.3.jar"/>

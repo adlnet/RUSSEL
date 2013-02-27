@@ -33,14 +33,13 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.epss.ProjectFileModel;
 import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
@@ -51,10 +50,20 @@ public class FeatureScreen extends ScreenTemplate {
 
 	public static final String PROJECTS_TYPE = "projects";
 	public static final String COLLECTIONS_TYPE = "collections";
+	public static final String FLR_TYPE = "flr";
 	
 	public String featureType;
 	private String pageTitle;
-
+	
+	private AlfrescoSearchHandler ash;
+	public void lostFocus() {
+		ash.stop();
+	}
+	
+	private final native String doClose(String dialog) /*-{
+		return $wnd.$('#projectProperties').trigger('reveal:close');
+	}-*/;
+	
 	public void display() {
 		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getFeatureHomePanel().getText()));
 		PageAssembler.getInstance().buildContents();
@@ -68,12 +77,14 @@ public class FeatureScreen extends ScreenTemplate {
 			DOM.getElementById("r-menuProjects").addClassName("active");
 			DOM.getElementById("r-menuCollections").removeClassName("active");
 			DOM.getElementById("r-MyFilesTile").addClassName("hidden");
+			DOM.getElementById("r-FLRfilesTile").addClassName("hidden");
 		} 
 		else if (featureType.equals(COLLECTIONS_TYPE)) {
 			pageTitle = "Collections";
 			DOM.getElementById("r-menuCollections").addClassName("active");
 			DOM.getElementById("r-menuProjects").removeClassName("active");
 			DOM.getElementById("r-MyFilesTile").removeClassName("hidden");
+			DOM.getElementById("r-FLRfilesTile").removeClassName("hidden");
 		} 
 		else {
 			Window.alert("FeatureScreen received request for "+featureType);
@@ -82,7 +93,7 @@ public class FeatureScreen extends ScreenTemplate {
 
 		DOM.getElementById("r-pageTitle").setInnerHTML("<h4>"+pageTitle+"</h4>");
 				
-		AlfrescoSearchHandler ash = new AlfrescoSearchHandler();
+		ash = new AlfrescoSearchHandler();
 		if (featureType.equals(PROJECTS_TYPE)) {
 			// The newCollectionModal is not "hooked" in the template, so it does not need to be removed for the Projects feature.
 			DOM.getElementById("r-newEntityFront").setInnerHTML("<p class='title'>New Project</p>");
@@ -105,26 +116,37 @@ public class FeatureScreen extends ScreenTemplate {
 		}
 		
 		// Handlers for EPSS Home Screen
-		PageAssembler.attachHandler("epss-gagne", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("epss-gagne", Event.ONCLICK, new EventCallback() {
 												   	   @Override
 												   	   public void onEvent(Event event) {
+												   		   doClose("#newProjectModal");
 												   		   Russel.view.loadScreen(new EPSSEditScreen(new ProjectFileModel(ProjectFileModel.GAGNE_TEMPLATE)), true);
 													   }
 												   });
 
-		PageAssembler.attachHandler("epss-sim", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("epss-sim", Event.ONCLICK, new EventCallback() {
 														@Override
 														public void onEvent(Event event) {
-															Russel.view.loadScreen(new EPSSEditScreen(new ProjectFileModel(ProjectFileModel.SIMULATION_TEMPLATE)), true);
+													   		   doClose("#newProjectModal");
+													   		   Russel.view.loadScreen(new EPSSEditScreen(new ProjectFileModel(ProjectFileModel.SIMULATION_TEMPLATE)), true);
 														}
 													});
 		
 		// Handlers for Collections Home Screen
-		PageAssembler.attachHandler("myFiles", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("myFiles", Event.ONCLICK, new EventCallback() {
 												   	   @Override
 												   	   public void onEvent(Event event) {
 													   		ResultsScreen rs = new ResultsScreen();
 													   		rs.searchType = AlfrescoSearchHandler.COLLECTION_TYPE; 
+													   		Russel.view.loadScreen(rs, true);
+													   }
+												   });
+
+		PageAssembler.attachHandler("FLRFiles", Event.ONCLICK, new EventCallback() {
+												   	   @Override
+												   	   public void onEvent(Event event) {
+													   		ResultsScreen rs = new ResultsScreen();
+													   		rs.searchType = AlfrescoSearchHandler.FLR_TYPE; 
 													   		Russel.view.loadScreen(rs, true);
 													   }
 												   });

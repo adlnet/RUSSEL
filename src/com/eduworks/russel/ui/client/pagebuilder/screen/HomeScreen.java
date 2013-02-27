@@ -33,28 +33,29 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.client.util.Browser;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.russel.ui.client.Constants;
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class HomeScreen extends ScreenTemplate {
+
+	private AlfrescoSearchHandler ash;  // The prior definition was "final" -- test to see if this breaks
+	public void lostFocus() {
+		ash.stop();
+	}
+	
 	public void display() {
 		((Label)PageAssembler.elementToWidget("r-menuUserName", PageAssembler.LABEL)).setText(AlfrescoApi.username);
 
-		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getDetailModel().getText()));
 		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getMenuBar().getText()));
 		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getObjectPanel().getText()));
 		PageAssembler.getInstance().buildContents();
@@ -63,41 +64,35 @@ public class HomeScreen extends ScreenTemplate {
 		DOM.getElementById("r-menuCollections").removeClassName("active");
 		DOM.getElementById("r-menuProjects").removeClassName("active");
 
-		final AlfrescoSearchHandler ash = new AlfrescoSearchHandler();
+		ash = new AlfrescoSearchHandler();
 		
-		PageAssembler.attachHandler("r-uploadContentTile", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-uploadContentTile", Event.ONCLICK, new EventCallback() {
 																				@Override
 																				public void onEvent(Event event) {
 																					Russel.view.loadScreen(new EditScreen(), true);
 																				}
 																			});
 		
-		PageAssembler.attachHandler("r-projectsTile", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-projectsTile", Event.ONCLICK, new EventCallback() {
 																			@Override
 																			public void onEvent(Event event) {
-																				if (!Browser.isIE()) {
-																					FeatureScreen fs = new FeatureScreen();
-																					fs.featureType = FeatureScreen.PROJECTS_TYPE;
-																					Russel.view.loadScreen(fs, true);
-																				}
-																				else Window.alert(Constants.UNSUPPORTED_IE_FEATURE);
-																			}
-																	 });
-		
-
-		PageAssembler.attachHandler("r-menuProjects", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
-																		@Override
-																		public void onEvent(Event event) {
-																			if (!Browser.isIE()) {
 																				FeatureScreen fs = new FeatureScreen();
 																				fs.featureType = FeatureScreen.PROJECTS_TYPE;
 																				Russel.view.loadScreen(fs, true);
 																			}
-																			else Window.alert(Constants.UNSUPPORTED_IE_FEATURE);
+																	 });
+		
+
+		PageAssembler.attachHandler("r-menuProjects", Event.ONCLICK, new EventCallback() {
+																		@Override
+																		public void onEvent(Event event) {
+																			FeatureScreen fs = new FeatureScreen();
+																			fs.featureType = FeatureScreen.PROJECTS_TYPE;
+																			Russel.view.loadScreen(fs, true);
 																		}
 																	 });
 		
-		PageAssembler.attachHandler("r-menuCollections", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-menuCollections", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			FeatureScreen fs = new FeatureScreen();
@@ -106,7 +101,7 @@ public class HomeScreen extends ScreenTemplate {
 																		}
 																	 });
 
-		PageAssembler.attachHandler("r-collectionsTile", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-collectionsTile", Event.ONCLICK, new EventCallback() {
 																			@Override
 																			public void onEvent(Event event) {
 																				FeatureScreen fs = new FeatureScreen();
@@ -115,7 +110,7 @@ public class HomeScreen extends ScreenTemplate {
 																			}
 																		 });
 		
-		PageAssembler.attachHandler("r-accountSettingsTile", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-accountSettingsTile", Event.ONCLICK, new EventCallback() {
 																			@Override
 																			public void onEvent(Event event) {
 																				UtilityScreen us = new UtilityScreen();
@@ -124,7 +119,7 @@ public class HomeScreen extends ScreenTemplate {
 																			}
 																		 });	
 		
-		PageAssembler.attachHandler("r-manageUsersTile", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-manageUsersTile", Event.ONCLICK, new EventCallback() {
 																			@Override
 																			public void onEvent(Event event) {
 																				UtilityScreen us = new UtilityScreen();
@@ -133,7 +128,7 @@ public class HomeScreen extends ScreenTemplate {
 																			}
 																		 });
 						
-		PageAssembler.attachHandler("r-groupTile", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-groupTile", Event.ONCLICK, new EventCallback() {
 																			@Override
 																			public void onEvent(Event event) {
 																				UtilityScreen us = new UtilityScreen();
@@ -142,7 +137,15 @@ public class HomeScreen extends ScreenTemplate {
 																			}
 																		 });
 		
-		PageAssembler.attachHandler("r-repositorySettingsTile", Event.ONCLICK, Russel.nonFunctional);
+		PageAssembler.attachHandler("r-repositorySettingsTile", Event.ONCLICK, new EventCallback() {
+																			@Override
+																			public void onEvent(Event event) {
+																				UtilityScreen us = new UtilityScreen();
+																				us.utilType = UtilityScreen.REPSETTINGS_TYPE;
+																				Russel.view.loadScreen(us, true);
+																			}
+																		 });
+		
 		PageAssembler.attachHandler("r-menuHelp", Event.ONCLICK, Russel.nonFunctional);
 		PageAssembler.attachHandler("r-taxonomiesTile", Event.ONCLICK, Russel.nonFunctional);
 		PageAssembler.attachHandler("notebook", Event.ONCLICK, Russel.nonFunctional);

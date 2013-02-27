@@ -1,61 +1,47 @@
 isc.DataSource.create({
+    allowAdvancedCriteria:true,
     ID:"QuartzJobs",
-    dbName:"ANY_DATA",
-    serverConstructor:"com.isomorphic.scheduler.QuartzJobs",
-    fields:{
-        group:{
+    fields:[
+        {
+            primaryKey:true,
             name:"group",
-            primaryKey:true,
-            required:true,
-            type:"string"
+            type:"string",
+            required:true
         },
-        name:{
+        {
+            primaryKey:true,
             name:"name",
-            primaryKey:true,
-            required:true,
-            type:"string"
+            type:"string",
+            required:true
         },
-        description:{
+        {
             name:"description",
             type:"string"
         },
-        "class":{
-            name:"class",
-            required:true,
-            type:"string"
+        {
+            name:"className",
+            type:"string",
+            required:true
         },
-        dataMap:{
+        {
+            name:"volatility",
+            type:"boolean",
+            defaultValue:"false"
+        },
+        {
+            name:"durability",
+            type:"boolean",
+            defaultValue:"true"
+        },
+        {
+            name:"recover",
+            type:"boolean",
+            defaultValue:"true"
+        },
+        {
             name:"dataMap",
-            type:"string"
-        },
-        state:{
-            canEdit:false,
-            name:"state",
-            type:"intEnum",
-            valueMap:{
-                "0":"Normal",
-                "1":"Paused",
-                "2":"Complete",
-                "3":"Error",
-                "4":"Blocked",
-                "-1":"None"
-            }
-        },
-        startTime:{
-            name:"startTime",
-            type:"datetime"
-        },
-        endTime:{
-            name:"endTime",
-            type:"datetime"
-        },
-        cronExpression:{
-            name:"cronExpression",
-            type:"text"
-        },
-        timeZone:{
-            name:"timeZone",
-            type:"text"
+            showIf:"false",
+            type:"Object"
         }
-    }
+    ]
 })

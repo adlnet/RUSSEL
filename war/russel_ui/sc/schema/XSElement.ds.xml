@@ -1,6 +1,9 @@
 isc.DataSource.create({
-    Constructor:"XSElement",
+    allowAdvancedCriteria:true,
     ID:"XSElement",
     addGlobalId:false,
+    Constructor:"XSElement",
+    fields:[
+    ],
     inheritsFrom:"DataSource"
 })

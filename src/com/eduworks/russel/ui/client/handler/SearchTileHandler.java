@@ -35,18 +35,20 @@ package com.eduworks.russel.ui.client.handler;
 
 import java.util.Vector;
 
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.api.AlfrescoURL;
+import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.russel.ui.client.Constants;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.epss.ProjectFileModel;
 import com.eduworks.russel.ui.client.extractor.AssetExtractor;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
 import com.eduworks.russel.ui.client.pagebuilder.screen.DetailScreen;
 import com.eduworks.russel.ui.client.pagebuilder.screen.EPSSEditScreen;
 import com.google.gwt.dom.client.Document;
@@ -55,7 +57,9 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class SearchTileHandler {
@@ -76,7 +80,7 @@ public class SearchTileHandler {
 	}
 	
 	public void addHooks() {	
-		PageAssembler.attachHandler(idPrefix + "-objectClick", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idPrefix + "-objectClick", Event.ONCLICK, new EventCallback() {
 																				@Override
 																				public void onEvent(Event event) {
 																					if (tileType.equals(AlfrescoSearchHandler.PROJECT_TYPE))
@@ -94,19 +98,20 @@ public class SearchTileHandler {
 																																	}
 																																});
 																					else if (tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)||tileType.equals(AlfrescoSearchHandler.ASSET_TYPE)||
-																							 tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE)||tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)) 
+																							 tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE)||tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)|| 
+																							 tileType.equals(AlfrescoSearchHandler.FLR_TYPE)) 
 																						Russel.view.loadScreen(new DetailScreen(searchRecord, tile), false);
 																				}
 																			  });
 		
-		PageAssembler.attachHandler(idPrefix + "-objectSelect", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idPrefix + "-objectSelect", Event.ONCLICK, new EventCallback() {
 																					@Override
 																					public void onEvent(Event event) {
 																						ash.toggleSelection(idPrefix + "-object", searchRecord);
 																					}
 																				});
 		
-		PageAssembler.attachHandler(idPrefix + "-objectOpen", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idPrefix + "-objectOpen", Event.ONCLICK, new EventCallback() {
 																				@Override
 																				public void onEvent(Event event) {
 																					if (tileType.equals(AlfrescoSearchHandler.PROJECT_TYPE))
@@ -125,12 +130,12 @@ public class SearchTileHandler {
 																																});
 																					else if (tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)||tileType.equals(AlfrescoSearchHandler.ASSET_TYPE) ||
 																							 tileType.equals(AlfrescoSearchHandler.NOTES_TYPE) ||tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE)||
-																							 tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE))
+																							 tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)||tileType.equals(AlfrescoSearchHandler.FLR_TYPE))
 																						Russel.view.loadScreen(new DetailScreen(searchRecord, tile), false);
 																				}
 																			 });
 		
-		PageAssembler.attachHandler(idPrefix + "-objectDelete", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idPrefix + "-objectDelete", Event.ONCLICK, new EventCallback() {
 																					@Override
 																					public void onEvent(Event event) {
 																						if (Window.confirm("Are you sure you wish to delete this item?"))
@@ -148,7 +153,7 @@ public class SearchTileHandler {
 																					}
 																				});
 		
-		PageAssembler.attachHandler(idPrefix + "-objectRemove", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idPrefix + "-objectRemove", Event.ONCLICK, new EventCallback() {
 																					@Override
 																					public void onEvent(Event event) {
 																						removeTile();
@@ -158,7 +163,7 @@ public class SearchTileHandler {
 																					}
 																				});
 		
-		PageAssembler.attachHandler(idPrefix + "-objectAdd", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idPrefix + "-objectAdd", Event.ONCLICK, new EventCallback() {
 																				@Override
 																				public void onEvent(Event event) {
 																					Element e = DOM.getElementById(idPrefix + "-object");
@@ -180,7 +185,7 @@ public class SearchTileHandler {
 																				}
 																			});
 		
-		PageAssembler.attachHandler(idPrefix + "-objectNotes", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(idPrefix + "-objectNotes", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			((Label)PageAssembler.elementToWidget("projectAssetTitle", PageAssembler.LABEL)).setText(DOM.getElementById(idPrefix + "-objectTitle").getInnerText());
@@ -209,11 +214,15 @@ public class SearchTileHandler {
 			DOM.getElementById(idPrefix + "-assetNote").removeFromParent();
 	}
 	
-	public void refreshTile(final AlfrescoNullCallback<AlfrescoPacket> callback) {
+	public void fillTile(final EventCallback callback) {
+		
+	}
+	
+	public void refreshTile(final EventCallback callback) {
 		((Label)PageAssembler.elementToWidget(idPrefix + "-objectState", PageAssembler.LABEL)).setStyleName("cube file");
 		((Label)PageAssembler.elementToWidget(idPrefix + "-objectState", PageAssembler.LABEL)).addStyleName(AssetExtractor.getFileType(searchRecord.getFilename()));
 		CommunicationHub.sendHTTP(CommunicationHub.GET,
-				  CommunicationHub.getAlfrescoRatingURL(searchRecord.getNodeId()),
+				  AlfrescoURL.getAlfrescoRatingURL(searchRecord.getNodeId()),
 				  null,
 				  false,
 				  new AlfrescoCallback<AlfrescoPacket>() {
@@ -240,14 +249,14 @@ public class SearchTileHandler {
 				    		callback.onEvent(null);
 						
 						CommunicationHub.sendHTTP(CommunicationHub.GET,
-								  CommunicationHub.getAlfrescoNodeURL(searchRecord.getNodeId() + "/comments"), 
+								  AlfrescoURL.getAlfrescoNodeURL(searchRecord.getNodeId() + "/comments"), 
 								  null, 
 								  false,
 								  new AlfrescoCallback<AlfrescoPacket>() {
 								    @Override
 									public void onSuccess(final AlfrescoPacket commentPacket) {
 								    	CommunicationHub.sendHTTP(CommunicationHub.GET,
-								    							  CommunicationHub.getAlfrescoNodeURL(searchRecord.getNodeId()), 
+								    							  AlfrescoURL.getAlfrescoNodeURL(searchRecord.getNodeId()), 
 																  null, 
 																  false,
 																  new AlfrescoCallback<AlfrescoPacket>() {
@@ -287,9 +296,13 @@ public class SearchTileHandler {
 																																
 																																@Override
 																																public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																																	DOM.getElementById(idPrefix + "-objectDescription").setAttribute("style", "background-image:url(" + alfrescoPacket.getValueString("imageURL") + ");");
-																																	//IE fix
-																																	//RootPanel.get(idPrefix + "-objectDescription").add(new Image(alfrescoPacket.getValue("imageURL").toString()));
+																																	if (!Browser.isIE())
+																																		DOM.getElementById(idPrefix + "-objectDescription").setAttribute("style", "background-image:url(" + alfrescoPacket.getValueString("imageURL") + ");");
+																																	else {
+																																		Image thumb = new Image();
+																																		thumb.setUrl(alfrescoPacket.getValue("imageURL").toString());
+																																		RootPanel.get(idPrefix + "-objectDescription").add(thumb);
+																																	}
 																																}
 																														   });
 																	}

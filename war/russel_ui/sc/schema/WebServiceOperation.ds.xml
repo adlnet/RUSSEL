@@ -1,33 +1,34 @@
 isc.DataSource.create({
+    allowAdvancedCriteria:true,
     ID:"WebServiceOperation",
     addGlobalId:false,
-    fields:{
-        name:{
+    fields:[
+        {
+            title:"Operation Name",
             name:"name",
-            required:true,
-            title:"Operation Name"
+            required:true
         },
-        soapAction:{
-            name:"soapAction",
-            title:"SOAPAction Header"
+        {
+            title:"SOAPAction Header",
+            name:"soapAction"
         },
-        inputMessage:{
-            name:"inputMessage",
-            title:"Input Message"
+        {
+            title:"Input Message",
+            name:"inputMessage"
         },
-        outputMessage:{
-            name:"outputMessage",
-            title:"Output Message"
+        {
+            title:"Output Message",
+            name:"outputMessage"
         },
-        inputHeaders:{
-            multiple:true,
+        {
             name:"inputHeaders",
-            type:"WSOperationHeader"
+            type:"WSOperationHeader",
+            multiple:true
         },
-        outputHeaders:{
-            multiple:true,
+        {
             name:"outputHeaders",
-            type:"WSOperationHeader"
+            type:"WSOperationHeader",
+            multiple:true
         }
-    }
+    ]
 })

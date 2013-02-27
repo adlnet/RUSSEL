@@ -40,72 +40,75 @@ import com.google.gwt.resources.client.TextResource;
 public interface HtmlTemplates extends ClientBundle {
 	public static final HtmlTemplates INSTANCE = GWT.create(HtmlTemplates.class);
 
-	@Source("templates/RusselHeader.html")
+	@Source("template/RusselHeader.html")
 	public TextResource getHeader();
 	
-	@Source("templates/RusselFooter.html")
+	@Source("template/RusselFooter.html")
 	public TextResource getFooter();
 	
-	@Source("templates/RusselMainMenuPanel.html")
+	@Source("template/RusselMainMenuPanel.html")
 	public TextResource getMenuBar();
 
-	@Source("templates/RusselEditPanel.html")
+	@Source("template/RusselEditPanel.html")
 	public TextResource getEditPanel();
 
-	@Source("templates/RusselEditPanelWidget.html")
+	@Source("template/RusselEditPanelWidget.html")
 	public TextResource getEditPanelWidget();
 
-	@Source("templates/RusselDetailModel.html")
-	public TextResource getDetailModel();
+	@Source("template/RusselDetailModal.html")
+	public TextResource getDetailModal();
 
-	@Source("templates/RusselLoginPanel.html")
+	@Source("template/RusselDetailPanelWidget.html")
+	public TextResource getDetailPanel();
+	
+	@Source("template/RusselLoginPanel.html")
 	public TextResource getLoginWidget();
 
-	@Source("templates/RusselErrorWidget.html")
+	@Source("template/RusselErrorWidget.html")
 	public TextResource getErrorWidget();
 	
-	@Source("templates/RusselRecentItemPanel.html")
+	@Source("template/RusselRecentItemPanel.html")
 	public TextResource getObjectPanel();
 	
-	@Source("templates/RusselRecentItemPanelWidget.html")
+	@Source("template/RusselRecentItemPanelWidget.html")
 	public TextResource getObjectPanelWidget();
 	
-	@Source("templates/RusselDetailComment.html")
+	@Source("template/RusselDetailComment.html")
 	public TextResource getDetailComment();
 	
-	@Source("templates/RusselSearchPanelWidget.html")
+	@Source("template/RusselSearchPanelWidget.html")
 	public TextResource getSearchPanelWidget();
 	
-	@Source("templates/RusselResultsPanel.html")
+	@Source("template/RusselResultsPanel.html")
 	public TextResource getResultsPanel();
 	
-	@Source("templates/RusselUtilityPanel.html")
+	@Source("template/RusselUtilityPanel.html")
 	public TextResource getUtilityPanel();
 
-	@Source("templates/RusselFeatureHomePanel.html")
+	@Source("template/RusselFeatureHomePanel.html")
 	public TextResource getFeatureHomePanel();
 
-	@Source("templates/RusselEPSSEditPanel.html")
+	@Source("template/RusselEPSSEditPanel.html")
 	public TextResource getEPSSEdit();
 
-	@Source("templates/RusselEPSSEditPanel2.html")
+	@Source("template/RusselEPSSEditPanel2.html")
 	public TextResource getEPSSEdit2();
 
-	@Source("templates/RusselEPSSProjectDialog.html")
+	@Source("template/RusselEPSSProjectDialog.html")
 	public TextResource getDialog();
 	
-	@Source("templates/RusselEPSSAssetPanelWidget.html")
+	@Source("template/RusselEPSSAssetPanelWidget.html")
 	public TextResource getEPSSAssetObjectPanelWidget();
 	
-	@Source("templates/RusselEPSSHomePanelWidget.html")
+	@Source("template/RusselEPSSHomePanelWidget.html")
 	public TextResource getEPSSProjectObjectPanelWidget();
 	
-	@Source("templates/RusselEPSSHomePanelNewProjectWiget.html")
+	@Source("template/RusselEPSSHomePanelNewProjectWiget.html")
 	public TextResource getEPSSNewProjectWidget();
 	
-	@Source("templates/RusselEPSSEditSectionWidgets.html")
+	@Source("template/RusselEPSSEditSectionWidgets.html")
 	public TextResource getEPSSEditSectionWidgets();
 	
-	@Source("templates/RusselEPSSNoteAssetPanelWidget.html")
+	@Source("template/RusselEPSSNoteAssetPanelWidget.html")
 	public TextResource getEPSSNoteAssetObjectWidget();
 }

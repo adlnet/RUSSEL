@@ -1,49 +1,50 @@
 isc.DataSource.create({
-    Constructor:"WebService",
+    allowAdvancedCriteria:true,
     ID:"WebService",
     addGlobalId:false,
-    fields:{
-        location:{
+    Constructor:"WebService",
+    fields:[
+        {
             name:"location",
             type:"url"
         },
-        targetNamespace:{
+        {
             name:"targetNamespace",
             type:"url"
         },
-        schemaImports:{
-            multiple:true,
+        {
             name:"schemaImports",
-            type:"Object"
+            type:"Object",
+            multiple:true
         },
-        wsdlImports:{
-            multiple:true,
+        {
             name:"wsdlImports",
-            type:"Object"
+            type:"Object",
+            multiple:true
         },
-        operations:{
-            multiple:true,
+        {
             name:"operations",
-            type:"WebServiceOperation"
+            type:"WebServiceOperation",
+            multiple:true
         },
-        portTypes:{
-            multiple:true,
+        {
             name:"portTypes",
-            type:"Object"
+            type:"Object",
+            multiple:true
         },
-        bindings:{
-            multiple:true,
+        {
             name:"bindings",
-            type:"Object"
+            type:"Object",
+            multiple:true
         },
-        messages:{
-            multiple:true,
+        {
             name:"messages",
-            type:"WSDLMessage"
+            type:"WSDLMessage",
+            multiple:true
         },
-        globalNamespaces:{
+        {
             name:"globalNamespaces",
             type:"Object"
         }
-    }
+    ]
 })

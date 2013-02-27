@@ -35,12 +35,15 @@ package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import java.util.Vector;
 
+import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.api.AlfrescoURL;
+import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
 import com.eduworks.gwt.client.util.Browser;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoApi;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoNullCallback;
-import com.eduworks.gwt.russel.ui.client.net.AlfrescoPacket;
-import com.eduworks.gwt.russel.ui.client.net.CommunicationHub;
 import com.eduworks.russel.ui.client.Constants;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.epss.ProjectFileModel;
@@ -48,8 +51,6 @@ import com.eduworks.russel.ui.client.extractor.AssetExtractor;
 import com.eduworks.russel.ui.client.handler.SearchTileHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
-import com.eduworks.russel.ui.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.pagebuilder.ScreenTemplate;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -67,6 +68,9 @@ public class DetailScreen extends ScreenTemplate {
 	private MetaBuilder meta = new MetaBuilder(MetaBuilder.DETAIL_SCREEN);
 	private SearchTileHandler tile;
 	
+	public void lostFocus() {
+		
+	}
 	public DetailScreen(AlfrescoPacket r) {
 		this.record = r;
 		this.tile = null;
@@ -78,6 +82,12 @@ public class DetailScreen extends ScreenTemplate {
 	}
 	
 	public void display() {
+		
+		if (DOM.getElementById("r-generalMetadata") == null) {
+			PageAssembler.getInstance().inject("contentPane", "x", new HTML(HtmlTemplates.INSTANCE.getDetailModal().getText()), true);
+			PageAssembler.getInstance().inject("objDetailPanelWidget", "x", new HTML(HtmlTemplates.INSTANCE.getDetailPanel().getText()), true);
+		}
+		
 		DOM.getElementById("r-metadata-hide").setAttribute("style", "");
 		DOM.getElementById("r-metadata-show").setAttribute("style", "display:none");
 		DOM.getElementById("r-generalMetadata").setAttribute("style", "display: block");
@@ -94,7 +104,7 @@ public class DetailScreen extends ScreenTemplate {
 
 		if ((record.getFilename().substring(record.getFilename().lastIndexOf(".")+1).equalsIgnoreCase("rpf")) && (!Browser.isIE())) {
 			DOM.getElementById("r-editEPSSContainer").removeAttribute("style");
-			PageAssembler.attachHandler("r-editEPSS", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+			PageAssembler.attachHandler("r-editEPSS", Event.ONCLICK, new EventCallback() {
 														   	@Override
 														   	public void onEvent(Event event) {
 														   		ProjectFileModel.importFromAlfrescoNode(record.getNodeId(), 
@@ -119,7 +129,7 @@ public class DetailScreen extends ScreenTemplate {
 		((Label)PageAssembler.elementToWidget("r-detailIcon", PageAssembler.LABEL)).addStyleName(AssetExtractor.getFileType(record.getFilename()));
 		removeUnsavedEffects();
 		
-		PageAssembler.attachHandler(PageAssembler.getElementByClass(".reveal-modal-bg"), Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(PageAssembler.getElementByClass(".reveal-modal-bg"), Event.ONCLICK, new EventCallback() {
 																							@Override
 																							public void onEvent(Event event) {
 																								if (tile!=null)
@@ -129,7 +139,7 @@ public class DetailScreen extends ScreenTemplate {
 
 		PageAssembler.getElementByClass(".reveal-modal-bg").setAttribute("style", "z-index:300; opacity: 0.8");
 		
-		PageAssembler.attachHandler("r-detailEditUpdate", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-detailEditUpdate", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {																		
 																			String postString = meta.buildMetaPacket();
@@ -140,14 +150,14 @@ public class DetailScreen extends ScreenTemplate {
 																													@Override
 																													public void onSuccess(final AlfrescoPacket nullPack) {
 																														CommunicationHub.sendHTTP(CommunicationHub.GET, 
-																																  CommunicationHub.getAlfrescoNodeURL(record.getNodeId()), 
+																																  AlfrescoURL.getAlfrescoNodeURL(record.getNodeId()), 
 																																  null,
 																																  false,
 																																  new AlfrescoCallback<AlfrescoPacket>() {
 																																	@Override
 																																	public void onSuccess(final AlfrescoPacket ap) {
 																																		CommunicationHub.sendHTTP(CommunicationHub.GET,
-																																			  CommunicationHub.getAlfrescoTagsURL(record.getNodeId()),
+																																			  AlfrescoURL.getAlfrescoTagsURL(record.getNodeId()),
 																																			  null,
 																																			  false, 
 																																			  new AlfrescoCallback<AlfrescoPacket>() {
@@ -183,7 +193,7 @@ public class DetailScreen extends ScreenTemplate {
 																		}
 																	});
 		
-		PageAssembler.attachHandler("r-deleteDoc", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("r-deleteDoc", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			if (Window.confirm("Are you sure you wish to delete this item?"))
@@ -202,7 +212,7 @@ public class DetailScreen extends ScreenTemplate {
 																		}
 																	});
 		
-		PageAssembler.attachHandler("comment-submit", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler("comment-submit", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
 																			String comment = ((TextBox)PageAssembler.elementToWidget("input-comment", PageAssembler.TEXT)).getText().trim();
@@ -211,7 +221,7 @@ public class DetailScreen extends ScreenTemplate {
 																			ap.addKeyValue("content", "\"" + comment.replaceAll("\r", " ").replaceAll("\n", " ") + "\"");
 																			if (comment!=null&&comment.trim()!=""&&!comment.equalsIgnoreCase("add comment"))
 																				CommunicationHub.sendHTTP(CommunicationHub.POST, 
-																						  CommunicationHub.getAlfrescoNodeURL(record.getNodeId() + "/comments"), 
+																						  AlfrescoURL.getAlfrescoNodeURL(record.getNodeId() + "/comments"), 
 																						  ap.toJSONString(), 
 																						  false,
 																						  new AlfrescoCallback<AlfrescoPacket>() {
@@ -235,7 +245,7 @@ public class DetailScreen extends ScreenTemplate {
 		Document.get().getElementById("r-downloadDoc").setAttribute("href", AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename()));
 				
 		CommunicationHub.sendHTTP(CommunicationHub.GET,
-								  CommunicationHub.getAlfrescoRatingURL(record.getNodeId()),
+								  AlfrescoURL.getAlfrescoRatingURL(record.getNodeId()),
 								  null,
 								  false,
 								  new AlfrescoCallback<AlfrescoPacket>() {
@@ -255,7 +265,7 @@ public class DetailScreen extends ScreenTemplate {
 								});
 		
 		CommunicationHub.sendHTTP(CommunicationHub.GET,
-								  CommunicationHub.getAlfrescoNodeURL(record.getNodeId() + "/comments"), 
+								  AlfrescoURL.getAlfrescoNodeURL(record.getNodeId() + "/comments"), 
 								  null, 
 								  false,
 								  new AlfrescoCallback<AlfrescoPacket>() {
@@ -277,6 +287,7 @@ public class DetailScreen extends ScreenTemplate {
 			DOM.getElementById("r-preview").setInnerHTML("");
 			RootPanel.get("r-preview").add(new Image(AlfrescoApi.downloadContentURL(record.getNodeId(), record.getFilename())));
 		} else if (ext.equalsIgnoreCase("rlk")) {
+			//NOTE: rlr previews are set in MetaBuilder.addMetaDataToField because these are using the FLRtag field which is not in this record.
 			AlfrescoApi.getObjectString(record.getNodeId(), record.getFilename(), new AlfrescoCallback<AlfrescoPacket>() {
 			 	@Override
 			 	public void onSuccess(AlfrescoPacket alfrescoPacket) {
@@ -346,14 +357,14 @@ public class DetailScreen extends ScreenTemplate {
 			DOM.getElementById("r-preview").setInnerHTML("<p>No Preview Available</p>");
 		
 		CommunicationHub.sendHTTP(CommunicationHub.GET,
-								  CommunicationHub.getAlfrescoTagsURL(record.getNodeId()),
+								  AlfrescoURL.getAlfrescoTagsURL(record.getNodeId()),
 								  null,
 								  false,
 								  new AlfrescoCallback<AlfrescoPacket>() {
 										@Override
 										public void onSuccess(final AlfrescoPacket apTags) {
 											CommunicationHub.sendHTTP(CommunicationHub.GET,
-																	  CommunicationHub.getAlfrescoNodeURL(record.getNodeId()),
+																	  AlfrescoURL.getAlfrescoNodeURL(record.getNodeId()),
 																	  null,
 																	  false, 
 																	  new AlfrescoCallback<AlfrescoPacket>() {
@@ -420,7 +431,7 @@ public class DetailScreen extends ScreenTemplate {
 		final String iDPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
 		((Label)PageAssembler.elementToWidget(iDPrefix + "-comment-text", PageAssembler.LABEL)).setText(content); 
 		((Label)PageAssembler.elementToWidget(iDPrefix + "-comment-user", PageAssembler.LABEL)).setText(title);
-		PageAssembler.attachHandler(iDPrefix + "-comment-delete", Event.ONCLICK, new AlfrescoNullCallback<AlfrescoPacket>() {
+		PageAssembler.attachHandler(iDPrefix + "-comment-delete", Event.ONCLICK, new EventCallback() {
 																					@Override
 																					public void onEvent(Event event) {
 																						AlfrescoApi.deleteObjectComment(nodeId, new AlfrescoCallback<AlfrescoPacket>() {
@@ -444,7 +455,7 @@ public class DetailScreen extends ScreenTemplate {
 
 			PageAssembler.attachHandler("r-rating-" + rating,
 									   Event.ONCLICK, 
-									   new AlfrescoNullCallback<AlfrescoPacket>() {
+									   new EventCallback() {
 											@Override
 											public void onEvent(Event event) {
 													AlfrescoApi.rateObject(record.getNodeId(), 

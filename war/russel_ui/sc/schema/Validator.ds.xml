@@ -1,71 +1,146 @@
 isc.DataSource.create({
+    allowAdvancedCriteria:true,
     ID:"Validator",
     addGlobalId:"false",
-    fields:{
-        type:{
-            type:"string"
+    fields:[
+        {
+            type:"string",
+            name:"type"
         },
-        stopIfFalse:{
-            type:"boolean"
+        {
+            type:"string",
+            name:"name"
         },
-        clientOnly:{
-            type:"boolean"
+        {
+            type:"string",
+            name:"description"
         },
-        errorMessage:{
-            type:"string"
+        {
+            type:"boolean",
+            name:"stopIfFalse"
         },
-        max:{
-            type:"float"
+        {
+            type:"boolean",
+            name:"stopOnError"
         },
-        min:{
-            type:"float"
+        {
+            type:"boolean",
+            name:"validateOnChange"
         },
-        exclusive:{
-            type:"boolean"
+        {
+            type:"boolean",
+            name:"clientOnly"
         },
-        mask:{
-            type:"regexp"
+        {
+            type:"string",
+            name:"errorMessage"
         },
-        transformTo:{
-            type:"regexp"
+        {
+            type:"float",
+            name:"max"
         },
-        precision:{
-            type:"integer"
+        {
+            type:"float",
+            name:"min"
         },
-        expression:{
-            type:"string"
+        {
+            type:"boolean",
+            name:"exclusive"
         },
-        otherField:{
-            type:"string"
+        {
+            type:"regexp",
+            name:"mask"
         },
-        list:{
+        {
+            type:"regexp",
+            name:"transformTo"
+        },
+        {
+            type:"integer",
+            name:"precision"
+        },
+        {
+            type:"string",
+            name:"expression"
+        },
+        {
+            type:"string",
+            name:"otherField"
+        },
+        {
+            type:"text",
             multiple:"true",
-            type:"text"
+            name:"list"
         },
-        valueMap:{
-            type:"ValueMap"
+        {
+            type:"ValueMap",
+            name:"valueMap"
         },
-        substring:{
-            type:"text"
+        {
+            type:"text",
+            name:"substring"
         },
-        operator:{
-            type:"text"
+        {
+            type:"text",
+            name:"operator"
         },
-        count:{
-            type:"integer"
+        {
+            type:"integer",
+            name:"count"
         },
-        applyWhen:{
-            type:"AdvancedCriteria"
+        {
+            type:"AdvancedCriteria",
+            name:"applyWhen"
         },
-        dependentFields:{
+        {
+            type:"string",
             multiple:"true",
-            type:"string"
+            name:"dependentFields"
         },
-        serverCondition:{
-            type:"string"
+        {
+            type:"string",
+            name:"scriptImport"
         },
-        serverObject:{
-            type:"ServerObject"
+        {
+            idAllowed:"true",
+            type:"Object",
+            name:"serverCondition"
+        },
+        {
+            type:"ServerObject",
+            name:"serverObject"
+        },
+        {
+            type:"string",
+            name:"fieldName"
+        },
+        {
+            type:"string",
+            name:"triggerEvent"
+        },
+        {
+            type:"string",
+            name:"message"
+        },
+        {
+            type:"string",
+            name:"severity"
+        },
+        {
+            type:"string",
+            name:"displayMode"
+        },
+        {
+            type:"integer",
+            name:"duration"
+        },
+        {
+            type:"string",
+            name:"formula"
+        },
+        {
+            type:"ValueMap",
+            name:"formulaVars"
         }
-    }
+    ]
 })

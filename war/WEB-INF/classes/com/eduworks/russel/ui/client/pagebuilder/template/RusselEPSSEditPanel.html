@@ -1,0 +1,311 @@
+<!--
+Copyright (c) 2012 Eduworks Corporation
+All rights reserved.
+ 
+This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
+the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
+Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
+as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
+evaluation under the following terms and conditions:
+
+	-Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
+	 starting with the above copyright notice and ending with the disclaimer below.
+	 
+	-Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
+	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
+	 of evaluating and testing this Software.
+	 
+	-No other rights are granted and no other distribution or use is permitted, including without limitation 
+	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
+	 
+	-All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
+	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
+	 using in-system feedback mechanism or email to russel@eduworks.com.
+	 
+THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
+IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+-->
+
+<!-- Modal Dialogs -->
+        <div id="projectProperties" style="z-index:301" class="reveal-modal">
+            <h2>Project Properties</h2>
+            <p class="lead">Developer Notes</p>
+            <textarea id="epssProjectNotes" rows="4" class="input-text nice" placeholder="Add notes for this entire project"></textarea>
+            <p class="lead">Learning Objectives</p>
+            <!-- <textarea id="epssProjectObjectives" rows="4" class="input-text nice" placeholder="Enter learning objective text here. This field will be hooked to formal definitions later.' structure"></textarea> -->
+            <div id="projectObjectives">
+            	<ul id="project-objective-list" class="objList">
+				</ul>
+				<a id="projectCreateObjective" href="#">Create New</a>
+				<div id="projectCreateObjectiveWrapper" style="display: none;">
+					<form id="projectCreateObjectiveForm" class="nice">
+						<input id="projectNewObjectiveTitle" type="text" class="input-text nice " placeholder="Title" value="">
+						<input id="projectNewObjectiveDesc" type="text" class="input-text nice " placeholder="Description" value="">
+						<a id="projectCreateObjectiveApply" class="nice tiny radius blue button" href="#">Apply</a>
+						<a id="projectCreateObjectiveCancel" class="nice tiny radius white button" href="#">Cancel</a>
+						<a id="projectCreateObjectiveHelp" href="#" title="How to write an objective"><img src="images/help.png">Help</a>
+					</form>
+				</div>
+			</div>
+            <p class="lead">Other Properties</p>
+            <select id="projectImiLevel" class="input-text nice">
+               <option value="">IMI Level</option>
+               <option value="1">Level 1 - Passive</option>
+                <option value="2">Level 2 - Limited participation</option>
+                <option value="3">Level 3 - Complex participation</option>
+                <option value="4">Level 4 - Real-time participation</option>
+            </select>
+            <select id="projectBlooms" class="input-text nice">
+                <option value="">Bloom's Taxonomy</option>
+                <option value="1">Knowledge - recall information</option>
+                <option value="2">Comprehension - understand and translate</option>
+                <option value="3">Application - apply to a situation</option>
+                <option value="4">Analysis - break down and compare</option>
+                <option value="5">Synthesis - combine and organize</option>
+                <option value="6">Evaluation - make value judgements</option>
+            </select>
+            <select id="projectParadata" class="input-text nice">
+                <option value="">Usage Data Options</option>
+                <option value="1">Do not publish usage data.</option>
+                <option value="2">Publish usage data upon update.</option>
+                <option value="3">Publish usage data upon export.</option>
+                <option value="4">Publish usage data upon update and export.</option>
+            </select>
+            <a id="epssSaveProperties" class="blue small nice button radius finger">Save</a> 
+            <a id="epssCancelProperties" class="white small nice finger button radius">Cancel</a> 
+            <a id="epssCloseProperties"class="close-reveal-modal">&#215;</a>
+        </div>
+        
+        <div id="exportProjectModal" style="z-index:302" class="reveal-modal">
+            <h2>Export</h2>
+            <p class="lead">Share this project by choosing one of the following</p>
+            <div id="epssDownloadArea">
+            </div>
+            <dl class="nice vertical tabs">
+                <dd><a id="epssExportSCORM" class="finger" title="" onclick="$('#exportProjectModal').trigger('reveal:close');">SCORM 2004 4th Edition ...</a></dd>
+                <dd><a id="epssSaveAs" class="finger" title="" onclick="$('#exportProjectModal').trigger('reveal:close');">Save As ...</a></dd>
+            </dl>
+            <a class="white small nice button radius finger" onclick="$('#exportProjectModal').trigger('reveal:close');" >Cancel</a> 
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+
+        <!-- END dialogs -->
+        
+         <!-- page content -->
+        
+        <div class="row">
+            <div class="seven columns">
+            	<h3 id="projectTitleView" title="Click to edit title"><a id="projectTitleText" class="finger">Click here to add a title</a></h3>
+                <form class="nice" id="projectTitleEdit" style="display:none;"> <!-- Show this and hide 'projectTitleView' above when clicked -->
+                	<input id="projectTitleInput" type="text" placeholder="Type in a great title" class="input-text" value="Click to edit title">
+                </form>
+			</div>
+            <div id="r-project-actions" class="five columns" style="float:right">
+            	<a id="epssProperties" data-reveal-id="projectProperties" class="small radius nice button finger white">Properties</a> 
+            	<a id="epssExportButton" data-reveal-id="exportProjectModal" class="small radius nice button finger white">Export</a>
+				<a id="epssUpdate" class="nice small radius button finger white">Update</a>
+				<a id="epssCancel" class="nice small radius button finger white">Cancel</a>
+				<br /><span id="r-save-alert" class="hide">Unsaved Changes</span>
+            </div>
+        </div>
+                
+        <div id="content" class="row">
+            <div class="twelve columns">
+            	<h5>Gagne's Instructional Strategy Elements</h5>
+                <p id="helptext-section" class="help">Select a section below to add content</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="twelve columns">
+                <!-- NOTE: This list should be populated based on the template outline -->
+            	<ul id="template-sections" >
+                	<li id="section1" class="templateSection empty">Gain Attention</li>
+                	<li id="section2" class="templateSection empty">Learning Objectives</li>
+                	<li id="section3" class="templateSection empty">Prior Knowledge</li>
+                	<li id="section4" class="templateSection empty">Present Content</li>
+                	<li id="section5" class="templateSection empty">Learning Guidance</li>
+                	<li id="section6" class="templateSection empty">Practice</li>
+                	<li id="section7" class="templateSection empty">Provide Feedback</li>
+                	<li id="section8" class="templateSection empty">Assess Performance</li>
+                	<li id="section9" class="templateSection empty">Enhance Retention</li>
+                </ul>
+            </div>
+        </div>
+		
+        <div id="sectionAssets" style="display:none;">
+            <div id="content" class="row">
+                <div class="twelve columns">
+                    <h5>Assets and Notes for <span class="template-title">Gain Attention</span></h5>
+                    <p id="helptext-asset" class="help">Add notes and find assets</p>
+                </div>
+            </div>
+    
+             <div class="row" >
+                <div class="twelve columns">
+               
+                <div class="horzScrollBar one-up">
+                <table class="">
+                  <tr id="epssCurrentSection">
+                    <td>
+                                    
+                    <div class="tile" tabindex="0"> 
+                        <div class="cube app designer"> 
+                            <div class="front">
+                                <p class="title">Add Notes</p>
+                            </div>
+                            <div class="back">
+                                <p class="status">
+                                Developer notes for this entire section
+                                </p>
+                            </div>
+                          </div>
+                          <a class="hotspot sectionNotes finger"></a> <!-- primary click action here -->
+                     </div>
+                     
+                     </td>
+                     <td>
+                     
+                    <div class="tile" tabindex="0"> 
+                        <div class="cube app upload"> 
+                            <div class="front">
+                                <p class="title">Add Assets</p>
+                            </div>
+                            <div class="back">
+                                <p class="status">
+                                Find and add assets to this section
+                                </p>
+                            </div>
+                          </div>
+                          <a class="hotspot search finger"></a> <!-- primary click action here -->
+                     </div>
+                     
+                     </td>
+                  </tr>
+                </table>
+                </div>
+                </div>
+            </div><!-- END Asset list -->
+            
+			<!-- Developer Notes for selected section -->
+         	<div id="projectSectionNotes" style="display:none;">
+                <div class="row" >
+                    <div class="six columns">
+                    	<h5><br>Notes for <span id="projectSectionTitle" class="template-title section-title">Gain Attention</span></h5>
+                    	<p class="help">Add developer instructions or comments</p>
+                        <form class="nice" id=""> 
+                            <textarea id="inputSectionNotes" rows="5" placeholder="Developer notes" class="input-text" value=""></textarea>
+                        </form>
+                    </div>
+                 </div>
+             </div>
+             <!-- END Developer notes for a section -->
+			
+            <!-- Developer Notes for selected asset -->
+         	<div id="projectDevNotes" style="display:none;">
+                <div class="row" >
+                    <div class="six columns">
+                    	<h5><br>Notes for <span id="projectAssetTitle" class="template-title asset-title">Gain Attention</span></h5>
+                    	<p id="helptext-notes" class="help">Add developer instructions or comments</p>
+                        <form class="nice" id=""> 
+                            <textarea id="inputDevNotes" rows="5" placeholder="Developer notes" class="input-text" value=""></textarea>
+                        </form>
+                    </div>
+                 </div>
+				 <input id="epssActiveAddAsset" type="hidden" />
+				 <input id="epssActiveRemoveAsset" type="hidden" />
+             </div>
+             <!-- END Developer notes for an asset -->
+             
+             <!-- Find assets -->
+         	<div id="findAssets" style="display:none;">
+            <br>
+            <div class="row">
+	        <div class="twelve columns" style="background-color:#ddd; padding: 20px; box-sizing:border-box; border-radius:12px;">
+
+                <div class="row" >
+                    <div class="twelve columns">
+                        <h5>Find and Add Assets to <span class="template-title">Gain Attention</span></h5>
+                    	<p id="helptext-notes" class="help">Search terms related to <span class="template-title">Gain Attention</span> are provided below. Click on any one to remove it.</p>
+                    </div>
+                </div>
+                <div class="row" >
+                    <div class="four columns">
+						<input id="r-projectAssetSearch" type="text" class="expand input-text" placeholder="Enter search terms...">
+                    </div>
+                    <div id="searchTerms" class="eight columns">
+                        <a id="epssTerm1" class="searchTerm small white button finger">Gain attention</a>
+                        <a id="epssTerm2" class="searchTerm small white button finger">Demonstration</a>
+                        <a id="epssTerm3" class="searchTerm small white button finger">video</a>
+                        <a id="epssTerm4" class="searchTerm small white button finger">Storytelling</a>
+                        <a id="epssTerm5" class="searchTerm small white button finger">Wrong Way</a>
+                        <a id="epssTerm6" class="searchTerm small white button finger">image</a>
+                    </div>
+                 </div>
+         
+				 <div id="content" class="row">
+					<div class="twelve columns">
+				   
+					<div id="searchObjectPanelScroll" class="horzScrollBar">
+					<table class="">
+					  <tr id="epssAssetPanel"><!--
+						<td>
+						
+						<div class="tile" tabindex="0"> 
+							<div class="cube file course"> 
+								<div class="front" > 
+									<p class="title" ><span class="icon"></span>Bradleys_in_Iraq_the_long_long_title_here</p>
+									<p class="description" style="background-image:url(preview/ABC-XYZ-1234-small.jpg);">  object thumbnail image, if any -->
+										<!-- Description appears here if there is no preview image. --
+									</p>
+									<p class="paradata">
+										<span class="uses">1</span> <!-- only show if more than zero --
+										<span class="comments">5</span> <!-- only show if more than zero --
+										<span class="status-alert"></span> <!-- only show alert if needed --
+										<span class="rating">
+											<span class="current-rating" style="width:70%;">3.5 stars</span> <!-- set width and text to match rating --
+										</span>
+									</p>
+								</div>
+								<div class="back"> 
+									<p class="status">
+										<span class="status-title">Bradleys in Iraq the long long title here</span><br>
+										Course (SCORM 2004) <br> <!-- object type (and format) --
+										Modified: 10/05/2008<br>
+										<span class="status-alert"></span>FOUO<br> <!-- only show alert(s) if applicable --
+									</p>
+									<div class="actions">
+										<a href="RUSSEL Object Details.html" target="_blank" class="">Preview</a> <!-- for multi-select feature. Add 'active' class to 'cube' to lock it's flip state --
+										<a href="#" class="">Add</a>
+									</div>
+								</div>
+							  </div>
+							  <a href="#" class="hotspot"></a> <!-- primary click action here 
+						 </div>
+						 
+					   
+
+						</td>-->
+						</tr>
+					</table>
+					</div>
+					</div>
+				</div> 
+
+
+
+
+                 
+             </div><!-- END find assets -->
+             
+        </div>
+
+        </div> 
+        
+        </div>
+        </div>        
+        <!-- END page content -->

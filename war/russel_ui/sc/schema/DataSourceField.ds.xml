@@ -1,211 +1,317 @@
 isc.DataSource.create({
+    allowAdvancedCriteria:true,
     ID:"DataSourceField",
     addGlobalId:"false",
-    fields:{
-        name:{
+    fields:[
+        {
+            xmlAttribute:"true",
+            title:"Name",
             basic:"true",
             primaryKey:"true",
+            type:"string",
             required:"true",
-            title:"Name",
-            type:"string",
-            xmlAttribute:"true"
+            name:"name"
         },
-        type:{
-            basic:"true",
+        {
+            xmlAttribute:"true",
             title:"Type",
+            basic:"true",
             type:"string",
-            xmlAttribute:"true"
+            name:"type"
         },
-        disabled:{
+        {
             title:"Disabled",
-            type:"boolean"
+            type:"boolean",
+            name:"disabled"
         },
-        idAllowed:{
+        {
+            xmlAttribute:"true",
             title:"ID Allowed",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"idAllowed"
         },
-        required:{
+        {
+            xmlAttribute:"true",
             title:"Required",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"required"
         },
-        valueMap:{
-            type:"ValueMap"
+        {
+            type:"ValueMap",
+            name:"valueMap"
         },
-        validators:{
-            multiple:"true",
+        {
             propertiesOnly:"true",
-            type:"Validator"
+            type:"Validator",
+            multiple:"true",
+            name:"validators"
         },
-        length:{
+        {
+            xmlAttribute:"true",
             title:"Length",
             type:"integer",
-            xmlAttribute:"true"
+            name:"length"
         },
-        xmlRequired:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"xmlRequired"
         },
-        xmlMaxOccurs:{
+        {
+            visibility:"internal",
             type:"string",
-            visibility:"internal"
+            name:"xmlMaxOccurs"
         },
-        xmlMinOccurs:{
+        {
+            visibility:"internal",
             type:"integer",
-            visibility:"internal"
+            name:"xmlMinOccurs"
         },
-        xmlNonEmpty:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"xmlNonEmpty"
         },
-        xsElementRef:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"xsElementRef"
         },
-        canHide:{
+        {
             title:"User can hide",
-            type:"boolean"
-        },
-        xmlAttribute:{
             type:"boolean",
-            visibility:"internal"
+            name:"canHide"
         },
-        mustQualify:{
+        {
+            visibility:"internal",
             type:"boolean",
-            visibility:"internal"
+            name:"xmlAttribute"
         },
-        valueXPath:{
+        {
+            visibility:"internal",
+            type:"boolean",
+            name:"mustQualify"
+        },
+        {
+            xmlAttribute:"true",
             title:"Value XPath",
             type:"XPath",
-            xmlAttribute:"true"
+            name:"valueXPath"
         },
-        childrenProperty:{
-            type:"boolean"
+        {
+            type:"boolean",
+            name:"childrenProperty"
         },
-        title:{
+        {
+            xmlAttribute:"true",
             title:"Title",
             type:"string",
-            xmlAttribute:"true"
+            name:"title"
         },
-        detail:{
+        {
+            xmlAttribute:"true",
+            type:"string",
+            name:"prompt"
+        },
+        {
+            xmlAttribute:"true",
             title:"Detail",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"detail"
         },
-        canEdit:{
+        {
+            xmlAttribute:"true",
             title:"Can Edit",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"canEdit"
         },
-        canSave:{
+        {
+            xmlAttribute:"true",
             title:"Can Save",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"canSave"
         },
-        inapplicable:{
-            inapplicable:"true",
-            title:"Inapplicable",
-            type:"boolean"
-        },
-        advanced:{
-            inapplicable:"true",
-            title:"Advanced",
-            type:"boolean"
-        },
-        visibility:{
-            inapplicable:"true",
-            title:"Visibility",
-            type:"string"
-        },
-        hidden:{
-            inapplicable:"true",
-            title:"Hidden",
+        {
+            xmlAttribute:"true",
+            title:"Can View",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"canView"
         },
-        primaryKey:{
+        {
+            title:"Inapplicable",
+            inapplicable:"true",
+            type:"boolean",
+            name:"inapplicable"
+        },
+        {
+            title:"Advanced",
+            inapplicable:"true",
+            type:"boolean",
+            name:"advanced"
+        },
+        {
+            title:"Visibility",
+            inapplicable:"true",
+            type:"string",
+            name:"visibility"
+        },
+        {
+            xmlAttribute:"true",
+            title:"Hidden",
+            inapplicable:"true",
+            type:"boolean",
+            name:"hidden"
+        },
+        {
+            xmlAttribute:"true",
             title:"Is Primary Key",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"primaryKey"
         },
-        foreignKey:{
+        {
+            xmlAttribute:"true",
             title:"Foreign Key",
             type:"string",
-            xmlAttribute:"true"
+            name:"foreignKey"
         },
-        rootValue:{
+        {
+            xmlAttribute:"true",
             title:"Tree Root Value",
             type:"string",
-            xmlAttribute:"true"
+            name:"rootValue"
         },
-        showFileInline:{
-            type:"boolean",
-            xmlAttribute:"true"
-        },
-        nativeName:{
-            hidden:"true",
-            title:"Native Name",
-            type:"string"
-        },
-        fieldName:{
-            hidden:"true",
-            title:"Field Name",
-            type:"string"
-        },
-        fields:{
-            childTagName:"field",
-            hidden:"true",
-            multiple:"true",
-            propertiesOnly:"true",
-            type:"DataSourceField",
-            uniqueProperty:"name"
-        },
-        multiple:{
-            type:"boolean",
-            xmlAttribute:"true"
-        },
-        validateEachItem:{
-            type:"boolean",
-            xmlAttribute:"true"
-        },
-        pickListFields:{
-            multiple:"true",
-            type:"Object"
-        },
-        canFilter:{
-            type:"boolean",
-            xmlAttribute:"true"
-        },
-        ignore:{
-            type:"boolean"
-        },
-        unknownType:{
-            type:"boolean",
-            xmlAttribute:"true"
-        },
-        canSortClientOnly:{
-            type:"boolean",
-            xmlAttribute:"true"
-        },
-        childTagName:{
+        {
+            xmlAttribute:"true",
+            title:"Include From",
             type:"string",
-            xmlAttribute:"true"
+            name:"includeFrom"
         },
-        basic:{
-            type:"boolean"
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"showFileInline"
         },
-        maxFileSize:{
-            type:"integer"
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"escapeHTML"
         },
-        frozen:{
+        {
+            xmlAttribute:"true",
+            type:"integer",
+            name:"imageWidth"
+        },
+        {
+            xmlAttribute:"true",
+            type:"integer",
+            name:"imageHeight"
+        },
+        {
+            title:"Native Name",
+            hidden:"true",
+            type:"string",
+            name:"nativeName"
+        },
+        {
+            xmlAttribute:"true",
+            title:"Native Foreign Key",
+            hidden:"true",
+            type:"string",
+            name:"nativeFK"
+        },
+        {
+            xmlAttribute:"true",
+            hidden:"true",
+            type:"boolean",
+            name:"autoDeriveFKs"
+        },
+        {
+            title:"Field Name",
+            hidden:"true",
+            type:"string",
+            name:"fieldName"
+        },
+        {
+            hidden:"true",
+            propertiesOnly:"true",
+            childTagName:"field",
+            type:"DataSourceField",
+            multiple:"true",
+            uniqueProperty:"name",
+            name:"fields"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"multiple"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"validateEachItem"
+        },
+        {
+            type:"Object",
+            multiple:"true",
+            name:"pickListFields"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"canFilter"
+        },
+        {
+            type:"boolean",
+            name:"ignore"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"unknownType"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"canSortClientOnly"
+        },
+        {
+            xmlAttribute:"true",
+            type:"string",
+            name:"childTagName"
+        },
+        {
+            type:"boolean",
+            name:"basic"
+        },
+        {
+            type:"integer",
+            name:"maxFileSize"
+        },
+        {
+            xmlAttribute:"true",
             title:"Frozen",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"frozen"
         },
-        canExport:{
+        {
+            xmlAttribute:"true",
             type:"boolean",
-            xmlAttribute:"true"
+            name:"canExport"
+        },
+        {
+            xmlAttribute:"true",
+            type:"string",
+            name:"sqlStorageStrategy"
+        },
+        {
+            xmlAttribute:"true",
+            type:"boolean",
+            name:"encodeInResponse"
+        },
+        {
+            xmlAttribute:"true",
+            type:"string",
+            name:"mimeType"
         }
-    }
+    ]
 })
