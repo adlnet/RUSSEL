@@ -1,34 +1,17 @@
 /*
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	--Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	--Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	--No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	--All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package com.eduworks.russel.ui.client.pagebuilder;
@@ -68,14 +51,14 @@ public class MetaBuilder {
 	}-*/;
 
 
-	public void addMetaDataToField(String field, String property, String id, AlfrescoPacket alfrescoPacket) {
+	public void addMetaDataToField(String property, String id, AlfrescoPacket alfrescoPacket) {
 		String fieldVal = "Click to edit";
 		if (property.equalsIgnoreCase("cm:title") || property.equalsIgnoreCase("cmis:versionLabel") || property.equalsIgnoreCase("cmis:contentStreamLength") ||
 				property.equalsIgnoreCase("cmis:contentStreamMimeType") || property.equalsIgnoreCase("cmis:contentStreamLength") || property.equalsIgnoreCase("russel:epssStrategy"))
 			fieldVal = "N/A";
 
-		if (!alfrescoPacket.getPropertyValue(field, property).trim().equalsIgnoreCase(""))
-			fieldVal = alfrescoPacket.getPropertyValue(field, property);
+		if (!alfrescoPacket.getRusselValue(property).trim().equalsIgnoreCase(""))
+			fieldVal = alfrescoPacket.getRusselValue(property);
 
 		// If no values are assigned for Classification, Level, or Distribution, set them to the public default values
 		if ((property == "russel:class") && (fieldVal == "Click to edit")) 
@@ -100,77 +83,76 @@ public class MetaBuilder {
 		}
 	}
 	
-	public void addMetaDataFields(String field, AlfrescoPacket ap, AlfrescoPacket apTags) {
+	public void addMetaDataFields(AlfrescoPacket ap) {
 		String ext = null;
 		if ((ap != null)&&(!ap.toJSONString().equals("{}"))) {
 			ext = ap.getFilename().substring(ap.getFilename().lastIndexOf(".")+1);
 			if (metaType.equals(EDIT_SCREEN)) {
-				addMetaDataToField(field, "cm:title", "metaTitle", ap);
-				addMetaDataToField(field, "cm:description", "metaDescription", ap);
-				addMetaDataToField(field, "cmis:createdBy", "metaOwner", ap);
-				addMetaDataToField(field, "russel:publisher", "metaPublisher", ap);
-				addMetaDataToField(field, "russel:class", "metaClassification", ap);
-				addMetaDataToField(field, "russel:objective", "display-objective-list", ap);
-				addMetaDataToField(field, "russel:activity", "metaInteractivity", ap);
-				addMetaDataToField(field, "russel:env", "metaEnvironment", ap);
-				addMetaDataToField(field, "russel:coverage", "metaCoverage", ap);
-				addMetaDataToField(field, "russel:agerange", "metaSkill", ap);
-				addMetaDataToField(field, "russel:language", "metaLanguage", ap);
-				addMetaDataToField(field, "russel:duration", "metaDuration", ap);
-				addMetaDataToField(field, "russel:techreqs", "metaTechnicalRequirements", ap);
-				addMetaDataToField(field, "russel:dist", "metaDistribution", ap);
-				addMetaDataToField(field, "russel:level", "metaLevel", ap);
-				addMetaDataToField(field, "russel:partof", "metaPartOf", ap);
-				addMetaDataToField(field, "russel:requires", "metaRequires", ap);
-				addMetaDataToField(field, "cmis:contentStreamMimeType", "metaFormat", ap);
-				addMetaDataToField(field, "cmis:versionLabel", "metaVersion", ap);
-				addMetaDataToField(field, "cmis:contentStreamLength", "metaSize", ap);
+				addMetaDataToField("cm:title", "metaTitle", ap);
+				addMetaDataToField("cm:description", "metaDescription", ap);
+				addMetaDataToField("cmis:createdBy", "metaOwner", ap);
+				addMetaDataToField("russel:publisher", "metaPublisher", ap);
+				addMetaDataToField("russel:class", "metaClassification", ap);
+				addMetaDataToField("russel:objective", "display-objective-list", ap);
+				addMetaDataToField("russel:activity", "metaInteractivity", ap);
+				addMetaDataToField("russel:env", "metaEnvironment", ap);
+				addMetaDataToField("russel:coverage", "metaCoverage", ap);
+				addMetaDataToField("russel:agerange", "metaSkill", ap);
+				addMetaDataToField("russel:language", "metaLanguage", ap);
+				addMetaDataToField("russel:duration", "metaDuration", ap);
+				addMetaDataToField("russel:techreqs", "metaTechnicalRequirements", ap);
+				addMetaDataToField("russel:dist", "metaDistribution", ap);
+				addMetaDataToField("russel:level", "metaLevel", ap);
+				addMetaDataToField("russel:partof", "metaPartOf", ap);
+				addMetaDataToField("russel:requires", "metaRequires", ap);
+				addMetaDataToField("cmis:contentStreamMimeType", "metaFormat", ap);
+				addMetaDataToField("cmis:versionLabel", "metaVersion", ap);
+				addMetaDataToField("cmis:contentStreamLength", "metaSize", ap);
 			} else {
-				addMetaDataToField(field, "cm:title", "r-detailTitle", ap);
-				addMetaDataToField(field, "cm:title", "detailMetaTitle", ap);
-				addMetaDataToField(field, "cm:description", "detailMetaDescription", ap);
-				addMetaDataToField(field, "cmis:createdBy", "detailMetaOwner", ap);
-				addMetaDataToField(field, "russel:publisher", "detailMetaPublisher", ap);
-				addMetaDataToField(field, "russel:class", "detailMetaClassification", ap);
-				addMetaDataToField(field, "russel:objective", "detail-objective-list", ap);
-				addMetaDataToField(field, "russel:activity", "detailMetaInteractivity", ap);
-				addMetaDataToField(field, "russel:env", "detailMetaEnvironment", ap);
-				addMetaDataToField(field, "russel:coverage", "detailMetaCoverage", ap);
-				addMetaDataToField(field, "russel:agerange", "detailMetaSkill", ap);
-				addMetaDataToField(field, "russel:language", "detailMetaLanguage", ap);
-				addMetaDataToField(field, "russel:duration", "detailMetaDuration", ap);
-				addMetaDataToField(field, "russel:techreqs", "detailMetaTechnicalRequirements", ap);
-				addMetaDataToField(field, "russel:dist", "detailMetaDistribution", ap);
-				addMetaDataToField(field, "russel:level", "detailMetaLevel", ap);
-				addMetaDataToField(field, "russel:partof", "detailMetaPartOf", ap);
-				addMetaDataToField(field, "russel:requires", "detailMetaRequires", ap);
-				addMetaDataToField(field, "russel:epssStrategy", "detailEpssStrategies", ap);
-				addMetaDataToField(field, "cmis:contentStreamMimeType", "detailMetaFormat", ap);
-				addMetaDataToField(field, "cmis:versionLabel", "detailMetaVersion", ap);
-				addMetaDataToField(field, "cmis:contentStreamLength", "detailMetaSize", ap);
+				addMetaDataToField("cm:title", "r-detailTitle", ap);
+				addMetaDataToField("cm:title", "detailMetaTitle", ap);
+				addMetaDataToField("cm:description", "detailMetaDescription", ap);
+				addMetaDataToField("cmis:name", "detailMetaFilename", ap);
+				addMetaDataToField("cmis:createdBy", "detailMetaOwner", ap);
+				addMetaDataToField("russel:publisher", "detailMetaPublisher", ap);
+				addMetaDataToField("russel:class", "detailMetaClassification", ap);
+				addMetaDataToField("russel:objective", "detail-objective-list", ap);
+				addMetaDataToField("russel:activity", "detailMetaInteractivity", ap);
+				addMetaDataToField("russel:env", "detailMetaEnvironment", ap);
+				addMetaDataToField("russel:coverage", "detailMetaCoverage", ap);
+				addMetaDataToField("russel:agerange", "detailMetaSkill", ap);
+				addMetaDataToField("russel:language", "detailMetaLanguage", ap);
+				addMetaDataToField("russel:duration", "detailMetaDuration", ap);
+				addMetaDataToField("russel:techreqs", "detailMetaTechnicalRequirements", ap);
+				addMetaDataToField("russel:dist", "detailMetaDistribution", ap);
+				addMetaDataToField("russel:level", "detailMetaLevel", ap);
+				addMetaDataToField("russel:partof", "detailMetaPartOf", ap);
+				addMetaDataToField("russel:requires", "detailMetaRequires", ap);
+				addMetaDataToField("russel:epssStrategy", "detailEpssStrategies", ap);
+				addMetaDataToField("cmis:contentStreamMimeType", "detailMetaFormat", ap);
+				addMetaDataToField("cmis:versionLabel", "detailMetaVersion", ap);
+				addMetaDataToField("cmis:contentStreamLength", "detailMetaSize", ap);
 				if (ext.equalsIgnoreCase("rlr")) {
-					addMetaDataToField(field, "russel:FLRtag", "r-preview", ap);
+					addMetaDataToField("russel:FLRtag", "r-preview", ap);
 				}
 			}
 		}
-		if (apTags != null) {
-			String acc = "";
-			for (int x=0;x<apTags.getTags().length();x++)
-				if (apTags.getTags().get(x).trim()!="")
-					acc = "," + apTags.getTags().get(x).trim();
-			if (acc!="") acc = acc.substring(1);
-			else acc = "Click to edit";
-			if (metaType.equals(EDIT_SCREEN))
-				((Label)PageAssembler.elementToWidget("metaKeywords", PageAssembler.LABEL)).setText(acc);
-			else
-				((Label)PageAssembler.elementToWidget("detailMetaKeywords", PageAssembler.LABEL)).setText(acc);
-		}
+		String acc = "";
+		for (int x=0;x<ap.getTags().length();x++)
+			if (ap.getTags().get(x).trim()!="")
+				acc += "," + ap.getTags().get(x).trim();
+		if (acc!="") acc = acc.substring(1);
+		else acc = "Click to edit";
+		if (metaType.equals(EDIT_SCREEN))
+			((Label)PageAssembler.elementToWidget("metaKeywords", PageAssembler.LABEL)).setText(acc);
+		else
+			((Label)PageAssembler.elementToWidget("detailMetaKeywords", PageAssembler.LABEL)).setText(acc);
 	}
 	
 	public void saveMetadata(String nodeId, AlfrescoCallback<AlfrescoPacket> callback) {	
 		String postString = buildMetaPacket();
 		if (postString!=null&&nodeId!=null)
-			AlfrescoApi.setObjectProperties(nodeId, postString, callback);
+			AlfrescoApi.setObjectMetadata(nodeId, postString, callback);
 	}
 
 	public String buildMetaPacket() {
@@ -215,13 +197,13 @@ public class MetaBuilder {
 			addProperty("tags", "metaKeywords", container);
 		}
 		if (!ap.toJSONString().equals("{}"))
-			container.addKeyValue("properties", ap.toJSONString());
+			container.addKeyValue("properties", ap);
 		if (container.toJSONString().equals("{}"))
 			return null;
 		return container.toJSONString();
 	}
 	
-	private AlfrescoPacket addProperty(String property, String elementID, AlfrescoPacket ap) {
+	private void addProperty(String property, String elementID, AlfrescoPacket ap) {
 		String val = ((Label)PageAssembler.elementToWidget(elementID, PageAssembler.LABEL)).getText();
 		if (val==null||val=="")
 			val = ((TextBox)PageAssembler.elementToWidget(elementID, PageAssembler.TEXT)).getText();
@@ -230,16 +212,14 @@ public class MetaBuilder {
 		
 		if (val.trim().equalsIgnoreCase(".")) 
 			if (property!="tags")
-				ap.addKeyValue(property, "\"\"");
+				ap.addKeyValue(property, "");
 			else
-				ap.addKeyValue(property, "[]");
+				ap.addKeyArray(property, null);
 		else if (!val.equalsIgnoreCase("Click to edit") && !val.equalsIgnoreCase("N/A"))
 			if (property!="tags")
-				ap.addKeyValue(property, "\"" + val.replaceAll("\"", "\'").replaceAll("\r", " ").replaceAll("\n", " ").trim() + "\"");
+				ap.addKeyValue(property, val.replaceAll("\"", "'").replaceAll("[\r\n]", " ").trim());
 			else
-				ap.addKeyValue(property, "[\"" + val.replaceAll("w+,w+", "\",\"").trim() + "\"]");
-		
-		return ap;
+				ap.addKeyValue(property, val.split(","));
 	}
 
 	private AlfrescoPacket addObjectiveProperty(AlfrescoPacket ap, String elementID) {
@@ -248,7 +228,7 @@ public class MetaBuilder {
 		if (val==null)
 			val = "Click to edit";
 		if (!val.equalsIgnoreCase("Click to edit") && !val.equalsIgnoreCase("N/A"))
-			ap.addKeyValue("russel:objective", "\"" + val.replaceAll("\"", "\'").replaceAll("\r", " ").replaceAll("\n", " ").trim() + "\"");	
+			ap.addKeyValue("russel:objective", val.replaceAll("\"", "'").replaceAll("[\r\n]", " ").trim());
 		
 		return ap;
 	}
@@ -256,7 +236,7 @@ public class MetaBuilder {
 	public static String convertToMetaPacket(AlfrescoPacket ap) {
 		AlfrescoPacket container = AlfrescoPacket.makePacket();
 		if (!ap.toJSONString().equals("{}"))
-			container.addKeyValue("properties", ap.toJSONWrappedString());
+			container.addKeyValue("properties", ap);
 		if (container.toJSONString().equals("{}"))
 			return null;
 		return container.toJSONString();

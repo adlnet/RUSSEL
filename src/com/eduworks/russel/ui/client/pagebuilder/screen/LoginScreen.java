@@ -1,34 +1,17 @@
 /*
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	--Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	--Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	--No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	--All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
@@ -37,11 +20,13 @@ import com.eduworks.gwt.client.net.api.AlfrescoApi;
 import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
 import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
 import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.russel.ui.client.Constants;
 import com.eduworks.russel.ui.client.Russel;
+import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -80,13 +65,31 @@ public class LoginScreen extends ScreenTemplate {
 											AlfrescoApi.ticket = result.getTicket();
 											AlfrescoApi.updateCurrentDirectory(UriUtils.sanitizeUri("Company%20Home/" + 
 																								    "User%20Homes/" + 
-																								    AlfrescoApi.username.toLowerCase()));
-											PageAssembler.getInstance().setTemplate(HtmlTemplates.INSTANCE.getHeader().getText(),
-																					HtmlTemplates.INSTANCE.getFooter().getText(),
-																					"contentPane");
+																								    AlfrescoApi.username.toLowerCase()),
+																			   new AlfrescoCallback<AlfrescoPacket>() {
+																					@Override
+																					public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																						
+																					}
+																					
+																					@Override
+																					public void onFailure(Throwable caught) {
+																						StatusWindowHandler.createMessage(StatusWindowHandler.getHomeMessageError("Company Home/User Homes/" + AlfrescoApi.username.toLowerCase()), 
+																														  StatusPacket.ALERT_ERROR);
+																						AlfrescoApi.updateCurrentDirectory(UriUtils.sanitizeUri("Company%20Home"));
+																					}
+																				});
+											PageAssembler.setTemplate(HtmlTemplates.INSTANCE.getHeader().getText(),
+																	  HtmlTemplates.INSTANCE.getFooter().getText(),
+																	  "contentPane");
 											prepTemplateHooks();
 											Russel.loginCheck.scheduleRepeating(1800000);
-											Russel.view.loadScreen(new HomeScreen(), true);
+											StatusWindowHandler.initialize();
+											String tempDetailId = Russel.getDetailId();
+											if (tempDetailId == null)
+												Russel.view.loadScreen(new HomeScreen(), true);
+											else
+												Russel.view.loadScreen(new DetailScreen(tempDetailId), true);
 										}
 									}
 		
@@ -98,7 +101,8 @@ public class LoginScreen extends ScreenTemplate {
 										final HTML errorDialog = new HTML(HtmlTemplates.INSTANCE.getErrorWidget().getText());
 										RootPanel.get("errorContainer").add(errorDialog);
 										enableLogin(true);
-										if (caught.getMessage().indexOf("502")!=-1||caught.getMessage().indexOf("503")!=-1)
+										if (caught.getMessage().indexOf("502")!=-1||caught.getMessage().indexOf("503")!=-1||caught.getMessage().indexOf("System Error")!=-1||
+											caught.getMessage().indexOf("404")!=-1)
 											((Label)PageAssembler.elementToWidget("errorMessage", PageAssembler.LABEL)).setText(SERVER_UNAVAILABLE);
 										else
 											((Label)PageAssembler.elementToWidget("errorMessage", PageAssembler.LABEL)).setText(LOGIN_BAD_LOGIN);
@@ -123,15 +127,15 @@ public class LoginScreen extends ScreenTemplate {
 
 	public void display()
 	{
-		PageAssembler.getInstance().setTemplate("", "", "contentPane");
-		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getLoginWidget().getText()));
-		PageAssembler.getInstance().buildContents();
+		PageAssembler.setTemplate("", "", "contentPane");
+		PageAssembler.ready(new HTML(HtmlTemplates.INSTANCE.getLoginWidget().getText()));
+		PageAssembler.buildContents();
 		
 		PageAssembler.attachHandler("loginButton", Event.ONCLICK, loginListener);
 		PageAssembler.attachHandler("loginPassword", Event.ONKEYUP, loginListener);
-		PageAssembler.attachHandler("ForgotButton", Event.ONCLICK, Russel.nonFunctional);
-		PageAssembler.attachHandler("RequestButton", Event.ONCLICK, Russel.nonFunctional);
-		PageAssembler.attachHandler("rememberMe", Event.ONCLICK, Russel.nonFunctional);
+//		PageAssembler.attachHandler("ForgotButton", Event.ONCLICK, Russel.nonFunctional);
+//		PageAssembler.attachHandler("RequestButton", Event.ONCLICK, Russel.nonFunctional);
+//		PageAssembler.attachHandler("rememberMe", Event.ONCLICK, Russel.nonFunctional);
 		
 		((TextBox)PageAssembler.elementToWidget("loginName", PageAssembler.TEXT)).setFocus(true);
 	}
@@ -177,12 +181,9 @@ public class LoginScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("r-menuProjects", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
-																			if (!Browser.isIE()) {
-																				FeatureScreen fs = new FeatureScreen();
-																				fs.featureType = FeatureScreen.PROJECTS_TYPE;
-																				Russel.view.loadScreen(fs, true);
-																			}
-																			else Window.alert(Constants.UNSUPPORTED_IE_FEATURE);																		}
+																			FeatureScreen fs = new FeatureScreen();
+																			fs.featureType = FeatureScreen.PROJECTS_TYPE;
+																			Russel.view.loadScreen(fs, true);															}
 																	 });
 	}
 }

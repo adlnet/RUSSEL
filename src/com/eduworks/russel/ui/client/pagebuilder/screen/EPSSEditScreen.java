@@ -1,61 +1,46 @@
 /*
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	--Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	--Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	--No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	--All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import java.util.Vector;
 
-import com.eduworks.gwt.client.net.CommunicationHub;
 import com.eduworks.gwt.client.net.api.AlfrescoApi;
 import com.eduworks.gwt.client.net.api.AlfrescoURL;
 import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
 import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
+import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.epss.EPSSPackBuilder;
 import com.eduworks.russel.ui.client.epss.ProjectFileModel;
 import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
-import com.eduworks.russel.ui.client.handler.SearchTileHandler;
+import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
+import com.eduworks.russel.ui.client.handler.TileHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.Image;
@@ -67,14 +52,13 @@ import com.google.gwt.user.client.ui.TextBox;
 public class EPSSEditScreen extends ScreenTemplate {
 
 	public static ProjectFileModel pfmNow, pfmLast;
-	private Vector<String> searchTerms;
-	private AlfrescoSearchHandler assetSearchHandler;
-	private String activeSection;
-	private String activeSectionId;
-	private String activeAssetId;
-	private String activeFilename;
-	private Integer sectionCount; // This can be replaced when we dynamically generate the structure from a JSON template
-	
+	private static Vector<String> searchTerms;
+	private static AlfrescoSearchHandler assetSearchHandler;
+	private static String activeSection;
+	private static String activeSectionId;
+	private static String activeAssetId;
+	private static String activeFilename;
+
 	public void lostFocus() {
 		assetSearchHandler.stop();
 	}
@@ -86,32 +70,35 @@ public class EPSSEditScreen extends ScreenTemplate {
 	private final native String getObjectives(String id) /*-{
 		return $wnd.compressObjectives(id);
 	}-*/;
-
-	private final native String doPropClose() /*-{
-		return $wnd.$('#projectProperties').trigger('reveal:close');
-	}-*/;
 	
 	public EPSSEditScreen(ProjectFileModel incomingProject) {
 		EPSSEditScreen.pfmNow = incomingProject; 
 		EPSSEditScreen.pfmLast = pfmNow.copyProject(); 
 	}
 	
+	private native void insertSection0(Element section, String title, int index) /*-{
+		var cell = document.createElement("td");
+		section.appendChild(cell);
+		cell.innerText = title;
+		cell.className = "templateSection empty";
+		cell.id = "section" + index;
+	}-*/;
+	
+	public void populateTemplate() {
+		DOM.getElementById("template-name").setInnerText(pfmNow.projectTemplateName);
+		
+		for (int sectionIndex=0;sectionIndex<pfmNow.projectSections.length();sectionIndex++)
+			insertSection0(DOM.getElementById("template-sections-area"),  
+						  pfmNow.projectSections.get(sectionIndex).getValueString(ProjectFileModel.TEMPLATE_SECTION_SHORT_TITLE),
+						  (sectionIndex+1));
+	}
+	
 	@Override
 	public void display() {
-		searchTerms = new Vector<String>();
+		PageAssembler.ready(new HTML(HtmlTemplates.INSTANCE.getEPSSEdit().getText()));
+		PageAssembler.buildContents();
+		populateTemplate();
 		assetSearchHandler = new AlfrescoSearchHandler();
-		
-		// Direct the PageAssembler to use the appropriate templates given the incomingProject type
-		if (EPSSEditScreen.pfmNow.projectTemplate == ProjectFileModel.SIMULATION_TEMPLATE) {
-			PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getEPSSEdit2().getText()));	
-			this.sectionCount = 14;
-		} 
-		else {
-			PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getEPSSEdit().getText()));
-			this.sectionCount = 9;
-		}
-		
-		PageAssembler.getInstance().buildContents();
 		
 		assetSearchHandler.hook("r-projectAssetSearch", "epssAssetPanel", AlfrescoSearchHandler.ASSET_TYPE);
 		
@@ -125,12 +112,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("epssUpdate", Event.ONCLICK, new EventCallback() {	
 																	@Override
 																	public void onEvent(Event event) {
-																		new Timer() {
-																			@Override
-																			public void run() {
-																				saveProject();
-																			}
-																		}.schedule(75);
+																		saveProject();
 																	}
 																 });
 		
@@ -147,7 +129,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 																	@Override
 																	public void onEvent(Event event) {
 																		saveProject();
-																		doPropClose();
+																   		PageAssembler.closePopup("projectProperties");
 																	}															
 																});
 		
@@ -155,7 +137,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 																	@Override
 																	public void onEvent(Event event) {
 																		fillPropData();
-																		doPropClose();
+																   		PageAssembler.closePopup("projectProperties");
 																	}													
 																});
 		
@@ -163,7 +145,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 																	@Override
 																	public void onEvent(Event event) {
 																		fillPropData();
-																		doPropClose();
+																   		PageAssembler.closePopup("projectProperties");
 																	}															
 																}); 
 		
@@ -174,169 +156,52 @@ public class EPSSEditScreen extends ScreenTemplate {
 																}		
 															  });
 		
-		PageAssembler.attachHandler("section1", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section1");
-																	}
-															   });
+		for (int sectionIndex=1;sectionIndex<=pfmNow.projectSections.length();sectionIndex++) {
+			final int lockedSectionIndex = sectionIndex;
+			PageAssembler.attachHandler("section" + lockedSectionIndex, 
+										Event.ONCLICK, 
+										new EventCallback() {
+											@Override
+											public void onEvent(Event event) {
+												fillSectionNotes("section" + lockedSectionIndex, lockedSectionIndex-1);
+											}
+									   });
+		}
 		
-		PageAssembler.attachHandler("section2", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section2");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section3", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section3");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section4", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section4");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section5", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section5");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section6", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section6");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section7", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section7");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section8", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section8");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section9", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section9");
-																	}
-															   });
-		
-		PageAssembler.attachHandler("section10", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section10");
-																	}
-															   });
-
-		PageAssembler.attachHandler("section11", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section11");
-																	}
-															   });
-
-		PageAssembler.attachHandler("section12", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section12");
-																	}
-															   });
-
-		PageAssembler.attachHandler("section13", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section13");
-																	}
-															   });
-
-		PageAssembler.attachHandler("section14", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		fillSectionNotes("section14");
-																	}
-															   });
-
-		PageAssembler.attachHandler("epssTerm1", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm1", ((Anchor)PageAssembler.elementToWidget("epssTerm1", PageAssembler.A)).getText());
-																	}
-																});
-		
-		PageAssembler.attachHandler("epssTerm2", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm2", ((Anchor)PageAssembler.elementToWidget("epssTerm2", PageAssembler.A)).getText());
-																	}
-																});
-		
-		PageAssembler.attachHandler("epssTerm3", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm3", ((Anchor)PageAssembler.elementToWidget("epssTerm3", PageAssembler.A)).getText());
-																	}
-																});
-		
-		
-		PageAssembler.attachHandler("epssTerm4", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm4", ((Anchor)PageAssembler.elementToWidget("epssTerm4", PageAssembler.A)).getText());
-																	}
-																});
-		
-		
-		PageAssembler.attachHandler("epssTerm5", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm5", ((Anchor)PageAssembler.elementToWidget("epssTerm5", PageAssembler.A)).getText());
-																	}
-																});
-		
-		PageAssembler.attachHandler("epssTerm6", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm6", ((Anchor)PageAssembler.elementToWidget("epssTerm6", PageAssembler.A)).getText());
-																	}
-																});
-		
-		PageAssembler.attachHandler("epssTerm7", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm7", ((Anchor)PageAssembler.elementToWidget("epssTerm7", PageAssembler.A)).getText());
-																	}
-																});
-
-		PageAssembler.attachHandler("epssTerm8", Event.ONCLICK, new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSearchTerms("epssTerm8", ((Anchor)PageAssembler.elementToWidget("epssTerm8", PageAssembler.A)).getText());
-																	}
-																});
-
 		PageAssembler.attachHandler("epssExportSCORM", Event.ONCLICK, new EventCallback() {
 															   	@Override
 															   	public void onEvent(Event event) {
 															   		saveProject();
 															   		EPSSPackBuilder epb = new EPSSPackBuilder(pfmNow);
-															   		epb.buildPack();
-															   		epb.addSCORMFile();
+														   			AlfrescoApi.exportZipPackage(pfmNow.projectTitle.replaceAll(" ", "_") + ".zip", 
+														   										 epb.buildPackIE(), 
+														   										 new AlfrescoCallback<AlfrescoPacket>() {
+														   											@Override
+														   											public void onFailure(Throwable caught) {
+														   												StatusWindowHandler.createMessage(StatusWindowHandler.getZipExportMessageError(pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"), 
+														   																			  	  StatusPacket.ALERT_ERROR);
+														   												RootPanel.get("epssDownloadArea").clear();
+														   											}
+														   											
+														   											@Override
+														   											public void onSuccess(AlfrescoPacket zipPack) {
+														   												if (Browser.isIE()) {
+															   												Frame avoidPopup = new Frame();
+															   												avoidPopup.addStyleName("hidden");
+															   												avoidPopup.setUrl(AlfrescoURL.getObjectStreamAndDelete(zipPack.getNodeId(), 
+					   																								 		  pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"));
+															   												RootPanel.get("epssDownloadArea").add(avoidPopup);
+														   												} else 
+														   													Window.open(AlfrescoURL.getObjectStreamAndDelete(zipPack.getNodeId(), 
+														   																								 	 pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"),
+				   																								 	    "_blank",
+														   																"");
+														   												StatusWindowHandler.createMessage(StatusWindowHandler.getZipExportMessageDone(pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"), 
+														   																				  StatusPacket.ALERT_SUCCESS);
+														   												RootPanel.get("epssDownloadArea").clear();
+														   											}
+														   										 });
+															   		
 															   		RootPanel.get("epssDownloadArea").add(new Image("images/orbit/loading.gif"));
 															   	}
 															   });
@@ -344,50 +209,54 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("epssActiveAddAsset", Event.ONCHANGE, new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
-																		Hidden activeAssetFilename = ((Hidden)PageAssembler.elementToWidget("epssActiveAddAsset", PageAssembler.HIDDEN));
-																		activeAssetId = activeAssetFilename.getValue().substring(0, activeAssetFilename.getValue().indexOf(","));
-																		activeFilename = activeAssetFilename.getValue().substring(activeAssetFilename.getValue().indexOf(",")+1);
-																		if (!isAssetInSection())
-																			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, "");
-																		else {
-																			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, getAssetNotesInSection());
-																			((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).setText(getAssetNotesInSection());
-																		}
-																		DOM.getElementById(activeSectionId).removeClassName("empty");
+																		addAssetTrigger();
 																	}
 																});
 		
 		PageAssembler.attachHandler("epssActiveRemoveAsset", Event.ONCHANGE, new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
-																		DOM.getElementById("epssUpdate").removeClassName("white");
-																		DOM.getElementById("epssUpdate").addClassName("blue");
-																		DOM.getElementById("r-save-alert").removeClassName("hide");
-																		activeAssetId = ((Hidden)PageAssembler.elementToWidget("epssActiveRemoveAsset", PageAssembler.HIDDEN)).getValue();
-																		pfmNow.removeAsset(activeSection, activeAssetId);
+																		removeAssetTrigger();
 																	}
 																});
 
 		fillData();
 	}
 	
+	public static void removeAssetTrigger() {
+		DOM.getElementById("epssUpdate").removeClassName("white");
+		DOM.getElementById("epssUpdate").addClassName("blue");
+		DOM.getElementById("r-save-alert").removeClassName("hide");
+		activeAssetId = ((Hidden)PageAssembler.elementToWidget("epssActiveRemoveAsset", PageAssembler.HIDDEN)).getValue();
+		pfmNow.removeAsset(activeSection, activeAssetId);
+	}
+
+	public static void addAssetTrigger() {
+		Hidden activeAssetFilename = ((Hidden)PageAssembler.elementToWidget("epssActiveAddAsset", PageAssembler.HIDDEN));
+		activeAssetId = activeAssetFilename.getValue().substring(0, activeAssetFilename.getValue().indexOf(","));
+		activeFilename = activeAssetFilename.getValue().substring(activeAssetFilename.getValue().indexOf(",")+1);
+		if (!isAssetInSection())
+			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, "");
+		else {
+			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, getAssetNotesInSection());
+			((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).setText(getAssetNotesInSection());
+		}
+		DOM.getElementById(activeSectionId).removeClassName("empty");
+	}
+	
 	private void buildAssetTile (String nodeId, String filename) {
 		Element td = DOM.createTD();
-		td.setInnerHTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText());
-		Vector<String> iDs = PageAssembler.getInstance().merge("epssCurrentSection", "x", td);
+		td.appendChild(new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()).getElement().getChild(0));
+		Vector<String> iDs = PageAssembler.merge("epssCurrentSection", "x", td);
 		String idPrefix = iDs.firstElement().substring(0,iDs.firstElement().indexOf("-"));
 		td.setId(idPrefix + "-assetNote");
 		AlfrescoPacket ap = AlfrescoPacket.makePacket();
-		if (nodeId.startsWith("\""))
-			nodeId = nodeId.substring(1, nodeId.length()-1);
-		if (filename.startsWith("\""))
-			filename = filename.substring(1, filename.length()-1);
 		ap.addKeyValue("id", nodeId);
 		ap.addKeyValue("fileName", filename);
-		new SearchTileHandler(null, idPrefix, AlfrescoSearchHandler.NOTES_TYPE, ap).refreshTile(null);
+		new TileHandler(null, idPrefix, AlfrescoSearchHandler.NOTES_TYPE, ap).refreshTile(null);
 	}
 	
-	private boolean isAssetInSection() {
+	private static boolean isAssetInSection() {
 		boolean acc = false;
 		if (pfmNow.projectSectionAssets!=null)
 			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
@@ -399,7 +268,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		return acc;
 	}
 	
-	private String getAssetNotesInSection() {
+	private static String getAssetNotesInSection() {
 		if (pfmNow.projectSectionAssets!=null)
 			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
 				JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(activeSection).cast();
@@ -409,11 +278,31 @@ public class EPSSEditScreen extends ScreenTemplate {
 			}
 		return "";
 	}
+	
+	private native void mergeSection(Element section, Element sectionTools) /*-{
+		var sectionChildCount = sectionTools.children.length;
+		var childStorage = [];
+		for (var sectionIndex=0;sectionIndex<sectionChildCount;sectionIndex++) {
+			if (sectionTools.children[sectionIndex].id!="") {
+				var cell = document.createElement('td');
+				section.appendChild(cell);
+				childStorage.push([cell, sectionTools.children[sectionIndex]]);
+			}
+		}
+		for (var childIndex=0;childIndex<childStorage.length;childIndex++)
+			childStorage[childIndex][0].appendChild(childStorage[childIndex][1]);
+	}-*/;
 
-	private void fillSectionNotes(final String elementId) {
+	private void fillSectionNotes(final String elementId, final int sectionIndex) {
 		((TextBox)PageAssembler.elementToWidget("inputSectionNotes", PageAssembler.TEXT)).setText("");
 		((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).setText("");
-		DOM.getElementById("epssCurrentSection").setInnerHTML(HtmlTemplates.INSTANCE.getEPSSEditSectionWidgets().getText());
+		Element currentSection = DOM.getElementById("epssCurrentSection");
+		searchTerms = new Vector<String>();
+		int elementCount = currentSection.getChildCount();
+		for (int elementIndex=0;elementIndex<elementCount;elementIndex++)
+			currentSection.getChild(0).removeFromParent();
+		mergeSection(currentSection, (Element)new HTML(HtmlTemplates.INSTANCE.getEPSSEditSectionWidgets().getText()).getElement());
+		
 		activeSection = DOM.getElementById(elementId).getInnerText();
 		activeSectionId = elementId;
 		PageAssembler.attachHandler("inputSectionNotes", Event.ONCHANGE, new EventCallback() {
@@ -441,6 +330,31 @@ public class EPSSEditScreen extends ScreenTemplate {
 																		}
 																	});
 		
+		Element searchArea = DOM.getElementById("searchTerms");
+		int termCount = searchArea.getChildCount();
+		for (int termIndex=0;termIndex<termCount;termIndex++)
+			searchArea.removeChild(searchArea.getChild(0));
+		String[] searchTerms = pfmNow.projectSections.get(sectionIndex).getValueString(ProjectFileModel.TEMPLATE_SECTION_TERMS).split(", ");
+		for (int termsIndex=0;termsIndex<searchTerms.length;termsIndex++)
+			PageAssembler.merge("searchTerms", 
+								"x", 
+								(Element)new HTML("<a id=\"epssTerm" + (termsIndex+1) + "\" class=\"searchTerm small white button finger\">" + 
+										searchTerms[termsIndex] + "</a>").getElement().getChild(0));
+		DOM.getElementById("helptext-asset").setInnerText(pfmNow.projectSections.get(sectionIndex).getValueString(ProjectFileModel.TEMPLATE_SECTION_GUIDENCE));
+		
+		for (int termIndex=1;termIndex<=searchTerms.length;termIndex++) {
+			final int lockedTermIndex = termIndex;
+			PageAssembler.attachHandler("epssTerm" + lockedTermIndex, 
+										Event.ONCLICK, 
+										new EventCallback() {
+											@Override
+											public void onEvent(Event event) {
+												toggleSearchTerms("epssTerm" + lockedTermIndex, 
+																  ((Anchor)PageAssembler.elementToWidget("epssTerm" + lockedTermIndex, PageAssembler.A)).getText());
+											}
+										});	
+		}
+		
 		if (pfmNow.projectSectionNotes!=null)
 			((TextBox)PageAssembler.elementToWidget("inputSectionNotes", PageAssembler.TEXT)).setText(pfmNow.projectSectionNotes.getValueString(activeSection));
 		
@@ -455,31 +369,31 @@ public class EPSSEditScreen extends ScreenTemplate {
 	}
 	
 	private void toggleSearchTerms(String eId, String term) {
-		if (!searchTerms.contains("\""+term+"\"")) {
-			searchTerms.add("\""+term+"\"");
-			DOM.getElementById(eId).removeClassName("white");
-			DOM.getElementById(eId).addClassName("blue");
-		} else {
-			searchTerms.remove("\""+term+"\"");
-			DOM.getElementById(eId).removeClassName("blue");
-			DOM.getElementById(eId).addClassName("white");
-		}
+		if (!searchTerms.contains(term))
+			searchTerms.add(term);
+		else
+			searchTerms.remove(term);
 		
+		String accQuery = buildQueryString(); 
+		if (accQuery.trim()!="")
+			assetSearchHandler.forceSearch(accQuery);
+	}
+	
+	public static String buildQueryString() {
 		String enteredTerm = ((TextBox)PageAssembler.elementToWidget("r-projectAssetSearch", PageAssembler.TEXT)).getText().trim();
 		
 		String accQuery = "";
 		if (searchTerms.size()!=0) {
 			for (int x=0;x<searchTerms.size();x++) {
-				if (enteredTerm=="")
-					accQuery += " OR " + searchTerms.get(x);
+				if (AlfrescoSearchHandler.cleanQuery(enteredTerm) =="")
+					accQuery += " OR ALL:\"" + searchTerms.get(x) + "\"";
 				else
-					accQuery += " OR (" + enteredTerm + " " + searchTerms.get(x) + ")";
+					accQuery += " OR (\"" + AlfrescoSearchHandler.cleanQuery(enteredTerm) + "\" ALL:\"" + searchTerms.get(x) + "\")";
 			}
 			accQuery = accQuery.substring(" OR ".length()).trim();
 		} else accQuery = enteredTerm;
 		
-		if (accQuery.trim()!="")
-			assetSearchHandler.forceSearch("(" + accQuery + ")");
+		return accQuery.trim();
 	}
 	
 	private String cleanString(String dirty) {
@@ -514,7 +428,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 			int section, x, y;
 			String sectionName = null;
 			Boolean found;
-			for (section=1; section<=this.sectionCount; section++) {
+			for (section=1; section<=pfmNow.projectSections.length(); section++) {
 				sectionName = DOM.getElementById("section" + section).getInnerText();
 				JsArray<AlfrescoPacket> assetsNow = null;
 				JsArray<AlfrescoPacket> assetsLast = null;
@@ -555,46 +469,51 @@ public class EPSSEditScreen extends ScreenTemplate {
 			}
 		}
 		
-		if (pfmNow.projectNodeId==null)
-			CommunicationHub.sendForm(AlfrescoURL.getAlfrescoUploadURL(),
-									  pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf",
-									  AlfrescoApi.currentDirectoryId, 
-									  pfmNow.makeJSONBlob(), 
-									  "russel:metaTest", 
-									  new AlfrescoCallback<AlfrescoPacket>() {
-										@Override
-										public void onSuccess(AlfrescoPacket alfrescoPacket) {
-											pfmNow.projectNodeId = alfrescoPacket.getNodeId();
-											CommunicationHub.sendFormUpdate(AlfrescoURL.getAlfrescoUploadURL(),
-																			pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf", 
-																			AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + alfrescoPacket.getNodeId(), 
-																			pfmNow.makeJSONBlob(), 
-																			"russel:metaTest", 
-																			new AlfrescoCallback<AlfrescoPacket>() {
-																				@Override
-																				public void onSuccess(AlfrescoPacket alfrescoPacket) {
+		if (pfmNow.projectNodeId==null) {
+			AlfrescoPacket ap = AlfrescoPacket.makePacket();
+			ap.addKeyValue("filename", pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf");
+			ap.addKeyValue("filecontent", pfmNow.toJSONString());
+			AlfrescoApi.uploadContentStream(ap.toJSONString(),
+			 								new AlfrescoCallback<AlfrescoPacket>() {
+												@Override
+												public void onSuccess(AlfrescoPacket alfrescoPacket) {
+													pfmNow.projectNodeId = alfrescoPacket.getNodeId();
+													AlfrescoApi.addAspectToNode(pfmNow.projectNodeId, 
+																				Russel.RUSSEL_ASPECTS.split(","), 
+																				new AlfrescoCallback<AlfrescoPacket>() {
+																					@Override
+																					public void onFailure(Throwable caught) {
+																						
+																					}
 																					
-																				}
-																				
-																				@Override 
-																				public void onFailure(Throwable caught) {
-																					
-																				}
-																			});
-										}
-										
-										@Override
-										public void onFailure(Throwable caught) {
-											
-										}
-									 });
-		else
-			CommunicationHub.sendFormUpdate(AlfrescoURL.getAlfrescoUploadURL(),
-											pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf", 
-											AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + pfmNow.projectNodeId, 
-											pfmNow.makeJSONBlob(), 
-											"russel:metaTest", 
-											new AlfrescoCallback<AlfrescoPacket>() {
+																					@Override
+																					public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																						AlfrescoApi.updateContentStream(pfmNow.projectNodeId, 
+																														"{\"nodeData\":" + pfmNow.toJSONString() + "}",
+																													    new AlfrescoCallback<AlfrescoPacket>() {
+																															@Override
+																															public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																																
+																															}
+																															
+																															@Override 
+																															public void onFailure(Throwable caught) {
+																																
+																															}
+																													    });
+																					}
+																				});
+												}
+												
+												@Override
+												public void onFailure(Throwable caught) {
+													
+												}
+											});
+		} else
+			AlfrescoApi.updateContentStream(pfmNow.projectNodeId, 
+											"{\"nodeData\":" + pfmNow.toJSONString() + "}",
+										    new AlfrescoCallback<AlfrescoPacket>() {
 												@Override
 												public void onSuccess(AlfrescoPacket alfrescoPacket) {
 													fillData();
@@ -602,9 +521,9 @@ public class EPSSEditScreen extends ScreenTemplate {
 												
 												@Override 
 												public void onFailure(Throwable caught) {
-													Window.alert("Fooing Couldn't save project file " + caught);
+													
 												}
-											});
+										    });
 		
 		pfmLast = pfmNow.copyProject() ;
 		PageAssembler.closePopup("epssSaveProperties");
@@ -628,18 +547,18 @@ public class EPSSEditScreen extends ScreenTemplate {
 	private void fillData() {
 		fillPropData();		
 		if (pfmNow.projectSectionNotes!=null)
-			for (int x = 1;x<=pfmNow.projectMaxSections ;x++)
+			for (int x = 1;x<=pfmNow.projectSections.length() ;x++)
 				if (pfmNow.projectSectionNotes.hasKey(DOM.getElementById("section"+x).getInnerText()))
 					DOM.getElementById("section"+x).removeClassName("empty");
 		if (pfmNow.projectSectionAssets!=null)
-			for (int x=1;x<=pfmNow.projectMaxSections ;x++) { 
+			for (int x=1;x<=pfmNow.projectSections.length() ;x++) { 
 				String sectionName = DOM.getElementById("section" + x).getInnerText();
 				if (pfmNow.projectSectionAssets.hasKey(sectionName)) {
 					JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(sectionName).cast(); 
 					if (assets.length()>0)
 						DOM.getElementById("section" + x).removeClassName("empty");
 				}
-			}	
+			}
 	}
 
 }

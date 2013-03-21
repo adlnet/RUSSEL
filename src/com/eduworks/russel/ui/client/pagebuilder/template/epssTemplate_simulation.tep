@@ -1,0 +1,91 @@
+{ 
+	"templateName" : "Modified Simulation Model",
+	"templateTitle" : "Simulation Model for a Learning Experience", 
+	"stages" : 
+			[
+				{
+					"shortTitle" : "Topic & Major Concepts",
+					"longTitle" : "Broad topic of simulation and major concepts",
+					"guidance" : "Describe the broad topic and identify the important concepts to be covered in the simulation activity. ",
+					"searchTerms" : "Topic, Subject, Military Occupation, Military Specialty, MOS, AFSC, Rating, Equipment, Nomenclature, Part Number, Knowledge Domain, Curriculum"
+				},
+				{
+					"shortTitle" : "Objectives and Goals",
+					"longTitle" : "Objectives and goals of the simulation",
+					"guidance" : "Inform students of the performance objectives (or outcomes) to help them understand what they are to learn during the simulation activty. You can state the outcomes by describing required performance, describing criteria for standard performance, or allowing the learner to establish criteria for standard performance. You may also briefly describe the objectives for completing the simulation.",
+					"searchTerms" : "Objective, Goal, Prerequsite, Performance Criteria, Skills, Competency, Mastery level, Qualification Standard, Certification, TLO, ELO, Outcome, Evaluation rubric, Purpose, Aptitude, Attitude goal, Qualification, Operational Functional Point (OFP), Benchmark, Entry behavior, Prerequisite, Job-based Specification (JBS), Professional development goal, Bloom taxonomy level, Qualification Standard (QS)"
+				},
+				{
+					"shortTitle" : "Motivation",
+					"longTitle" : "Motivational factors",
+					"guidance" : "Present a stimulus that motivates to ensure the learners are ready to learn and participate in activities. Methods for motivating learners include stimulating students with novelty, uncertainty and surprise and posing thought-provoking questions.  Motivation can also take the form of elements that are built into the design of the simulation, such as game-like elements of challenge, competition, or humor. You can relate the broad topic and major concepts of the simulation activity to real world experiences and needs while demonstrating the imporantance of the concepts and skills to be obtained.",
+					"searchTerms" : "Motivation, Stimulus, Reason, Attention, Challenge, Incentive, Achievement, Why, Purpose, Relevance, WIFM (What's In It for Me), Competition, Challenge, Reward, Teaser, Engagement, Suspense, Appeal, Celebrity branding, Points, Career advancement, Collaboration, Gamification"
+				},
+				{
+					"shortTitle" : "Activity Overview",
+					"longTitle" : "Give overview of the specific simulation activity",
+					"guidance" : "Describe the simulation activity in general terms and relate its use to the learner's organization or situational status. Provide examples of the simulated activity in real world situations.",
+					"searchTerms" : "Overview, Relevance, Context, Situation, Scenario, Refresher, immersion, Experience, Explanation, modeling"
+				},
+				{
+					"shortTitle" : "Activity Set-up",
+					"longTitle" : "Set-up the simulation scenario (rules, roles, procedures, scoring, types of decisions, goals)",
+					"guidance" : "Provide context for the simulation activity the learner is about to experience. Discuss the roles included in the scenario, the rules and procedures to be enforced, the types of decisions each role may be asked to make, and the method of scoring. Relate these details to the goals and objectives of the simulation activity.  Describe for the learner how simulation objectives may be satisfied and how to know when they have been satisified within the simulation activity.",
+					"searchTerms" : "Rule, Role, Score, Procedure, Decision, Goal, Obstacle, Strategy, Assessment, Points, Achievement, Scenario, Backstory, Background,  Dashboard, Interface, Navigation, Environment,  Interaction, Collaboration, Facilitation, Task list, Wargame"
+				},
+				{
+					"shortTitle" : "Activity Roles",
+					"longTitle" : "Assign activity roles",
+					"guidance" : "Describe the scenario roles using increased detail and clarify the interactions between roles. Assign the learner's role and define the permissions, rules, and actions available to the role while in the simulation activity.",
+					"searchTerms" : "Roles, Permissions, Rules, Actions, Teams, Groups, Cohort"
+				},
+				{
+					"shortTitle" : "Activity Demo",
+					"longTitle" : "Demonstrate simulation environment",
+					"guidance" : "Describe the navigation and activity controls available to the learner in the simulation environment. Demonstrate the behavior of these navigational and activity controls to illustrate expectations. This phase of instruction may also include interactive tutorials such as practice activities and/or interactive demos and self-running examples.",
+					"searchTerms" : "Demonstration, Navigation, User Interface, Information, Input device, Environment, Tutorial, Controls, Mastery, Show me"
+				},
+				{
+					"shortTitle" : "Conduct Activity",
+					"longTitle" : "Conduct and administer the simulation activity",
+					"guidance" : "Launch and administer the simulation environment. Track the learner's performance and react to learner decisions. Provide realistic effects to learner performance and decisions.",
+					"searchTerms" : "Administration, Mastery, Mentor, Assessment, Environment, Gameplay, Immersion, Engagement, System operation"
+				},
+				{
+					"shortTitle" : "Performance Feedback",
+					"longTitle" : "Feedback and evaluation of performance and decision effects",
+					"guidance" : "Provide immediate feedback of students' performance to assess and facilitate learning. Types of feedback include:  Natural and Artificial. Natural feedback is provided by adjusting the simulation to reflect realistic outcomes based on learner performance and decisions.  Artifical feedback is presented to the learner using traditional mechanisms such as direct messaging.",
+					"searchTerms" : "Performance, Skills, Competency, Mastery, Qualification, Certification, Decision, Outcome, Feedback"
+				},
+				{
+					"shortTitle" : "Clarifications",
+					"longTitle" : "Clarify misconceptions",
+					"guidance" : "Provide remedial and reinforcement information based on the learner's performance.  For dynamic and variable simulations, this section may contain resources, descriptions or instructions intended for the activity programmer rather than the learner.  You may choose to describe misconception clarification methods, behaviors, or strategies from an instructional design perspective as guidance for the developer.",
+					"searchTerms" : "Remediation, Reinforcement, Clarification, Remedy, Intervention, Improvement, Correction, Restoration, Report"
+				},
+				{
+					"shortTitle" : "Event Summary",
+					"longTitle" : "Summarize events and perceptions",
+					"guidance" : "Revisit the events and perceptions that took place within the simulation activity. Provide descriptions that relate the interventions to the goals and objectives for the training.  Review can be as simple as a checklist or as comprehensive as emotional sentiments and  cognitive choices. You may choose to describe event summary methods, behaviors, or strategies from an instructional design perspective as guidance for the developer.",
+					"searchTerms" : "Summary, Conclusion, Result, After Action, Perception, Observation, Reflection, Intervention, Events"
+				},
+				{
+					"shortTitle" : "Performance Summary",
+					"longTitle" : "Summarize difficulties and insights",
+					"guidance" : "Provide a learner performance summary with guidance and insights where difficulties occurred. You may choose to describe performance summary methods, behaviors, or strategies from an instructional design perspective as guidance for the developer.",
+					"searchTerms" : "Insight, Observation, Reflection, Summary, Performance, Feedback, Guidance, Suggestion, Corrective action"
+				},
+				{
+					"shortTitle" : "Analyze Process",
+					"longTitle" : "Analyze the simulation process",
+					"guidance" : "Provide analysis of the overall simulation activity and the skills developed. ",
+					"searchTerms" : "Analyze, Analysis, data, Analytics, Process, Discovery, Assessment, Interpretation, Relevance"
+				},
+				{
+					"shortTitle" : "Authenticate Activity",
+					"longTitle" : "Compare simulation activity to the real world",
+					"guidance" : "Relate the situational learning to real world applications. Use examples and references to the learners duties and/or organization.",
+					"searchTerms" : "Realistic, Realism, Fidelity, Real World, Authentic, Scenario, Situation, Simulation, Application"
+				}
+			]
+}

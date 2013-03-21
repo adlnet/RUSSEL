@@ -1,34 +1,17 @@
 /*
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	--Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	--Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	--No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	--All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package com.eduworks.russel.ui.client.epss;
@@ -38,11 +21,15 @@ import java.util.Vector;
 import org.vectomatic.file.Blob;
 
 import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.api.AlfrescoURL;
 import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
 import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.util.BlobUtils;
 import com.eduworks.gwt.client.util.Zip;
+import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
@@ -108,139 +95,48 @@ public class EPSSPackBuilder {
 		filenameAndPath.add("xml.xsd");
 		filenameAndPath.add("XMLScheme.dtd");
 	}
-	
-	public void buildPack() {
-		Zip.getZipFileWriter(new AlfrescoCallback<AlfrescoPacket>() {
-			@Override
-			public void onSuccess(AlfrescoPacket alfrescoPacket) {
-				zipWriter = alfrescoPacket.getValue("zipWriter");
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert("Failed to create zip writer " + caught);
-				PageAssembler.closePopup("exportProjectModal");
-			}
-		});
-	}
-	
-	private void putProjectFile () {
-		buildPack();
-		Zip.addFileToZipBlob(zipWriter,
-							 pfm.projectTitle.replaceAll(" ", "_") + ".zip", 
-							 scormZip, 
-							 new AlfrescoCallback<AlfrescoPacket>() {
-								@Override
-								public void onFailure(Throwable caught) {
-									Window.alert("failed putting SCORM zip file in zip " + caught);
-								}
-								
-								@Override
-								public void onSuccess(AlfrescoPacket alfrescoPacket) {
-									Zip.addFileToZipBlob(alfrescoPacket.getValue("zipWriter"),
-														 pfm.projectTitle.replaceAll(" ", "_") + ".rpf", 
-														 pfm.makeJSONBlob(), 
-														 new AlfrescoCallback<AlfrescoPacket>() {
-															@Override
-															public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																Zip.getZipBlobLocalURL(zipWriter, 
-																					   new AlfrescoCallback<AlfrescoPacket>() {
-																							@Override
-																							public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																								//Window.alert(alfrescoPacket.getValue("zipURL").toString());
-																								RootPanel.get("epssDownloadArea").clear();
-																								if (missingFiles!="") {
-																									DOM.getElementById("epssDownloadArea").setInnerHTML("<p><strong>Missing assets detected.</strong><br/>The following files will NOT be included in the export:<br/>"+missingFiles+"</p>");
-																								}
-																								Anchor a = new Anchor("Download readied package", alfrescoPacket.getValue("zipURL").toString());
-																								RootPanel.get("epssDownloadArea").add(a);
-																								a.getElement().setId("downloadPackage");
-																								a.getElement().setAttribute("download", pfm.projectTitle.replaceAll(" ", "_") + ".zip");
-																								PageAssembler.attachHandler("downloadPackage", Event.ONCLICK, new EventCallback() {
-																																			  	@Override
-																																			  	public void onEvent(Event event) {
-																																			  		PageAssembler.closePopup("exportProjectModal");	
-																																			  	}
-																																			  });
-//																								Window.open(alfrescoPacket.getValue("zipURL").toString(),
-//																											"_blank",
-//																											"");
-																							}
-																							
-																							@Override
-																							public void onFailure(Throwable caught) {
-																								PageAssembler.closePopup("exportProjectModal");
-																							}
-																						});
-															}
-										
-															@Override
-															public void onFailure(Throwable caught) {
-																Window.alert("Failed to add project file " + caught);
-															}
-														});
-								}
-							});
+
+	public AlfrescoPacket buildPackIE() {
+		JsArray<AlfrescoPacket> storage = (JsArray<AlfrescoPacket>) AlfrescoPacket.createArray();
 		
+		BuildMediaList();
+		
+		for (int filenameIndex=0;filenameIndex<filenameAndPath.size();filenameIndex++) {
+			AlfrescoPacket zipPack = AlfrescoPacket.makePacket();
+			zipPack.addKeyValue("filename", filenameAndPath.get(filenameIndex));
+			zipPack.addKeyValue("filecontent", filenameToContents(filenameAndPath.get(filenameIndex)));
+			storage.set(filenameIndex, zipPack);
+		}
+		
+		int mediaIndex = storage.length();
+		for (int filenameIndex=0;filenameIndex<mediaList.size();filenameIndex++) {
+			AlfrescoPacket zipPack = AlfrescoPacket.makePacket();
+			String[] mediaPair = mediaList.get(filenameIndex).split(",");
+			zipPack.addKeyValue("id", AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + mediaPair[0]);
+			zipPack.addKeyValue("location", "/media/");
+			storage.set(mediaIndex, zipPack);
+			mediaIndex++;
+		}
+		
+		AlfrescoPacket projectPack = AlfrescoPacket.makePacket();
+		projectPack.addKeyValue("projectName", pfm.projectTitle.replaceAll(" ", "_") + ".rpf");
+		projectPack.addKeyValue("projectNodeId", AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + pfm.projectNodeId);
+		
+		
+		AlfrescoPacket outgoing = AlfrescoPacket.makePacket();
+		outgoing.addKeyValue("mediaToZip", storage);
+		outgoing.addKeyValue("projectToZip", projectPack);
+		
+		return outgoing;
 	}
 	
-	private void addMediaFile () {
-		if (mediaList.size()==0)
-			Zip.getZipBlob(zipWriter, new AlfrescoCallback<AlfrescoPacket>() {
-													@Override
-													public void onSuccess(AlfrescoPacket alfrescoPacket) {
-														scormZip = alfrescoPacket.getValue("zipBlob").cast(); 
-														putProjectFile();
-													}
-													
-													@Override
-													public void onFailure(Throwable caught) {
-														Window.alert("Failed to get media zip blob " + caught);
-													}
-												});
-		else {
-			String nodeIdFilename = mediaList.remove(0);
-			final String nodeId = nodeIdFilename.substring(0, nodeIdFilename.indexOf(","));
-			final String filename = nodeIdFilename.substring(nodeIdFilename.indexOf(",")+1);
-			AlfrescoApi.getObjectStream(nodeId, 
-										filename, 
-										new AlfrescoCallback<AlfrescoPacket>() {
-											@Override
-											public void onSuccess(AlfrescoPacket alfrescoPacket) {
-												Zip.addFileToZipBlob(zipWriter, 
-																	 "/media/" + mediaList.size() + "-" + filename, 
-																	 ProjectFileModel.buildBlob(alfrescoPacket.getMimeType(), alfrescoPacket.getContents()), 
-																	 new AlfrescoCallback<AlfrescoPacket>() {
-																		@Override
-																		public void onFailure(Throwable caught) {
-																			Window.alert("Fooing zipping media file " + filename + "  " + caught);
-																			addMediaFile();
-																		}
-																		
-																		@Override
-																		public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																			zipWriter = alfrescoPacket.getValue("zipWriter");
-																			addMediaFile();
-																		}
-																 	 });
-											}
-											
-											@Override
-											public void onFailure(Throwable caught) {
-												missingFile(filename);
-//												Window.alert("Fooing getting media file "+filename);
-												addMediaFile();
-											}
-										});
-		}
-	}
 	private void missingFile(String filename) {
 		// Not sure what we want to do here...
 		missingFiles = missingFiles + "  - " + filename + "<br/>";     
 	}
 	
 	private void BuildMediaList() {
-		JsArrayString keys = pfm.projectSectionAssets.getTopKeys();
+		JsArrayString keys = pfm.projectSectionAssets.getRootKeys();
 		for (int x=0;x<keys.length();x++) {
 			JsArray<AlfrescoPacket> assets = pfm.projectSectionAssets.getValue(keys.get(x)).cast();
 			for (int y=0;y<assets.length();y++)
@@ -248,122 +144,84 @@ public class EPSSPackBuilder {
 		}
 	}
 	
-	public void addSCORMFile() {
-		if (filenameAndPath.size()==0) {
-			BuildMediaList();
-			addMediaFile();
-		} else { 
-			String filename = filenameAndPath.remove(0);
-			Blob filedata = null;
-			
-			if (filename.equals("adlcp_v1p3.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlcp_v1p3().getText());
-			else if (filename.equals("adlnav_v1p3.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlnav_v1p3().getText());
-			else if (filename.equals("adlseq_v1p3.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getAdlseq_v1p3().getText());
-			else if (filename.equals("/common/anyElement.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonAnyElement().getText());
-			else if (filename.equals("/common/datatypes.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonDataTypes().getText());
-			else if (filename.equals("/common/elementNames.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonElementNames().getText());
-			else if (filename.equals("/common/elementTypes.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonElementTypes().getText());
-			else if (filename.equals("/common/rootElement.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonRootElement().getText());
-			else if (filename.equals("/common/vocabTypes.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonVocabTypes().getText());
-			else if (filename.equals("/common/vocabValues.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getCommonVocabValues().getText());
-			else if (filename.equals("datatypes.dtd"))
-				filedata = ProjectFileModel.buildBlob(DTD_MIME, SCORMTemplates.INSTANCE.getDatatypes().getText());
-			else if (filename.equals("/extend/custom.xml"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getExtendCustom().getText());
-			else if (filename.equals("/extend/strict.xml"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getExtendStrict().getText());
-			else if (filename.equals("imsmanifest.xml"))
-				filedata = ProjectFileModel.buildBlob(HTML_MIME, SCORMTemplates.INSTANCE.getImsmanifest().getText());
-			else if (filename.equals("imsss_v1p0.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0().getText());
-			else if (filename.equals("imsss_v1p0auxresource.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0auxresource().getText());
-			else if (filename.equals("imsss_v1p0control.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0control().getText());
-			else if (filename.equals("imsss_v1p0delivery.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0delivery().getText());
-			else if (filename.equals("imsss_v1p0limit.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0limit().getText());
-			else if (filename.equals("imsss_v1p0objective.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0objective().getText());
-			else if (filename.equals("imsss_v1p0random.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0random().getText());
-			else if (filename.equals("imsss_v1p0rollup.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0rollup().getText());
-			else if (filename.equals("imsss_v1p0seqrule.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0seqrule().getText());
-			else if (filename.equals("imsss_v1p0util.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getImsss_v1p0util().getText());
-			else if (filename.equals("initPage.html"))
-				filedata = ProjectFileModel.buildBlob(HTML_MIME, SCORMTemplates.INSTANCE.getInitPage().getText());
-			else if (filename.equals("lom.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLom().getText());
-			else if (filename.equals("lomCustom.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomCustom().getText());
-			else if (filename.equals("lomLoose.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomLoose().getText());
-			else if (filename.equals("lomStrict.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getLomStrict().getText());
-			else if (filename.equals("/unique/loose.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getUniqueLoose().getText());
-			else if (filename.equals("/unique/strict.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getUniqueStrict().getText());
-			else if (filename.equals("/vocab/adlmd_vocabv1p0.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabAdlmd_Vocabv1p0().getText());
-			else if (filename.equals("/vocab/custom.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabCustom().getText());
-			else if (filename.equals("/vocab/loose.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabLoose().getText());
-			else if (filename.equals("/vocab/strict.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getVocabLoose().getText());
-			else if (filename.equals("xml.xsd"))
-				filedata = ProjectFileModel.buildBlob(XML_MIME, SCORMTemplates.INSTANCE.getXml().getText());
-			else if (filename.equals("XMLScheme.dtd"))
-				filedata = ProjectFileModel.buildBlob(DTD_MIME, SCORMTemplates.INSTANCE.getXMLSchema().getText());
-			Zip.addFileToZipBlob(zipWriter, 
-								 filename, 
-								 filedata, 
-								 new AlfrescoCallback<AlfrescoPacket>() {
-									@Override
-									public void onFailure(Throwable caught) {
-										addSCORMFile();
-									}
-									
-									@Override
-									public void onSuccess(AlfrescoPacket alfrescoPacket) {
-										zipWriter = alfrescoPacket.getValue("zipWriter");
-										addSCORMFile();
-									}
-							 	 });
-		}
+	private String filenameToContents(String filename) {
+		String filedata = "";
+		
+		if (filename.equals("adlcp_v1p3.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getAdlcp_v1p3().getText();
+		else if (filename.equals("adlnav_v1p3.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getAdlnav_v1p3().getText();
+		else if (filename.equals("adlseq_v1p3.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getAdlseq_v1p3().getText();
+		else if (filename.equals("/common/anyElement.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getCommonAnyElement().getText();
+		else if (filename.equals("/common/datatypes.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getCommonDataTypes().getText();
+		else if (filename.equals("/common/elementNames.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getCommonElementNames().getText();
+		else if (filename.equals("/common/elementTypes.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getCommonElementTypes().getText();
+		else if (filename.equals("/common/rootElement.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getCommonRootElement().getText();
+		else if (filename.equals("/common/vocabTypes.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getCommonVocabTypes().getText();
+		else if (filename.equals("/common/vocabValues.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getCommonVocabValues().getText();
+		else if (filename.equals("datatypes.dtd"))
+			filedata = SCORMTemplates.INSTANCE.getDatatypes().getText();
+		else if (filename.equals("/extend/custom.xml"))
+			filedata = SCORMTemplates.INSTANCE.getExtendCustom().getText();
+		else if (filename.equals("/extend/strict.xml"))
+			filedata = SCORMTemplates.INSTANCE.getExtendStrict().getText();
+		else if (filename.equals("imsmanifest.xml"))
+			filedata = SCORMTemplates.INSTANCE.getImsmanifest().getText();
+		else if (filename.equals("imsss_v1p0.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0().getText();
+		else if (filename.equals("imsss_v1p0auxresource.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0auxresource().getText();
+		else if (filename.equals("imsss_v1p0control.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0control().getText();
+		else if (filename.equals("imsss_v1p0delivery.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0delivery().getText();
+		else if (filename.equals("imsss_v1p0limit.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0limit().getText();
+		else if (filename.equals("imsss_v1p0objective.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0objective().getText();
+		else if (filename.equals("imsss_v1p0random.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0random().getText();
+		else if (filename.equals("imsss_v1p0rollup.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0rollup().getText();
+		else if (filename.equals("imsss_v1p0seqrule.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0seqrule().getText();
+		else if (filename.equals("imsss_v1p0util.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getImsss_v1p0util().getText();
+		else if (filename.equals("initPage.html"))
+			filedata = SCORMTemplates.INSTANCE.getInitPage().getText();
+		else if (filename.equals("lom.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getLom().getText();
+		else if (filename.equals("lomCustom.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getLomCustom().getText();
+		else if (filename.equals("lomLoose.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getLomLoose().getText();
+		else if (filename.equals("lomStrict.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getLomStrict().getText();
+		else if (filename.equals("/unique/loose.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getUniqueLoose().getText();
+		else if (filename.equals("/unique/strict.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getUniqueStrict().getText();
+		else if (filename.equals("/vocab/adlmd_vocabv1p0.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getVocabAdlmd_Vocabv1p0().getText();
+		else if (filename.equals("/vocab/custom.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getVocabCustom().getText();
+		else if (filename.equals("/vocab/loose.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getVocabLoose().getText();
+		else if (filename.equals("/vocab/strict.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getVocabLoose().getText();
+		else if (filename.equals("xml.xsd"))
+			filedata = SCORMTemplates.INSTANCE.getXml().getText();
+		else if (filename.equals("XMLScheme.dtd"))
+			filedata = SCORMTemplates.INSTANCE.getXMLSchema().getText();
+		
+		return filedata;
 	}
-	
-//	private native Blob ProjectFileModel.buildBlob(String typ, String contents) /*-{
-//		var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
-//		if (bb!=undefined) {
-//			bb.append(contents);
-//			return bb.getBlob(typ);
-//		} else if (window.blob!=undefined) {
-//			var bb = window.blob([contents], { "type": "\"" + type + "\"" });
-//			return bb;
-//		} else {
-//			Window.alert("Blob building is failing");
-//		}
-//	}-*/;
-//	
-//	private native Blob ProjectFileModel.buildBlob(String typ, ArrayBuffer contents) /*-{
-//		var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
-//		bb.append(contents);
-//		return bb.getBlob(typ);
-//	}-*/;
 }

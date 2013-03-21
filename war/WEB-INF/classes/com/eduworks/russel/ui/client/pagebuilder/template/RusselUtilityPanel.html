@@ -1,34 +1,17 @@
 <!--
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	-Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	-Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	-No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	-All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 -->
     <!-- Modal Dialogs -->
     <!-- END dialogs -->   
@@ -40,7 +23,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
             	<h4>Account Settings</h4>
             </div>
          
-             <!-- actions -->
+            <!-- actions -->
 			<div class="eight columns">
 				<dl class="sub-nav">
 				<!-- 	<dd class=""></dd>  -->
@@ -54,8 +37,143 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
             
             	<div id="r-alfrescoUtil">  
 	         	   		 	
-            	</div>            	
-        	</div>
-        </div> 
-          
-    <!-- END page content -->
+            	</div>       
+            	
+            	<div id="r-repositorySettings" style="display:none">        	
+            	    
+            	    <!-- Settings widget actions -->
+		        	<div id="actions" class="row actions">
+			        	<div class="twelve columns">
+				        	<dl class="sub-nav" style="float:right" >
+              	        	    <dd id="r-detailSaveAlert" style="float:right" class="hide">Unsaved Changes</dd>
+              	        	    <dd class=""><a id="r-detailEditUpdate" style="float:right" class="nice small radius white button finger">Update Configuration Settings</a></dd>
+		   	        	    </dl>
+			        	</div>
+		        	</div>
+	
+	        	    <!-- Object Details -->	  
+            	    <form class="nice">
+                	    <div id="" class="row">
+                 	       <div id="r-obj-full" class="twelve columns">
+            
+                     	        <div id="r-metadata" class="row">
+                          	        <div class="twelve columns"> 
+                        
+                                	    <div id="r-metadata-show" style="display:block;">
+                                   	    <div id="general-section" class="section collapsed">
+                                        	    <a class="header">General Settings</a>
+                                        	    <div id="r-generalMetadata" class="section-content" style="display:none">
+                                            	<!--    
+                                            		<div class="row meta">
+                                               	    	<div class="three columns phone-one"><span class="meta-label">Title</span></div>
+                                                	    <div class="nine columns phone-three"><span id="detailMetaTitle" class="meta-value editable"></span>
+											        	    <input style="display:none;" type="text" class="input-text nice value-input" placeholder="A title is required" value="Click to edit">
+                                                	    </div>
+                                            	    </div>      
+									        	    <div class="row meta">
+                                                	    <div class="three columns phone-one"><span class="meta-label">Filename</span></div>
+                                                	    <div class="nine columns phone-three"><span id="detailMetaFilename" class="meta-value"></span>
+											        	    <input style="display:none;" type="text" class="input-text nice value-input" placeholder="A title is required" value="Click to edit">
+                                                	    </div>
+                                            	    </div>
+                                            	    <div class="row meta">
+                                                	    <div class="three columns phone-one"><span class="meta-label">Keywords</span></div>
+                                                	    <div class="nine columns phone-three"><span id="detailMetaKeywords" class="meta-value editable"></span>
+											        	    <input style="display:none;" type="text" class="input-text nice value-input" placeholder="Add comma separated words" value="Click to edit">
+                                                	    </div>
+                                            	    </div>
+                                            	-->
+                                        	    </div>
+                                   	    </div>
+                                                
+                                   	    <div id="flr-section" class="section">
+                                        	    <a class="header">Federal Learning Registry Settings</a>
+                                         	    <div id="r-flrData" class="section-content">
+                                            	    <div class="row meta">
+                                        				<div class="three columns phone-one"><span class="meta-label">Repository</span></div>
+                                        					<div class="nine columns phone-three"><span id="flrUrl" class="meta-value editable">N/A</span>
+															<select id="meta-flrUrl" class="input-text nice value-input" style="display:none;">
+												 				<option value="None">None</option> 
+												 				<option value="FLR-Sandbox">FLR Sandbox</option>  
+												 				<!-- <option value="FLR-Custom">Custom FLR</option> -->
+  											 				</select>
+                                       	 				</div>
+                                       	 			</div>
+                                            	    <div class="row meta">
+                                                	    <div class="three columns phone-one"><span class="meta-label">Import Options</span></div>
+                                                	    <div class="nine columns phone-three"><span id="flrImport" class="meta-value editable">N/A</span> 
+															<select id="meta-flrImport" class="input-text nice value-input" style="display:none;">
+												 				<option value="FLR-NoImport">Disable FLR harvesting</option> 
+												 				<option value="FLR-Import">Enable FLR harvesting</option>  
+											 				</select>
+                                                	    </div>
+                                            	    </div>
+                                            	    <div class="row meta">
+                                                	    <div class="three columns phone-one"><span class="meta-label">Publish Options</span></div>
+                                                	    <div class="nine columns phone-three"><span id="flrPublish" class="meta-value editable">N/A</span> 
+															<select id="meta-flrPublish" class="input-text nice value-input" style="display:none;">
+												 				<option value="FLR-NoPublish">Never publish objects to FLR</option> 
+												 				<option value="FLR-GeneralPublish">Only publish objects to FLR</option>  
+												 				<option value="FLR-IsdPublish">Only publish instructional designs to FLR</option>  
+												 				<option value="FLR-AllPublish">Publish objects and instructional designs to FLR</option>  
+											 				</select>
+                                                	    </div>
+                                            	    </div>
+                                            	    <div class="row meta">
+                                                	    <div class="three columns phone-one"><span class="meta-label">Activity Options</span></div>
+                                                	    <div class="nine columns phone-three"><span id="flrActivity" class="meta-value editable">N/A</span> 
+															<select id="meta-flrActivity" class="input-text nice value-input" style="display:none;">
+												 				<option value="FLR-NoActivity">Never publish activity to FLR</option> 
+												 				<option value="FLR-FeedbackActivity">Only publish object feedback to FLR</option>  
+												 				<option value="FLR-IsdActivity">Only publish instructional design activity to FLR</option>  
+												 				<option value="FLR-AllActivity">Publish feedback and instructional design activity to FLR</option>  
+											 				</select>
+                                                	    </div>
+                                            	    </div>                                         	    
+                                            	    
+                                            	    <div class="row meta">
+                                                	    <div class="three columns phone-one"><span class="meta-label">FLR Actions</span></div>
+                                                	    <div class="nine columns phone-three"><span id="flrActions" class="meta-value"> </span>
+                                                	    	<dd class=""><a id="r-harvestFLR" class="finger">Harvest FLR</a></dd>
+                                                	    </div>
+                                            	    </div>
+                                        	    </div>
+                                   	    </div>
+                                   	    
+                                   	    <div id="3dr-section" class="section">
+                                        	    <a class="header">ADL 3D Repository Settings</a>
+                                         	    <div id="r-3drData" class="section-content">
+                                            	    <div class="row meta">
+                                        				<div class="three columns phone-one"><span class="meta-label">Extended Search</span></div>
+                                        					<div class="nine columns phone-three"><span id="3drOption" class="meta-value editable">N/A</span>
+															<select id="meta-3DROption" class="input-text nice value-input" style="display:none;">
+												 				<option value="ADL-3DR-Disabled">Disabled</option> 
+												 				<option value="ADL-3DR-Enabled">Enabled</option>  
+  											 				</select>
+                                       	 				</div>
+                                       	 			</div>
+                                            	    <div class="row meta">
+                                                	    <div class="three columns phone-one"><span class="meta-label">Activity Options</span></div>
+                                                	    <div class="nine columns phone-three"><span id="3drActivity" class="meta-value editable">N/A</span> 
+															<select id="meta-3DRActivity" class="input-text nice value-input" style="display:none;">
+												 				<option value="ADL-3DR-NoActivity">Never publish activity to 3DR</option> 
+												 				<option value="ADL-3DR-FeedbackActivity">Only publish object feedback to 3DR</option>  
+												 				<!-- <option value="ADL-3DR-IsdActivity">Only publish instructional design activity to 3DR</option>  
+												 				<option value="ADL-3DR-AllActivity">Publish feedback and instructional design activity to 3DR</option> -->  
+											 				</select>
+                                                	    </div>
+                                            	    </div>                                         	    
+                                        	    </div>
+                                   	    </div>
+                                   	    
+                            	    </div>
+                        	    </div>
+                    	    </div>
+                 	    </div>
+            	    </form>
+            	    
+            	</div>
+            </div>
+        </div>
+        
+      <!-- END page content -->

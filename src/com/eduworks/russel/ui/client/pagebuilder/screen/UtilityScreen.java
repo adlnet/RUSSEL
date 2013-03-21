@@ -1,50 +1,44 @@
 /*
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	--Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	--Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	--No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	--All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.api.Adl3DRApi;
+import com.eduworks.gwt.client.net.api.FLRApi;
+import com.eduworks.gwt.client.net.callback.EventCallback;
+import com.eduworks.gwt.client.net.callback.FLRCallback;
+import com.eduworks.gwt.client.net.packet.FLRPacket;
+import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
+import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TextBox;
 
 public class UtilityScreen extends ScreenTemplate {
 	
@@ -60,15 +54,23 @@ public class UtilityScreen extends ScreenTemplate {
 	public void lostFocus() {
 	}
 	
+	private native void setDisplayIE(Element element, String state) /*-{
+		element.style.display = state;
+	}-*/;
+	
+	private native void setAttributeIE(Element element, String attribute, String state) /*-{
+		element.style[attribute] = state;
+	}-*/;
+	
 	public void display() {
-		PageAssembler.getInstance().ready(new HTML(HtmlTemplates.INSTANCE.getUtilityPanel().getText()));
+		PageAssembler.ready(new HTML(HtmlTemplates.INSTANCE.getUtilityPanel().getText()));	
+		PageAssembler.buildContents();
 		
-		PageAssembler.getInstance().buildContents();
+		DOM.getElementById("r-menuCollections").getParentElement().removeClassName("active");
+		DOM.getElementById("r-menuProjects").getParentElement().removeClassName("active");
+		DOM.getElementById("r-menuWorkspace").getParentElement().removeClassName("active");
 		
-		DOM.getElementById("r-menuCollections").removeClassName("active");
-		DOM.getElementById("r-menuProjects").removeClassName("active");
-		DOM.getElementById("r-menuWorkspace").removeClassName("active");
-		
+		// Setup Title and utility panel
 		if (utilType.equals(ACCOUNT_TYPE)) {
 			pageTitle = "Account Settings";
 			alfURL = "share/page/user/admin/profile";
@@ -83,7 +85,9 @@ public class UtilityScreen extends ScreenTemplate {
 		}
 		else if (utilType.equals(REPSETTINGS_TYPE)) {
 			pageTitle = "Repository Settings";
-			alfURL = null;			
+			alfURL = null;	
+			setDisplayIE(DOM.getElementById("r-alfrescoUtil"), "none");
+			setDisplayIE(DOM.getElementById("r-repositorySettings"), "block");
 		}
 		else {
 			pageTitle = "Unknown Alfresco Utility";
@@ -92,11 +96,14 @@ public class UtilityScreen extends ScreenTemplate {
 		
 		DOM.getElementById("r-pageTitle").setInnerHTML("<h4>"+pageTitle+"</h4>");
 		
-		if (alfURL != null) {
-			String frameSrc = CommunicationHub.ROOT_URL + alfURL + "?" + CommunicationHub.randomString(); 
+		if (alfURL != null) {  
+			// Customize the Alfresco utility screen for iFrame viewing
+			String frameSrc = CommunicationHub.rootURL + alfURL + "?" + CommunicationHub.randomString(); 
 	 		final Frame f = new Frame();
-	 		f.getElement().setAttribute("seamless", "seamless");
-	 		f.getElement().setAttribute("style", "border:0px; width:100%; display:none;");
+	 		setAttributeIE(f.getElement(), "seamless", "seamless");
+	 		setAttributeIE(f.getElement(), "border", "0px");
+	 		setAttributeIE(f.getElement(), "width", "100%");
+	 		setAttributeIE(f.getElement(), "display", "none");
 	 		f.addLoadHandler(new LoadHandler() {
 								@Override
 								public void onLoad(LoadEvent event) {
@@ -111,19 +118,163 @@ public class UtilityScreen extends ScreenTemplate {
 											e = ((Element)PageAssembler.getIFrameElement(f.getElement(), "alf-ft"));
 											if (e!=null)
 												e.removeFromParent();
+											e = ((Element)PageAssembler.getIFrameElement(f.getElement(),"global_x002e_header_x0023_default-app_sites-sites-menu"));
+											if (e!=null)
+												e.removeFromParent();
 											e = ((Element)PageAssembler.getIFrameElement(f.getElement(), "alf-content"));
 											if (e!=null)
-												e.setAttribute("style", "margin-left:0px;");
-											f.getElement().setAttribute("style", "border:0px; width:100%; display:block; height:" + (f.getElement().getScrollHeight()+380) + "px");
+												setAttributeIE(e, "margin-left", "0px");
+									 		setAttributeIE(f.getElement(), "border", "0px");
+									 		setAttributeIE(f.getElement(), "width", "100%");
+									 		setAttributeIE(f.getElement(), "display", "block");
+									 		setAttributeIE(f.getElement(), "height", (f.getElement().getScrollHeight()+380) + "px");
 										}
-									}.schedule(400);
+									}.schedule(500);
 								}
 							});
 	 		f.setUrl(frameSrc);
 	 		RootPanel.get("r-alfrescoUtil").add(f);
 		}
-		else if (utilType.equals(REPSETTINGS_TYPE)) {
-			DOM.getElementById("r-alfrescoUtil").setInnerHTML("new repository settings form will go here...");
+		else { 
+			// populate the Repository Settings panel
+			fillFlrSettings0();
+			fill3drSettings0();
+
+			
+			// Handlers for r-repositorySettings
+			PageAssembler.attachHandler("r-harvestFLR", 
+											Event.ONCLICK, 
+											new EventCallback() {
+												@Override
+												public void onEvent(Event event) {
+													if (FLRApi.FLR_IMPORT_MODE.equals(FLRApi.FLR_IMPORT_ENABLED)) {
+														launchFlrHarvest0();
+													}				
+												}
+											});
+		
+			PageAssembler.attachHandler("flrUrl", 
+											Event.ONCHANGE, 
+											new EventCallback() {
+												@Override
+												public void onEvent(Event event) {
+													adjustFlrFields0(extractValue0("flrUrl"));
+												}
+											});
+			
+			PageAssembler.attachHandler("r-detailEditUpdate", 
+											Event.ONCLICK, 
+											new EventCallback() {
+												@Override
+												public void onEvent(Event event) {
+													saveFlrSettings0();
+													save3drSettings0();
+													removeUnsavedEffects0();
+													fillFlrSettings0();
+													fill3drSettings0();
+												}
+											});
+
+		
+		}
+
+	}
+	
+	private void removeUnsavedEffects0() {
+		((Label)PageAssembler.elementToWidget("r-detailSaveAlert", PageAssembler.LABEL)).addStyleName("hide");
+		((Anchor)PageAssembler.elementToWidget("r-detailEditUpdate", PageAssembler.A)).removeStyleName("blue");
+		((Anchor)PageAssembler.elementToWidget("r-detailEditUpdate", PageAssembler.A)).addStyleName("white");
+	}
+	
+	private void fillFlrSettings0() {
+		((Label)PageAssembler.elementToWidget("flrUrl", PageAssembler.LABEL)).setText(FLRApi.getFLRsetting(FLRApi.FLR_REPOSITORY_SETTING));
+		((Label)PageAssembler.elementToWidget("flrImport", PageAssembler.LABEL)).setText(FLRApi.getFLRsetting(FLRApi.FLR_IMPORT_SETTING));
+		((Label)PageAssembler.elementToWidget("flrPublish", PageAssembler.LABEL)).setText(FLRApi.getFLRsetting(FLRApi.FLR_PUBLISH_SETTING));
+		((Label)PageAssembler.elementToWidget("flrActivity", PageAssembler.LABEL)).setText(FLRApi.getFLRsetting(FLRApi.FLR_ACTIVITY_SETTING));
+		adjustFlrFields0(extractValue0("flrUrl"));
+	}
+	
+	private void fill3drSettings0() {
+		((Label)PageAssembler.elementToWidget("3drOption", PageAssembler.LABEL)).setText(Adl3DRApi.getADL3DRsetting(Adl3DRApi.ADL3DR_OPTION_SETTING));
+		((Label)PageAssembler.elementToWidget("3drActivity", PageAssembler.LABEL)).setText(Adl3DRApi.getADL3DRsetting(Adl3DRApi.ADL3DR_ACTIVITY_SETTING));
+	}
+	
+	private String extractValue0(String element) {
+		String val = "";
+		val = ((Label)PageAssembler.elementToWidget(element, PageAssembler.LABEL)).getText();
+		if (val==null||val=="")
+			val = ((TextBox)PageAssembler.elementToWidget(element, PageAssembler.TEXT)).getText();
+		return val;
+	}
+	
+	private void saveFlrSettings0() {
+		String newFlrSetting = extractValue0("flrUrl");
+		FLRApi.saveFLRsetting(FLRApi.FLR_IMPORT_SETTING, extractValue0("flrImport"));		
+		FLRApi.saveFLRsetting(FLRApi.FLR_PUBLISH_SETTING, extractValue0("flrPublish"));		
+		FLRApi.saveFLRsetting(FLRApi.FLR_ACTIVITY_SETTING, extractValue0("flrActivity"));
+		if (!newFlrSetting.equalsIgnoreCase(FLRApi.FLR_REPOSITORY_MODE)) {
+			adjustFlrFields0(newFlrSetting);
+			FLRApi.saveFLRsetting(FLRApi.FLR_IMPORT_SETTING, extractValue0("flrImport"));		
+			FLRApi.saveFLRsetting(FLRApi.FLR_PUBLISH_SETTING, extractValue0("flrPublish"));		
+			FLRApi.saveFLRsetting(FLRApi.FLR_ACTIVITY_SETTING, extractValue0("flrActivity"));
+		}
+		FLRApi.saveFLRsetting(FLRApi.FLR_REPOSITORY_SETTING, newFlrSetting);
+	}
+	
+	private void save3drSettings0() {
+		Adl3DRApi.saveAdl3DRsetting(Adl3DRApi.ADL3DR_OPTION_SETTING, extractValue0("3drOption"));		
+		Adl3DRApi.saveAdl3DRsetting(Adl3DRApi.ADL3DR_ACTIVITY_SETTING, extractValue0("3drActivity"));
+	}
+	
+	private void adjustFlrFields0(String flrSetting) {
+		int opCount = 0;
+		
+		if (flrSetting.equalsIgnoreCase(FLRApi.FLR_SAND_BOX)) {
+			DOM.getElementById("flrImport").addClassName("editable");																
+			DOM.getElementById("flrPublish").addClassName("editable");																
+			DOM.getElementById("flrActivity").addClassName("editable");		
+		}
+		else if (flrSetting.equalsIgnoreCase(FLRApi.FLR_NOT_IN_USE)) {
+			((Label)PageAssembler.elementToWidget("flrImport", PageAssembler.LABEL)).setText("FLR-NoImport");	
+			((Label)PageAssembler.elementToWidget("flrPublish", PageAssembler.LABEL)).setText("FLR-NoPublish");	
+			((Label)PageAssembler.elementToWidget("flrActivity", PageAssembler.LABEL)).setText("FLR-NoActivity");	
+			DOM.getElementById("flrImport").removeClassName("editable");																
+			DOM.getElementById("flrPublish").removeClassName("editable");																
+			DOM.getElementById("flrActivity").removeClassName("editable");																
+		}
+		if (FLRApi.FLR_IMPORT_MODE.equals(FLRApi.FLR_IMPORT_DISABLED)) {
+			DOM.getElementById("r-harvestFLR").setAttribute("style", "display:none");
+		}
+		else {
+			DOM.getElementById("r-harvestFLR").setAttribute("style", "");		
+			opCount++;
+		}
+		if (opCount == 0) {
+			((Label)PageAssembler.elementToWidget("flrActions", PageAssembler.LABEL)).setText("No FLR actions are currently available.");
+		}
+		else {
+			((Label)PageAssembler.elementToWidget("flrActions", PageAssembler.LABEL)).setText("");			
 		}
 	}
+	
+	private void launchFlrHarvest0() {
+		final StatusPacket flrStatus = StatusWindowHandler.createMessage(StatusWindowHandler.getFLRHarvestMessageBusy("FLR Sandbox"),
+				  StatusPacket.ALERT_BUSY);
+		FLRApi.getFLRdata(new FLRCallback<FLRPacket>() {
+							@Override
+							public void onSuccess(FLRPacket result) {
+								flrStatus.setMessage(StatusWindowHandler.getFLRHarvestDone(result.getValueString("docCount"), result.getValueString("badCount"), result.getValueString("partialCount")));
+								flrStatus.setState(StatusPacket.ALERT_SUCCESS);
+								StatusWindowHandler.alterMessage(flrStatus);
+							}
+							
+							@Override
+							public void onFailure(Throwable caught) {
+								flrStatus.setMessage(StatusWindowHandler.getFLRHarvestError());
+								flrStatus.setState(StatusPacket.ALERT_ERROR);
+								StatusWindowHandler.alterMessage(flrStatus);
+							}			
+						});
+	}
+
 }

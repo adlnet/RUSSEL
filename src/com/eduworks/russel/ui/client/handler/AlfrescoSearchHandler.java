@@ -1,49 +1,34 @@
 /*
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	--Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	--Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	--No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	--All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package com.eduworks.russel.ui.client.handler;
 
-import java.net.URL;
 import java.util.Vector;
 
+import com.eduworks.gwt.client.net.api.Adl3DRApi;
 import com.eduworks.gwt.client.net.api.AlfrescoApi;
 import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
 import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.util.Date;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
+import com.eduworks.russel.ui.client.pagebuilder.screen.EPSSEditScreen;
 import com.eduworks.russel.ui.client.pagebuilder.screen.EditScreen;
 import com.eduworks.russel.ui.client.pagebuilder.screen.ResultsScreen;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -73,7 +58,7 @@ public class AlfrescoSearchHandler {
 	
 	private boolean terminate = false;
 	private boolean pendingSearch = false;
-	private Vector<SearchTileHandler> tileHandlers = new Vector<SearchTileHandler>();
+	private Vector<TileHandler> tileHandlers = new Vector<TileHandler>();
 	private Vector<AlfrescoPacket> pendingEdits;
 	private int retries = 0;
 	private Timer t;
@@ -84,24 +69,34 @@ public class AlfrescoSearchHandler {
 	
 	private void buildTile(AlfrescoPacket searchTermPacket, int index, String objPanel, Element td) {
 		Vector<String> iDs = null;
-		if (searchTermPacket.getShareSearchRecords().get(index)!=null&&searchTermPacket.getShareSearchRecords().get(index).getNodeId()!=null) {
+		if (searchTermPacket.getSearchRecords().get(index)!=null&&searchTermPacket.getSearchRecords().get(index).getNodeId()!=null) {
 			if ((td != null) && (searchType.equals(RECENT_TYPE)))
-				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getObjectPanelWidget().getText()), false);
+				iDs = PageAssembler.inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getObjectPanelWidget().getText()), false);
 			else if (searchType.equals(COLLECTION_TYPE) || searchType.equals(FLR_TYPE) || searchType.equals(SEARCH_TYPE))
-				iDs = PageAssembler.getInstance().inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getSearchPanelWidget().getText()), false);
-			else if ((td != null) && (searchType.equals(PROJECT_TYPE)))
-				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSProjectObjectPanelWidget().getText()), false);
+				iDs = PageAssembler.inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getSearchPanelWidget().getText()), false);
+			else if (searchType.equals(PROJECT_TYPE))
+				iDs = PageAssembler.inject(objPanel, "x", new HTML(HtmlTemplates.INSTANCE.getEPSSProjectObjectPanelWidget().getText()), false);
 			else if ((td != null) && (searchType.equals(ASSET_TYPE)))
-				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
+				iDs = PageAssembler.inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
 			else if ((td != null) && (searchType.equals(NOTES_TYPE)))
-				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()), false);
+				iDs = PageAssembler.inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()), false);
 			else if ((td != null) && (searchType.equals(STRATEGY_TYPE))) {
 				Window.alert("handling a strategy search");
-				iDs = PageAssembler.getInstance().inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
+				iDs = PageAssembler.inject(td.getId(), "x", new HTML(HtmlTemplates.INSTANCE.getEPSSAssetObjectPanelWidget().getText()), false);
 			}
 			String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
-			tileHandlers.add(new SearchTileHandler(this, idPrefix, searchType, searchTermPacket.getShareSearchRecords().get(index)));
+			tileHandlers.add(new TileHandler(this, idPrefix, searchType, searchTermPacket.getSearchRecords().get(index)));
 		}
+	}
+	
+	private TileHandler getTile(String id) {
+		TileHandler tile = null;
+		for (int i = 0; i<tileHandlers.size(); i++) {
+			if (id.contains(tileHandlers.get(i).getIdPrefix())) {
+				tile = tileHandlers.get(i);
+			}
+		}
+		return tile;
 	}
 	
 	public void buildThumbnails(String objPanel, AlfrescoPacket searchTermPacket) {
@@ -113,16 +108,16 @@ public class AlfrescoSearchHandler {
 			if (noResults!=null)
 				rp.remove(noResults);
 			
-			if (searchTermPacket.getShareSearchRecords().length()==0) {
+			if (searchTermPacket.getSearchRecords().length()==0) {
 				rp.getElement().setAttribute("style", "text-align:center");
 				noResults = new HTML(NO_SEARCH_RESULTS); 
 				rp.add(noResults);
 			} else 
 				rp.getElement().setAttribute("style", "");
 			
-			for (int x=0;x<searchTermPacket.getShareSearchRecords().length();x+=2) {
+			for (int x=0;x<searchTermPacket.getSearchRecords().length();x+=2) {
 				td = null;
-				if (((!searchType.equals(SEARCH_TYPE)) && (!searchType.equals(COLLECTION_TYPE)) && (!searchType.equals(FLR_TYPE)))) {
+				if (((!searchType.equals(SEARCH_TYPE)) && (!searchType.equals(COLLECTION_TYPE)) && (!searchType.equals(FLR_TYPE)) && (!searchType.equals(PROJECT_TYPE)))) {
 					// SEARCH_TYPE, FLR_TYPE and COLLECTION_TYPE use the vertStack style, and will not use the table-based layout that requires insertion of cell separators.
 					td = DOM.createTD();
 					td.setId(x +"-" + rp.getElement().getId());
@@ -139,10 +134,12 @@ public class AlfrescoSearchHandler {
 	public void toggleSelection(final String id, final AlfrescoPacket record) {
 		if (pendingEdits.contains(record)) {
 			pendingEdits.remove(record);
+			getTile(id).deselect();
 			((Label)PageAssembler.elementToWidget(id + "State", PageAssembler.LABEL)).removeStyleName("active");
 			((Label)PageAssembler.elementToWidget(id + "Select", PageAssembler.LABEL)).removeStyleName("active");
 		} else {
 			pendingEdits.add(record);
+			getTile(id).select();
 			((Label)PageAssembler.elementToWidget(id + "State", PageAssembler.LABEL)).addStyleName("active");
 			((Label)PageAssembler.elementToWidget(id + "Select", PageAssembler.LABEL)).addStyleName("active");
 		}
@@ -156,9 +153,29 @@ public class AlfrescoSearchHandler {
 		}
 	}
 	
+	public void selectAll() {
+		TileHandler tile = null;
+		for (int i = 0; i<tileHandlers.size(); i++) {
+			tile = tileHandlers.get(i);
+			if (!tile.getSelectState()) {
+				toggleSelection(tile.getIdPrefix(), tile.getSearchRecord());
+			}
+		}
+	}
+	
+	public void selectNone() {
+		TileHandler tile = null;
+		for (int i = 0; i<tileHandlers.size(); i++) {
+			tile = tileHandlers.get(i);
+			if (tile.getSelectState()) {
+				toggleSelection(tile.getIdPrefix(), tile.getSearchRecord());
+			}
+		}		
+	}
+	
 	public void processCallbacks() {
 		if ((!terminate) && ((tileHandlers.size()!=0&&tileIndex<tileHandlers.size())))
-			tileHandlers.get(tileIndex).refreshTile(new EventCallback() {
+			tileHandlers.get(tileIndex).fillTile(new EventCallback() {
 														@Override
 														public void onEvent(Event event) {
 															tileIndex++;
@@ -183,6 +200,33 @@ public class AlfrescoSearchHandler {
 			t.schedule(1);
 	}
 	
+	public static String cleanQuery(String rawSearchText) {
+		rawSearchText = rawSearchText.trim();
+		if (rawSearchText.equalsIgnoreCase("-")||rawSearchText.equalsIgnoreCase("!")||rawSearchText.equalsIgnoreCase("*")||rawSearchText.equalsIgnoreCase("not")||
+			rawSearchText.equalsIgnoreCase("search...")||rawSearchText.equalsIgnoreCase("Enter search terms..."))
+			rawSearchText = "";
+		String[] searchTerms = rawSearchText.split(" ");
+		String fullSearch = "";
+		char operator = ' ';
+		for (int i=0 ; i<searchTerms.length; i++) {
+			if (searchTerms[i] != "")  {
+				operator = searchTerms[i].charAt(0);
+				if (searchTerms[i].equalsIgnoreCase("AND")||searchTerms[i].equalsIgnoreCase("&&")||
+					searchTerms[i].equalsIgnoreCase("OR")||searchTerms[i].equalsIgnoreCase("||")||
+					searchTerms[i].equalsIgnoreCase("NOT")||searchTerms[i].equalsIgnoreCase("*")) {
+					fullSearch += " "+searchTerms[i];
+				} else if (searchTerms[i].indexOf(":") != -1) {
+					fullSearch += " "+searchTerms[i];
+				} else if (operator == '-'||operator == '+'||operator == '!'||operator == '|'||operator == '~'||operator == '='){
+					fullSearch += " "+operator+"ALL:"+searchTerms[i].substring(1);
+				} else {
+					fullSearch += " ALL:"+searchTerms[i];
+				}
+			}
+		}
+		return fullSearch.trim();
+	}
+	
 	public void hook(final String seachbarID, final String objectPanel, final String type) {
 		searchType = type;
 		customQuery = null;
@@ -190,13 +234,14 @@ public class AlfrescoSearchHandler {
 		t = new Timer() {
 				@Override
 				public void run() {
-					String searchText = ((TextBox)PageAssembler.elementToWidget(seachbarID, 
-				   																PageAssembler.TEXT)).getText().trim();
-					AlfrescoPacket ap = AlfrescoPacket.makePacket();
-					if (searchText.equalsIgnoreCase("-")||searchText.equalsIgnoreCase("!")||searchText.equalsIgnoreCase("*")||searchText.equalsIgnoreCase("not"))
-						searchText = "";
-					if (customQuery!=null)
+					String rawSearchText = ((TextBox)PageAssembler.elementToWidget(seachbarID, 
+				   																   PageAssembler.TEXT)).getText().trim();
+					final AlfrescoPacket ap = AlfrescoPacket.makePacket();
+					final String searchText = cleanQuery(rawSearchText);
+					if (customQuery!=null&&!searchType.equals(ASSET_TYPE))
 						ap.addKeyValue("terms", customQuery + " ASPECT:\"russel:metaTest\"");
+					else if (searchType.equals(ASSET_TYPE))
+						ap.addKeyValue("terms", EPSSEditScreen.buildQueryString() + " ASPECT:\"russel:metaTest\"");
 					else if (searchText=="")
 						ap.addKeyValue("terms", "ASPECT:\"russel:metaTest\"");
 					else
@@ -256,18 +301,26 @@ public class AlfrescoSearchHandler {
 						ap.addKeyValue("terms", "modified:[\"" + pastDate.getYear() + "-" + pastMonthPadded + "-" + pastDayPadded + "\" to \"" +  currentDate.getYear() + "-" + currentMonthPadded + "-" + currentDayPadded + "\"] ASPECT:\"russel:metaTest\"");
 						ap.addKeyValue("sort", "cm:modified|false");
 					}
-						
+					
 					AlfrescoApi.search(ap,
 									   new AlfrescoCallback<AlfrescoPacket>() {
 											@Override
 											public void onFailure(Throwable caught) {
-												if (retries>3) {
+												if (retries>1) {
 													retries = 0;
 													tileHandlers.clear();
 													RootPanel rp = RootPanel.get(objectPanel);
 													rp.clear();
-													rp.getElement().setInnerText("");
-													Window.alert("Fooing Search by terms failed " + caught.getMessage());
+													int childCount = rp.getElement().getChildCount();
+													int grabIndex = 0;
+													for (int childIndex=0;childIndex<childCount-((searchType.equals(PROJECT_TYPE))?1:0);childIndex++) { 
+														Element removeCursor = null;
+														while (((removeCursor= (Element) rp.getElement().getChild(grabIndex))!=null)&&removeCursor.getId().equals("r-newEntity"))
+															grabIndex++;
+														if (removeCursor!=null)
+															rp.getElement().removeChild(removeCursor);
+													}
+													StatusWindowHandler.createMessage(StatusWindowHandler.getSearchMessageError(searchText), StatusPacket.ALERT_ERROR);
 												} else {
 													t.schedule(500);
 													retries++;
@@ -282,15 +335,16 @@ public class AlfrescoSearchHandler {
 												tileHandlers.clear();
 												RootPanel rp = RootPanel.get(objectPanel);
 												rp.clear();
-												rp.getElement().setInnerText("");
-												if (searchType.equals(PROJECT_TYPE))
-													PageAssembler.getInstance().inject(objectPanel, "x", new HTML(HtmlTemplates.INSTANCE.getEPSSNewProjectWidget().getText()), true);
-												new Timer() {
-													@Override
-													public void run() {
-														buildThumbnails(objectPanel, SearchTermPacket);
-													}
-												}.schedule(100);
+												int childCount = rp.getElement().getChildCount();
+												int grabIndex = 0;
+												for (int childIndex=0;childIndex<childCount-((searchType.equals(PROJECT_TYPE))?1:0);childIndex++) { 
+													Element removeCursor = null;
+													while (((removeCursor= (Element) rp.getElement().getChild(grabIndex))!=null)&&removeCursor.getId().equals("r-newEntity"))
+														grabIndex++;
+													if (removeCursor!=null)
+														rp.getElement().removeChild(removeCursor);
+												}
+												buildThumbnails(objectPanel, SearchTermPacket);
 												pendingSearch = false;
 												customQuery = null;
 											}
@@ -302,7 +356,7 @@ public class AlfrescoSearchHandler {
 		PageAssembler.attachHandler(seachbarID, Event.ONKEYUP, new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
-																		if (event.getKeyCode() == KeyCodes.KEY_ENTER&&type!=ASSET_TYPE&&type!=PROJECT_TYPE&&type!=STRATEGY_TYPE) {
+																		if (event.getKeyCode() == KeyCodes.KEY_ENTER&&type!=ASSET_TYPE&&type!=PROJECT_TYPE&&type!=STRATEGY_TYPE&&type!=SEARCH_TYPE) {
 																			if (searchType == RECENT_TYPE)  searchType = SEARCH_TYPE;
 																			ResultsScreen rs = new ResultsScreen();
 																	   		rs.searchType = searchType;
@@ -311,10 +365,10 @@ public class AlfrescoSearchHandler {
 																		else if (type!=EDIT_TYPE) {
 																			if (!pendingSearch) {
 																				pendingSearch = true;
-																				t.schedule(400);
+																				t.schedule(600);
 																			} else {
 																				t.cancel();
-																				t.schedule(400);
+																				t.schedule(600);
 																			}
 																		}
 																	}
@@ -327,6 +381,6 @@ public class AlfrescoSearchHandler {
 																		   	}
 																		   });
 		
-		if (type != EDIT_TYPE) t.schedule(250);
+		if (type != EDIT_TYPE && type != ASSET_TYPE) t.schedule(250);
 	}
 }

@@ -1,64 +1,65 @@
 /*
-Copyright (c) 2012 Eduworks Corporation
-All rights reserved.
- 
-This Software (including source code, binary code and documentation) is provided by Eduworks Corporation to
-the Government pursuant to contract number W31P4Q-12 -C- 0119 dated 21 March, 2012 issued by the U.S. Army 
-Contracting Command Redstone. This Software is a preliminary version in development. It does not fully operate
-as intended and has not been fully tested. This Software is provided to the U.S. Government for testing and
-evaluation under the following terms and conditions:
+Copyright 2012-2013 Eduworks Corporation
 
-	--Any redistribution of source code, binary code, or documentation must include this notice in its entirety, 
-	 starting with the above copyright notice and ending with the disclaimer below.
-	 
-	--Eduworks Corporation grants the U.S. Government the right to use, modify, reproduce, release, perform,
-	 display, and disclose the source code, binary code, and documentation within the Government for the purpose
-	 of evaluating and testing this Software.
-	 
-	--No other rights are granted and no other distribution or use is permitted, including without limitation 
-	 any use undertaken for profit, without the express written permission of Eduworks Corporation.
-	 
-	--All modifications to source code must be reported to Eduworks Corporation. Evaluators and testers shall
-	 additionally make best efforts to report test results, evaluation results and bugs to Eduworks Corporation
-	 using in-system feedback mechanism or email to russel@eduworks.com.
-	 
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN 
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package com.eduworks.russel.ui.client.epss;
 
-import org.vectomatic.arrays.ArrayBuffer;
 import org.vectomatic.file.Blob;
 
 import com.eduworks.gwt.client.net.CommunicationHub;
 import com.eduworks.gwt.client.net.api.AlfrescoApi;
-import com.eduworks.gwt.client.net.api.AlfrescoURL;
 import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
 import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.StatusPacket;
+import com.eduworks.gwt.client.util.BlobUtils;
+import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.gwt.client.util.StringTokenizer;
 import com.eduworks.gwt.client.util.Uint8Array;
+import com.eduworks.russel.ui.client.Russel;
+import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
-import com.google.gwt.user.client.Window;
 
 public class ProjectFileModel {
-	public final static String GAGNE_TEMPLATE = "Gagne's Nine Events";
-	public final static String SIMULATION_TEMPLATE = "Modified Simulation Model";
-	public final static String RUSSEL_MIME_TYPE = "russel/project";
-	public static final String USAGE_DELIMITER = "|";
-	public static final String USAGE_STRATEGY_DELIMITER = "^";
-	public static final String USAGE_COUNT_DELIMITER = "#";
+	public final static String RUSSEL_PROJECT = "russel/project";
+	public final static String TEMPLATE_TITLE = "templateName";
+	public final static String TEMPLATE_LONG_TITLE = "templateTitle";
+	public final static String TEMPLATE_SECTION_STAGES = "stages";
+	public final static String TEMPLATE_SECTION_SHORT_TITLE = "shortTitle";
+	public final static String TEMPLATE_SECTION_LONG_TITLE = "longTitle";
+	public final static String TEMPLATE_SECTION_GUIDENCE = "guidance";
+	public final static String TEMPLATE_SECTION_TERMS = "searchTerms";
+	public final static String PROJECT_TEMPLATE = "projectTemplate";
+	public final static String PROJECT_TITLE = "projectTitle";
+	public final static String PROJECT_IMI = "projectImi";
+	public final static String PROJECT_TAXONOMY = "projectTaxonomy";
+	public final static String PROJECT_USAGE = "projectUsage";
+	public final static String PROJECT_TEMPLATE_NAME = "projectTemplateName";
+	public final static String PROJECT_NOTES = "projectNotes";
+	public final static String PROJECT_ID = "projectNodeId";
+	public final static String PROJECT_LEARNING_OBJECTIVES = "projectLearningObjectives";
+	public final static String PROJECT_CREATOR = "projectCreator";
+	public final static String PROJECT_SECTION_NOTES = "projectSectionNotes";
+	public final static String PROJECT_SECTION_ASSETS = "projectSectionAssets";
 	
 	public String projectTitle;
 	public String projectCreator;
+	public String projectTemplateName;
 	public String projectTemplate;
-	public Integer projectMaxSections;
+	public JsArray<AlfrescoPacket> projectSections;
 	public String projectNotes;
 	public String projectLearningObjectives;
 	public String projectImi;
@@ -68,12 +69,12 @@ public class ProjectFileModel {
 	public AlfrescoPacket projectSectionNotes;
 	public AlfrescoPacket projectSectionAssets;
 	
-	public ProjectFileModel(String templateType) {
-		this.projectTemplate = templateType;
-		if (this.projectTemplate == GAGNE_TEMPLATE) 
-			this.projectMaxSections = 9;
-		else if (this.projectTemplate ==  SIMULATION_TEMPLATE) 
-			this.projectMaxSections = 14;
+	@SuppressWarnings("unchecked")
+	public ProjectFileModel(String templateJSON) {
+		AlfrescoPacket ap = AlfrescoPacket.wrap(CommunicationHub.parseJSON(templateJSON));
+		this.projectTemplate = ap.toJSONString();
+		this.projectTemplateName = ap.getValueString(TEMPLATE_TITLE);
+		this.projectSections = (JsArray<AlfrescoPacket>) ap.getValue(TEMPLATE_SECTION_STAGES);
 		this.projectTitle = "Click here to add a title";
 		this.projectImi = "0,";
 		this.projectTaxo = "0,";
@@ -86,101 +87,131 @@ public class ProjectFileModel {
 		this.projectSectionAssets = AlfrescoPacket.makePacket();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public ProjectFileModel(AlfrescoPacket ap) {
-		this.projectTitle = ap.getValueString("projectTitle"); 
-		this.projectImi = ap.getValueString("projectImi");
-		this.projectTaxo = ap.getValueString("projectTaxo");
-		this.projectUsage = ap.getValueString("projectUsage");
-		this.projectNotes = ap.getValueString("projectNotes");
-		this.projectLearningObjectives = ap.getValueString("projectLearningObjectives");
-		this.projectTemplate = ap.getValueString("projectTemplate");
-		if (this.projectTemplate == GAGNE_TEMPLATE) 
-			this.projectMaxSections = 9;
-		else if (this.projectTemplate ==  SIMULATION_TEMPLATE) 
-			this.projectMaxSections = 14;
-		this.projectCreator = ap.getValueString("projectCreator");
-		this.projectNodeId = ap.getValueString("projectNodeId");
-		this.projectSectionNotes = AlfrescoPacket.wrap(ap.getValue("projectSections"));
-		this.projectSectionAssets = AlfrescoPacket.wrap(ap.getValue("projectSectionAssets"));
+		this.projectTemplate = ap.getValueString(PROJECT_TEMPLATE);
+		this.projectTitle = ap.getValueString(PROJECT_TITLE); 
+		this.projectImi = ap.getValueString(PROJECT_IMI);
+		this.projectSections = (JsArray<AlfrescoPacket>) AlfrescoPacket.wrap(CommunicationHub.parseJSON(this.projectTemplate)).getValue(TEMPLATE_SECTION_STAGES);
+		this.projectTaxo = ap.getValueString(PROJECT_TAXONOMY);
+		this.projectUsage = ap.getValueString(PROJECT_USAGE);
+		this.projectNotes = ap.getValueString(PROJECT_NOTES);
+		this.projectLearningObjectives = ap.getValueString(PROJECT_LEARNING_OBJECTIVES);
+		this.projectTemplateName = ap.getValueString(PROJECT_TEMPLATE_NAME);
+		this.projectCreator = ap.getValueString(PROJECT_CREATOR);
+		this.projectNodeId = ap.getValueString(PROJECT_ID);
+		this.projectSectionNotes = AlfrescoPacket.wrap(ap.getValue(PROJECT_SECTION_NOTES));
+		this.projectSectionAssets = AlfrescoPacket.wrap(ap.getValue(PROJECT_SECTION_ASSETS));
 	}
 	
 	public Blob makeJSONBlob() {
 		AlfrescoPacket ap = AlfrescoPacket.makePacket();
-		ap.addKeyValue("projectTitle", "\"" + projectTitle + "\"");
-		ap.addKeyValue("projectCreator", "\"" + projectCreator + "\"");
-		ap.addKeyValue("projectTemplate", "\"" + projectTemplate + "\"");
-		ap.addKeyValue("projectNotes", "\"" + projectNotes + "\"");
-		ap.addKeyValue("projectLearningObjectives", "\"" + projectLearningObjectives + "\"");
-		ap.addKeyValue("projectImi", "\"" + projectImi + "\"");
-		ap.addKeyValue("projectTaxo", "\"" + projectTaxo + "\"");
-		ap.addKeyValue("projectUsage", "\"" + projectUsage + "\"");
-		ap.addKeyValue("projectNodeId", "\"" + projectNodeId + "\"");
-		ap.addKeyValue("projectSections", projectSectionNotes.toJSONWrappedString());
-		ap.addKeyValue("projectSectionAssets", projectSectionAssets.toJSONArrayString());
-		return buildBlob(RUSSEL_MIME_TYPE, ap.toJSONString());
+		ap.addKeyValue(PROJECT_TEMPLATE, projectTemplate);
+		ap.addKeyValue(PROJECT_TITLE, projectTitle);
+		ap.addKeyValue(PROJECT_CREATOR, projectCreator);
+		ap.addKeyValue(PROJECT_TEMPLATE_NAME, projectTemplateName);
+		ap.addKeyValue(PROJECT_NOTES, projectNotes);
+		ap.addKeyValue(PROJECT_LEARNING_OBJECTIVES, projectLearningObjectives);
+		ap.addKeyValue(PROJECT_IMI, projectImi);
+		ap.addKeyValue(PROJECT_TAXONOMY, projectTaxo);
+		ap.addKeyValue(PROJECT_USAGE, projectUsage);
+		ap.addKeyValue(PROJECT_ID, projectNodeId);
+		ap.addKeyValue(PROJECT_SECTION_NOTES, projectSectionNotes);
+		ap.addKeyValue(PROJECT_SECTION_ASSETS, projectSectionAssets);
+		return BlobUtils.buildBlob(RUSSEL_PROJECT, ap.toJSONString());
+	}
+	
+	public String toJSONString() {
+		AlfrescoPacket tempAp = AlfrescoPacket.makePacket();
+		tempAp.addKeyValue(PROJECT_TEMPLATE, projectTemplate);
+		tempAp.addKeyValue(PROJECT_TITLE, projectTitle);
+		tempAp.addKeyValue(PROJECT_CREATOR, projectCreator);
+		tempAp.addKeyValue(PROJECT_TEMPLATE_NAME, projectTemplateName);
+		tempAp.addKeyValue(PROJECT_NOTES, projectNotes);
+		tempAp.addKeyValue(PROJECT_LEARNING_OBJECTIVES, projectLearningObjectives);
+		tempAp.addKeyValue(PROJECT_IMI, projectImi);
+		tempAp.addKeyValue(PROJECT_TAXONOMY, projectTaxo);
+		tempAp.addKeyValue(PROJECT_USAGE, projectUsage);
+		tempAp.addKeyValue(PROJECT_ID, projectNodeId);
+		tempAp.addKeyValue(PROJECT_SECTION_NOTES, projectSectionNotes);
+		tempAp.addKeyValue(PROJECT_SECTION_ASSETS, projectSectionAssets);
+		return tempAp.toJSONString();
 	}
 	
 	public ProjectFileModel copyProject() {
 		AlfrescoPacket tempAp = AlfrescoPacket.makePacket();
-		tempAp.addKeyValue("projectTitle", "\"" + this.projectTitle + "\"");
-		tempAp.addKeyValue("projectCreator", "\"" + this.projectCreator + "\"");
-		tempAp.addKeyValue("projectTemplate", "\"" + this.projectTemplate + "\"");
-		tempAp.addKeyValue("projectNotes", "\"" + this.projectNotes + "\"");
-		tempAp.addKeyValue("projectLearningObjectives", "\"" + this.projectLearningObjectives + "\"");
-		tempAp.addKeyValue("projectImi", "\"" + this.projectImi + "\"");
-		tempAp.addKeyValue("projectTaxo", "\"" + this.projectTaxo + "\"");
-		tempAp.addKeyValue("projectUsage", "\"" + this.projectUsage + "\"");
-		tempAp.addKeyValue("projectNodeId", "\"" + this.projectNodeId + "\"");
-		tempAp.addKeyValue("projectSections", this.projectSectionNotes.toJSONWrappedString());
-		tempAp.addKeyValue("projectSectionAssets", this.projectSectionAssets.toJSONArrayString());
+		tempAp.addKeyValue(PROJECT_TEMPLATE, projectTemplate);
+		tempAp.addKeyValue(PROJECT_TITLE, projectTitle);
+		tempAp.addKeyValue(PROJECT_CREATOR, projectCreator);
+		tempAp.addKeyValue(PROJECT_TEMPLATE_NAME, projectTemplateName);
+		tempAp.addKeyValue(PROJECT_NOTES, projectNotes);
+		tempAp.addKeyValue(PROJECT_LEARNING_OBJECTIVES, projectLearningObjectives);
+		tempAp.addKeyValue(PROJECT_IMI, projectImi);
+		tempAp.addKeyValue(PROJECT_TAXONOMY, projectTaxo);
+		tempAp.addKeyValue(PROJECT_USAGE, projectUsage);
+		tempAp.addKeyValue(PROJECT_ID, projectNodeId);
+		tempAp.addKeyValue(PROJECT_SECTION_NOTES, projectSectionNotes);
+		tempAp.addKeyValue(PROJECT_SECTION_ASSETS, projectSectionAssets);
 		ProjectFileModel newPfm = new ProjectFileModel(AlfrescoPacket.wrap(CommunicationHub.parseJSON(tempAp.toJSONString())));
 
 		return newPfm;
 	}
 	
 	public static void updatePfmNodeId(final AlfrescoPacket ap) {
-		
 		importFromAlfrescoNode(ap.getNodeId(), 
-					ap.getFilename(), 
-				    new AlfrescoCallback<AlfrescoPacket>() {
-					@Override
-					public void onSuccess(AlfrescoPacket nodeAp) {
-						ProjectFileModel pfm = new ProjectFileModel(nodeAp);
-						pfm.projectNodeId = ap.getNodeId();
-						CommunicationHub.sendFormUpdate(AlfrescoURL.getAlfrescoUploadURL(),
-								pfm.projectTitle.replaceAll(" ", "_") + ".rpf", 
-								AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + pfm.projectNodeId, 
-								pfm.makeJSONBlob(), 
-								"russel:metaTest", 
-								new AlfrescoCallback<AlfrescoPacket>() {
+							   ap.getFilename(), 
+							   new AlfrescoCallback<AlfrescoPacket>() {
 									@Override
-									public void onSuccess(AlfrescoPacket alfrescoPacket) {
-										return;
+									public void onSuccess(AlfrescoPacket nodeAp) {
+										ProjectFileModel pfm = new ProjectFileModel(nodeAp);
+										pfm.projectNodeId = ap.getNodeId();
+										AlfrescoApi.updateFile(pfm.makeJSONBlob(),
+															   pfm.projectTitle.replaceAll(" ", "_") + ".rpf",
+															   pfm.projectNodeId,
+															   Russel.RUSSEL_ASPECTS.split(","),
+															   new AlfrescoCallback<AlfrescoPacket>() {
+																	@Override
+																	public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																		
+																	}
+																	
+																	@Override 
+																	public void onFailure(Throwable caught) {
+																		StatusWindowHandler.createMessage(StatusWindowHandler.getProjectSaveMessageError(ap.getFilename()), 
+																			  	  StatusPacket.ALERT_ERROR);
+
+																	}
+															   });
 									}
 									
-									@Override 
+									@Override
 									public void onFailure(Throwable caught) {
-										Window.alert("Fooing Couldn't save updated project file " + caught);
+											StatusWindowHandler.createMessage(StatusWindowHandler.getProjectLoadMessageError(ap.getFilename()), 
+													  	  StatusPacket.ALERT_ERROR);
+
 									}
 								});
-					}
-					
-					@Override
-					public void onFailure(Throwable caught) {
-						Window.alert("Fooing couldn't retrieve new project file " + caught);
-					}
-				});		
-		
-		return;
 	}
 	
-	public void addAsset(final String section, final String assetId, String assetFilename, String notes) {
-		AlfrescoPacket ap = AlfrescoPacket.makePacket();
+	public void addAsset(final String section, final String assetId, final String assetFilename, String notes) {
+		final AlfrescoPacket ap = AlfrescoPacket.makePacket();
 		ap.addKeyValue("id", assetId);
 		ap.addKeyValue("fileName", assetFilename);
-		ap.addKeyValue("notes", notes);		
-		
-		projectSectionAssets.addAsset(section, ap);
+		if (notes!=null)
+			ap.addKeyValue("notes", notes);
+		AlfrescoApi.getMetadata(assetId, new AlfrescoCallback<AlfrescoPacket>() {
+												@Override
+												public void onSuccess(AlfrescoPacket alfrescoPacket) {
+													ap.addKeyValue("metadata", alfrescoPacket);
+													projectSectionAssets.addAsset(section, ap);	
+												}
+												
+												@Override
+												public void onFailure(Throwable caught) {
+													StatusWindowHandler.createMessage(StatusWindowHandler.getUpdateMetadataMessageError(assetFilename), 
+														  	  StatusPacket.ALERT_ERROR);
+												}
+		 								 });
 	}
 	
 	public void removeAsset(String section, String assetId) {
@@ -191,38 +222,35 @@ public class ProjectFileModel {
 		projectSectionNotes.addKeyValue(section, notes);
 	}
 
-	public void updateAlfrescoAssetUsage(final String section, final String assetId, String assetFilename, final Boolean add) {
-		CommunicationHub.sendHTTP(CommunicationHub.GET,
-								  AlfrescoURL.getAlfrescoNodeURL(assetId),
-								  null,
-								  false, 
-								  new AlfrescoCallback<AlfrescoPacket>() {
+	public void updateAlfrescoAssetUsage(final String section, final String assetId, final String assetFilename, final Boolean add) {
+		AlfrescoApi.getMetadata(assetId,
+							    new AlfrescoCallback<AlfrescoPacket>() {
 									@Override
 									public void onSuccess(AlfrescoPacket ap) {
-										AlfrescoPacket apNew = updateIsdUsage(ap, projectTemplate, section, add);
+										AlfrescoPacket apNew = updateIsdUsage(ap, projectTemplateName, section, add);
 										String postString = MetaBuilder.convertToMetaPacket(apNew);
 										if (postString!=null)
-											AlfrescoApi.setObjectProperties(assetId,
-																			postString, 
-																			new AlfrescoCallback<AlfrescoPacket>() {
-																				@Override
-																				public void onSuccess(final AlfrescoPacket nullPack) {
+											AlfrescoApi.setObjectMetadata(assetId,
+																		  postString, 
+																		  new AlfrescoCallback<AlfrescoPacket>() {
+																			@Override
+																			public void onSuccess(final AlfrescoPacket nullPack) {
 
-																				}
-																				
-																				@Override
-																				public void onFailure(Throwable caught) {
-																					Window.alert("Fooing failed to save metadata " + caught.getMessage());
-																				}
-																			});
+																			}
+																			
+																			@Override
+																			public void onFailure(Throwable caught) {
+																				StatusWindowHandler.createMessage(StatusWindowHandler.getUpdateMetadataMessageError(assetFilename), 
+																					  	  StatusPacket.ALERT_ERROR);
+																			}
+																		  });
 									}
 									
 									@Override
 									public void onFailure(Throwable caught) {
 										
 									}
-								});
-		return;
+							   });
 	}
 
 	public static void importFromAlfrescoNode(String nodeId, String filename, final AlfrescoCallback<AlfrescoPacket> callback) {
@@ -231,11 +259,14 @@ public class ProjectFileModel {
 									new AlfrescoCallback<AlfrescoPacket>() {
 										@Override
 										public void onSuccess(AlfrescoPacket alfrescoPacket) {
-											JsArrayInteger chars = Uint8Array.createUint8Array(alfrescoPacket.getContents());
-											String acc = "";
-											for (int x=0;x<chars.length();x++)
-												acc += (char)chars.get(x);
-											callback.onSuccess(AlfrescoPacket.wrap(CommunicationHub.parseJSON(acc)));
+											if (!Browser.isIE()) {
+												JsArrayInteger chars = Uint8Array.createUint8Array(alfrescoPacket.getContents());
+												String acc = "";
+												for (int x=0;x<chars.length();x++)
+													acc += (char)chars.get(x);
+												callback.onSuccess(AlfrescoPacket.wrap(CommunicationHub.parseJSON(acc)));
+											} else
+												callback.onSuccess(alfrescoPacket);
 										}
 										
 										@Override
@@ -244,76 +275,19 @@ public class ProjectFileModel {
 										}
 									});
 	}
-	
-	public static native Blob buildBlob(String typ, String contents) /*-{
-		if (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder) {
-			var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
-			bb.append(contents);
-			return bb.getBlob(typ);
-		} else if (window.Blob!=undefined) {
-			var bb = new window.Blob([contents], { "type": "\"" + typ + "\"" });
-			return bb;
-		} else {
-			Window.alert("Blob building is failing");
-		}
-	}-*/;
-	
-	public static native Blob buildBlob(String typ, ArrayBuffer contents) /*-{
-		if (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder) {
-			var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.OBlobBuilder || window.msBlobBuilder);
-			bb.append(contents);
-			return bb.getBlob(typ);
-		} else if (window.Blob!=undefined) {
-			var bb = new window.Blob([contents], { "type": "\"" + typ + "\"" });
-			return bb;
-		} else {
-			Window.alert("Blob building is failing");
-		}
-	}-*/;
-	
-//	/* EPSS Editor / Parse existing ISD usage and report */
-//	public static Boolean reportIsdUsage(String nodeUsage) {
-//		StringTokenizer useList, tempList; 
-//		String useStr;
-//		String templateStr="";
-//		String strategyStr=""; 
-//		String countStr="";
-//		String msgStr="The current node is used in the following ISD situations: ";
-//		
-//		if (nodeUsage != null)  {
-//			useList = new StringTokenizer(nodeUsage, USAGE_DELIMITER);
-//			while (useList.hasMoreTokens()) {
-//				useStr = useList.nextToken();
-//				tempList = new StringTokenizer(useStr, USAGE_STRATEGY_DELIMITER); 
-//				if (tempList.hasMoreTokens()) {
-//					templateStr = tempList.nextToken();
-//					tempList = new StringTokenizer(tempList.nextToken(), USAGE_COUNT_DELIMITER);
-//					if (tempList.countTokens() == 2) {
-//						strategyStr = tempList.nextToken();
-//						countStr = tempList.nextToken();
-//					}
-//				}
-//				//TODO: Determine if/where we will list these for display to the user.
-//				msgStr = msgStr + "           Template="+templateStr+"       Strategy="+strategyStr+"       Count="+countStr; 
-//			}
-//		}
-//		Window.alert(msgStr);
-//		return true;
-//	}
 
 	/* EPSS Editor / Combine a template, strategy, and count into usage data entry. Ensure that input strings don't contain delimiters. */
 	public static String buildIsdUsageEntry(String template, String strategy, String count) {
 		String usageStr = "";
-		template.replaceAll(USAGE_STRATEGY_DELIMITER, " ").replaceAll(USAGE_COUNT_DELIMITER, " ").replaceAll(USAGE_DELIMITER, " ").trim();
-		strategy.replaceAll(USAGE_STRATEGY_DELIMITER, " ").replaceAll(USAGE_COUNT_DELIMITER, " ").replaceAll(USAGE_DELIMITER, " ").trim();
-		count.replaceAll(USAGE_STRATEGY_DELIMITER, " ").replaceAll(USAGE_COUNT_DELIMITER, " ").replaceAll(USAGE_DELIMITER, " ").trim();
-		usageStr = template + USAGE_STRATEGY_DELIMITER + strategy + USAGE_COUNT_DELIMITER + count + USAGE_DELIMITER ;
+		template.replaceAll(AlfrescoPacket.USAGE_STRATEGY_DELIMITER, " ").replaceAll(AlfrescoPacket.USAGE_COUNT_DELIMITER, " ").replaceAll(AlfrescoPacket.USAGE_DELIMITER, " ").trim();
+		strategy.replaceAll(AlfrescoPacket.USAGE_STRATEGY_DELIMITER, " ").replaceAll(AlfrescoPacket.USAGE_COUNT_DELIMITER, " ").replaceAll(AlfrescoPacket.USAGE_DELIMITER, " ").trim();
+		count.replaceAll(AlfrescoPacket.USAGE_STRATEGY_DELIMITER, " ").replaceAll(AlfrescoPacket.USAGE_COUNT_DELIMITER, " ").replaceAll(AlfrescoPacket.USAGE_DELIMITER, " ").trim();
+		usageStr = template + AlfrescoPacket.USAGE_STRATEGY_DELIMITER + strategy + AlfrescoPacket.USAGE_COUNT_DELIMITER + count + AlfrescoPacket.USAGE_DELIMITER ;
 		return usageStr;
 	}
 
 	/* EPSS Editor / Add the epssStrategy property and return the updated Alfresco packet */
 	private static AlfrescoPacket addEpssStrategyProperty(AlfrescoPacket ap, String epssStrategy) {
-		
 		if (!epssStrategy.equalsIgnoreCase("Click to edit") && !epssStrategy.equalsIgnoreCase("N/A"))
 			ap.addKeyValue("russel:epssStrategy", epssStrategy.replaceAll("\"", "\'").replaceAll("\r", " ").replaceAll("\n", " ").trim());	
 		return ap;
@@ -328,18 +302,18 @@ public class ProjectFileModel {
 		String strategyStr=""; 
 		int count=0;
 		Boolean found = false;
-		String nodeUsage = ap.getPropertyValue("@propertyDefinitionId","russel:epssStrategy");
+		String nodeUsage = ap.getRusselValue("russel:epssStrategy");
 		
 		if ((nodeUsage != "") && (nodeUsage != null))  {
-			useList = new StringTokenizer(nodeUsage, USAGE_DELIMITER);
+			useList = new StringTokenizer(nodeUsage, AlfrescoPacket.USAGE_DELIMITER);
 			while (useList.hasMoreTokens()) {
 				useStr = useList.nextToken();
 				if (!found) {
-					tempList = new StringTokenizer(useStr, USAGE_STRATEGY_DELIMITER); 
+					tempList = new StringTokenizer(useStr, AlfrescoPacket.USAGE_STRATEGY_DELIMITER); 
 					if (tempList.countTokens() == 2) {
 						templateStr = tempList.nextToken();
 						if (templateStr == newTemplate) {
-							tempList = new StringTokenizer(tempList.nextToken(), USAGE_COUNT_DELIMITER);
+							tempList = new StringTokenizer(tempList.nextToken(), AlfrescoPacket.USAGE_COUNT_DELIMITER);
 							if (tempList.countTokens() == 2) {
 								strategyStr = tempList.nextToken();
 								if (strategyStr == newStrategy) {
@@ -352,13 +326,13 @@ public class ProjectFileModel {
 										updatedNodeUsage = updatedNodeUsage + buildIsdUsageEntry(newTemplate, newStrategy, String.valueOf(count - 1));
 									}
 								}
-								else updatedNodeUsage = updatedNodeUsage + useStr + USAGE_DELIMITER;
+								else updatedNodeUsage = updatedNodeUsage + useStr + AlfrescoPacket.USAGE_DELIMITER;
 							}
 						}
-						else updatedNodeUsage = updatedNodeUsage + useStr + USAGE_DELIMITER;
+						else updatedNodeUsage = updatedNodeUsage + useStr + AlfrescoPacket.USAGE_DELIMITER;
 					}
 				}
-				else updatedNodeUsage = updatedNodeUsage + useStr + USAGE_DELIMITER;
+				else updatedNodeUsage = updatedNodeUsage + useStr + AlfrescoPacket.USAGE_DELIMITER;
 			}
 		}
 		if ((!found) && (add)) {
@@ -367,8 +341,7 @@ public class ProjectFileModel {
 
 		AlfrescoPacket apNew = AlfrescoPacket.makePacket();
 		apNew = addEpssStrategyProperty(apNew,updatedNodeUsage);
-//		reportIsdUsage(apNew.getValueString("russel:epssStrategy")); 
-		
+	
 		return apNew;
 	}
 		
