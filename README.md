@@ -17,8 +17,8 @@ See the License for the specific language governing permissions and imitations u
 Eduworks Corporation may be contacted at www.eduworks.com or by sending email to info@eduworks.com
 
 RUSSEL Interface:
-RUSSEL - https://github.com/adlnet/RUSSEL
-RUSSELgwt - https://github.com/adlnet/RUSSELgwt
+    RUSSEL - https://github.com/adlnet/RUSSEL
+    RUSSELgwt - https://github.com/adlnet/RUSSELgwt
 
 RUSSEL Alfresco Backend:
-RUSSELamp - https://github.com/adlnet/RUSSELamp
+    RUSSELamp - https://github.com/adlnet/RUSSELamp
