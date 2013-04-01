@@ -5,7 +5,7 @@ RUSSEL Interface:
 
 RUSSEL Alfresco Backend:
 
-    RUSSELamp - https://github.com/adlnet/RUSSELamp
+       RUSSELamp - https://github.com/adlnet/RUSSELamp
     
 APACHE 2.0 LICENSE TEXT
 
