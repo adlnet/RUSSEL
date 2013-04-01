@@ -15,3 +15,10 @@ is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND
 See the License for the specific language governing permissions and imitations under the License.
 
 Eduworks Corporation may be contacted at www.eduworks.com or by sending email to info@eduworks.com
+
+RUSSEL Interface:
+RUSSEL - https://github.com/adlnet/RUSSEL
+RUSSELgwt - https://github.com/adlnet/RUSSELgwt
+
+RUSSEL Alfresco Backend:
+RUSSELamp - https://github.com/adlnet/RUSSELamp
