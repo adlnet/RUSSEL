@@ -18,7 +18,6 @@ package com.eduworks.russel.ui.client.handler;
 
 import java.util.Vector;
 
-import com.eduworks.gwt.client.net.api.Adl3DRApi;
 import com.eduworks.gwt.client.net.api.AlfrescoApi;
 import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;

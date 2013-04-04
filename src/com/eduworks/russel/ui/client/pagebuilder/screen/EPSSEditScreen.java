@@ -63,11 +63,11 @@ public class EPSSEditScreen extends ScreenTemplate {
 		assetSearchHandler.stop();
 	}
 	
-	private final native String putObjectives(String s, String id) /*-{
+	private final native String putObjectives0(String s, String id) /*-{
 		return $wnd.listObjectives(s, id);
 	}-*/;
 
-	private final native String getObjectives(String id) /*-{
+	private final native String getObjectives0(String id) /*-{
 		return $wnd.compressObjectives(id);
 	}-*/;
 	
@@ -112,7 +112,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("epssUpdate", Event.ONCLICK, new EventCallback() {	
 																	@Override
 																	public void onEvent(Event event) {
-																		saveProject();
+																		saveProject0();
 																	}
 																 });
 		
@@ -128,7 +128,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("epssSaveProperties", Event.ONCLICK, new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
-																		saveProject();
+																		saveProject0();
 																   		PageAssembler.closePopup("projectProperties");
 																	}															
 																});
@@ -136,7 +136,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("epssCancelProperties", Event.ONCLICK, new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
-																		fillPropData();
+																		fillPropData0();
 																   		PageAssembler.closePopup("projectProperties");
 																	}													
 																});
@@ -144,7 +144,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("epssCloseProperties", Event.ONCLICK, new EventCallback() {
 																	@Override
 																	public void onEvent(Event event) {
-																		fillPropData();
+																		fillPropData0();
 																   		PageAssembler.closePopup("projectProperties");
 																	}															
 																}); 
@@ -163,7 +163,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 										new EventCallback() {
 											@Override
 											public void onEvent(Event event) {
-												fillSectionNotes("section" + lockedSectionIndex, lockedSectionIndex-1);
+												fillSectionNotes0("section" + lockedSectionIndex, lockedSectionIndex-1);
 											}
 									   });
 		}
@@ -171,7 +171,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.attachHandler("epssExportSCORM", Event.ONCLICK, new EventCallback() {
 															   	@Override
 															   	public void onEvent(Event event) {
-															   		saveProject();
+															   		saveProject0();
 															   		EPSSPackBuilder epb = new EPSSPackBuilder(pfmNow);
 														   			AlfrescoApi.exportZipPackage(pfmNow.projectTitle.replaceAll(" ", "_") + ".zip", 
 														   										 epb.buildPackIE(), 
@@ -220,7 +220,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 																	}
 																});
 
-		fillData();
+		fillData0();
 	}
 	
 	public static void removeAssetTrigger() {
@@ -235,28 +235,32 @@ public class EPSSEditScreen extends ScreenTemplate {
 		Hidden activeAssetFilename = ((Hidden)PageAssembler.elementToWidget("epssActiveAddAsset", PageAssembler.HIDDEN));
 		activeAssetId = activeAssetFilename.getValue().substring(0, activeAssetFilename.getValue().indexOf(","));
 		activeFilename = activeAssetFilename.getValue().substring(activeAssetFilename.getValue().indexOf(",")+1);
-		if (!isAssetInSection())
+		if (!isAssetInSection0())
 			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, "");
 		else {
-			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, getAssetNotesInSection());
-			((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).setText(getAssetNotesInSection());
+			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, getAssetNotesInSection0());
+			((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).setText(getAssetNotesInSection0());
 		}
 		DOM.getElementById(activeSectionId).removeClassName("empty");
 	}
 	
-	private void buildAssetTile (String nodeId, String filename) {
-		Element td = DOM.createTD();
-		td.appendChild(new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()).getElement().getChild(0));
-		Vector<String> iDs = PageAssembler.merge("epssCurrentSection", "x", td);
-		String idPrefix = iDs.firstElement().substring(0,iDs.firstElement().indexOf("-"));
-		td.setId(idPrefix + "-assetNote");
-		AlfrescoPacket ap = AlfrescoPacket.makePacket();
-		ap.addKeyValue("id", nodeId);
-		ap.addKeyValue("fileName", filename);
-		new TileHandler(null, idPrefix, AlfrescoSearchHandler.NOTES_TYPE, ap).refreshTile(null);
+	private void buildAssetTile0(String assetsDiv, String nodeId, String filename) {
+		Element td = null;
+		RootPanel rp = RootPanel.get(assetsDiv);
+		if (rp!=null) {
+			td = DOM.createTD();
+			td.setId(PageAssembler.getIdCount() +"-assetNote");
+			td.appendChild(new HTML(HtmlTemplates.INSTANCE.getEPSSNoteAssetObjectWidget().getText()).getElement());
+			Vector<String> iDs = PageAssembler.merge(assetsDiv, "x", td);
+			String idPrefix = iDs.firstElement().substring(0,iDs.firstElement().indexOf("-"));	
+			AlfrescoPacket ap = AlfrescoPacket.makePacket();
+			ap.addKeyValue("id", nodeId);
+			ap.addKeyValue("fileName", filename);
+			new TileHandler(null, idPrefix, AlfrescoSearchHandler.NOTES_TYPE, ap).refreshTile(null);
+		}
 	}
 	
-	private static boolean isAssetInSection() {
+	private static boolean isAssetInSection0() {
 		boolean acc = false;
 		if (pfmNow.projectSectionAssets!=null)
 			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
@@ -268,7 +272,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		return acc;
 	}
 	
-	private static String getAssetNotesInSection() {
+	private static String getAssetNotesInSection0() {
 		if (pfmNow.projectSectionAssets!=null)
 			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
 				JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(activeSection).cast();
@@ -279,7 +283,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 		return "";
 	}
 	
-	private native void mergeSection(Element section, Element sectionTools) /*-{
+	private native void mergeSection0(Element section, Element sectionTools) /*-{
 		var sectionChildCount = sectionTools.children.length;
 		var childStorage = [];
 		for (var sectionIndex=0;sectionIndex<sectionChildCount;sectionIndex++) {
@@ -293,22 +297,23 @@ public class EPSSEditScreen extends ScreenTemplate {
 			childStorage[childIndex][0].appendChild(childStorage[childIndex][1]);
 	}-*/;
 
-	private void fillSectionNotes(final String elementId, final int sectionIndex) {
+	private void fillSectionNotes0(final String elementId, final int sectionIndex) {
 		((TextBox)PageAssembler.elementToWidget("inputSectionNotes", PageAssembler.TEXT)).setText("");
 		((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).setText("");
-		Element currentSection = DOM.getElementById("epssCurrentSection");
+		String sectionPanel = "epssCurrentSection";
+		Element currentSection = DOM.getElementById(sectionPanel);
 		searchTerms = new Vector<String>();
 		int elementCount = currentSection.getChildCount();
 		for (int elementIndex=0;elementIndex<elementCount;elementIndex++)
 			currentSection.getChild(0).removeFromParent();
-		mergeSection(currentSection, (Element)new HTML(HtmlTemplates.INSTANCE.getEPSSEditSectionWidgets().getText()).getElement());
+		mergeSection0(currentSection, (Element)new HTML(HtmlTemplates.INSTANCE.getEPSSEditSectionWidgets().getText()).getElement());
 		
 		activeSection = DOM.getElementById(elementId).getInnerText();
 		activeSectionId = elementId;
 		PageAssembler.attachHandler("inputSectionNotes", Event.ONCHANGE, new EventCallback() {
 																			@Override
 																			public void onEvent(Event event) {
-																				pfmNow.addSectionNotes(activeSection, cleanString(((TextBox)PageAssembler.elementToWidget("inputSectionNotes", PageAssembler.TEXT)).getText()));
+																				pfmNow.addSectionNotes(activeSection, cleanString0(((TextBox)PageAssembler.elementToWidget("inputSectionNotes", PageAssembler.TEXT)).getText()));
 																				DOM.getElementById("epssUpdate").removeClassName("white");
 																				DOM.getElementById("epssUpdate").addClassName("blue");
 																				DOM.getElementById("r-save-alert").removeClassName("hide");
@@ -322,7 +327,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 																			Hidden activeAssetFilename = ((Hidden)PageAssembler.elementToWidget("epssActiveAddAsset", PageAssembler.HIDDEN));
 																			activeAssetId = activeAssetFilename.getValue().substring(0, activeAssetFilename.getValue().indexOf(","));
 																			activeFilename = activeAssetFilename.getValue().substring(activeAssetFilename.getValue().indexOf(",")+1);
-																			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, cleanString(((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).getText()));
+																			pfmNow.addAsset(activeSection, activeAssetId, activeFilename, cleanString0(((TextBox)PageAssembler.elementToWidget("inputDevNotes", PageAssembler.TEXT)).getText()));
 																			DOM.getElementById("epssUpdate").removeClassName("white");
 																			DOM.getElementById("epssUpdate").addClassName("blue");
 																			DOM.getElementById("r-save-alert").removeClassName("hide");
@@ -349,7 +354,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 										new EventCallback() {
 											@Override
 											public void onEvent(Event event) {
-												toggleSearchTerms("epssTerm" + lockedTermIndex, 
+												toggleSearchTerms0("epssTerm" + lockedTermIndex, 
 																  ((Anchor)PageAssembler.elementToWidget("epssTerm" + lockedTermIndex, PageAssembler.A)).getText());
 											}
 										});	
@@ -362,13 +367,13 @@ public class EPSSEditScreen extends ScreenTemplate {
 			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
 				JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(activeSection).cast();
 				for (int x=0;x<assets.length();x++)
-					buildAssetTile(assets.get(x).getNodeId(), assets.get(x).getFilename());
+					buildAssetTile0(sectionPanel, assets.get(x).getNodeId(), assets.get(x).getFilename());
 			}
 			PageAssembler.runCustomJSHooks();
 		}
 	}
 	
-	private void toggleSearchTerms(String eId, String term) {
+	private void toggleSearchTerms0(String eId, String term) {
 		if (!searchTerms.contains(term))
 			searchTerms.add(term);
 		else
@@ -396,13 +401,13 @@ public class EPSSEditScreen extends ScreenTemplate {
 		return accQuery.trim();
 	}
 	
-	private String cleanString(String dirty) {
+	private String cleanString0(String dirty) {
 		if (dirty==null)
 			return "";
 		else return dirty.replaceAll("\"", "'").replaceAll("[\r\n]", " ").trim();
 	}
 	
-	public void saveProject() {
+	private void saveProject0() {
 		DOM.getElementById("epssUpdate").addClassName("white");
 		DOM.getElementById("epssUpdate").removeClassName("blue");
 		DOM.getElementById("r-save-alert").addClassName("hide");
@@ -410,8 +415,8 @@ public class EPSSEditScreen extends ScreenTemplate {
 		if (pfmNow.projectTitle==null||pfmNow.projectTitle.equalsIgnoreCase("Click here to add a title"))
 			pfmNow.projectTitle = "DefaultName";
 		pfmNow.projectCreator = AlfrescoApi.username;
-		pfmNow.projectNotes = cleanString(((TextBox)PageAssembler.elementToWidget("epssProjectNotes", PageAssembler.TEXT)).getText());
-		pfmNow.projectLearningObjectives = cleanString(getObjectives("project-objective-list"));
+		pfmNow.projectNotes = cleanString0(((TextBox)PageAssembler.elementToWidget("epssProjectNotes", PageAssembler.TEXT)).getText());
+		pfmNow.projectLearningObjectives = cleanString0(getObjectives0("project-objective-list"));
 		int imiIndex = ((ListBox)PageAssembler.elementToWidget("projectImiLevel", PageAssembler.SELECT)).getSelectedIndex();
 		int taxIndex = ((ListBox)PageAssembler.elementToWidget("projectBlooms", PageAssembler.SELECT)).getSelectedIndex();
 		int usageIndex = ((ListBox)PageAssembler.elementToWidget("projectParadata", PageAssembler.SELECT)).getSelectedIndex();
@@ -516,7 +521,7 @@ public class EPSSEditScreen extends ScreenTemplate {
 										    new AlfrescoCallback<AlfrescoPacket>() {
 												@Override
 												public void onSuccess(AlfrescoPacket alfrescoPacket) {
-													fillData();
+													fillData0();
 												}
 												
 												@Override 
@@ -529,9 +534,9 @@ public class EPSSEditScreen extends ScreenTemplate {
 		PageAssembler.closePopup("epssSaveProperties");
 	}
 
-	private void fillPropData() {
+	private void fillPropData0() {
 		((TextBox)PageAssembler.elementToWidget("epssProjectNotes", PageAssembler.TEXT)).setText(pfmNow.projectNotes);
-		putObjectives(pfmNow.projectLearningObjectives, "project-objective-list");
+		putObjectives0(pfmNow.projectLearningObjectives, "project-objective-list");
 		((Anchor)PageAssembler.elementToWidget("projectTitleText", PageAssembler.A)).setText(pfmNow.projectTitle);
 		ListBox lb = ((ListBox)PageAssembler.elementToWidget("projectImiLevel", PageAssembler.SELECT));
 		if (pfmNow.projectImi.indexOf(",")!=-1)
@@ -544,8 +549,8 @@ public class EPSSEditScreen extends ScreenTemplate {
 			lb.setSelectedIndex(Integer.valueOf(pfmNow.projectUsage.substring(0,pfmNow.projectUsage.indexOf(","))));
 	}
 
-	private void fillData() {
-		fillPropData();		
+	private void fillData0() {
+		fillPropData0();		
 		if (pfmNow.projectSectionNotes!=null)
 			for (int x = 1;x<=pfmNow.projectSections.length() ;x++)
 				if (pfmNow.projectSectionNotes.hasKey(DOM.getElementById("section"+x).getInnerText()))

@@ -20,6 +20,7 @@ import com.eduworks.gwt.client.net.api.AlfrescoApi;
 import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
 import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.russel.ui.client.epss.ProjectFileModel;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
@@ -44,10 +45,6 @@ public class MetaBuilder {
 
 	private final native String getObjectives(String id) /*-{
 		return $wnd.compressObjectives(id);
-	}-*/;
-
-	private final native String putStrategies(String s, String id) /*-{
-		return $wnd.listObjectives(s, id);
 	}-*/;
 
 
@@ -78,6 +75,9 @@ public class MetaBuilder {
 		else if (metaType.equals(DETAIL_SCREEN)&&(property == "russel:FLRtag")) {
 			DOM.getElementById(id).setInnerHTML("<a href='"+fieldVal+"' target='_blank'>"+fieldVal+"</a");
 		}
+		else if (metaType.equals(DETAIL_SCREEN)&&(property == "russel:epssStrategy")) {
+			ProjectFileModel.renderIsdUsage(fieldVal, id);
+		}		
 		else {
 			((Label)PageAssembler.elementToWidget(id, PageAssembler.LABEL)).setText(fieldVal);
 		}

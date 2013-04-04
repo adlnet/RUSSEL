@@ -29,9 +29,11 @@ import com.eduworks.gwt.client.util.StringTokenizer;
 import com.eduworks.gwt.client.util.Uint8Array;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
+import com.eduworks.russel.ui.client.pagebuilder.EpssTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayInteger;
+import com.google.gwt.user.client.DOM;
 
 public class ProjectFileModel {
 	public final static String RUSSEL_PROJECT = "russel/project";
@@ -276,6 +278,71 @@ public class ProjectFileModel {
 									});
 	}
 
+	/* Detail View / Convert nodeUsage string into nicer display of Isd usage . */
+	public static void renderIsdUsage(String nodeUsage, String targetDiv) {
+		StringTokenizer useList, tempList; 
+		String useStr = "";
+		String usageBlock = "";
+		String templateStr="";
+		String strategyStr=""; 
+		
+		if ((nodeUsage != null) && (nodeUsage != "")) {
+			useList = new StringTokenizer(nodeUsage, AlfrescoPacket.USAGE_DELIMITER);
+			while (useList.hasMoreTokens()) {
+				useStr = useList.nextToken();
+				tempList = new StringTokenizer(useStr, AlfrescoPacket.USAGE_STRATEGY_DELIMITER); 
+				if (tempList.countTokens() == 2) {
+					templateStr = tempList.nextToken();
+					tempList = new StringTokenizer(tempList.nextToken(), AlfrescoPacket.USAGE_COUNT_DELIMITER);
+					if (tempList.countTokens() == 2) {
+						strategyStr = tempList.nextToken();
+						usageBlock = usageBlock + buildIsdUsageDisplay(templateStr, strategyStr, tempList.nextToken());									
+					}
+				}
+			}
+			DOM.getElementById(targetDiv).setInnerHTML(usageBlock);
+		}
+		return;
+	}
+
+	/* Detail View / Retrieve the corresponding long titles for template items . */
+	public static String getIsdItemTitle(String template, String item) {
+		String valueStr = "";
+		AlfrescoPacket ap = null;
+		if (template.contains("Gagne")) {
+			ap = AlfrescoPacket.wrap(CommunicationHub.parseJSON(EpssTemplates.INSTANCE.getGagneTemplate().getText()));
+		}
+		else if (template.contains("Simulation")) {
+			ap = AlfrescoPacket.wrap(CommunicationHub.parseJSON(EpssTemplates.INSTANCE.getSimulationTemplate().getText()));			
+		}
+		
+		if (item.equals(ap.getValueString(TEMPLATE_TITLE))) {
+			valueStr = ap.getValueString(TEMPLATE_LONG_TITLE);
+		}
+		else {
+			@SuppressWarnings("unchecked")
+			JsArray<AlfrescoPacket> sections = (JsArray<AlfrescoPacket>) ap.getValue(TEMPLATE_SECTION_STAGES);
+			for (int i=0 ; i<sections.length() ; i++) {
+				AlfrescoPacket stage = sections.get(i); 
+				if (item.equals(stage.getValueString(TEMPLATE_SECTION_SHORT_TITLE))) {
+					valueStr = stage.getValueString(TEMPLATE_SECTION_LONG_TITLE);
+					i = sections.length();
+				}
+			}
+		}
+		return valueStr;
+	}
+	
+	/* Detail View / Combine a template, strategy, and count into display of Isd usage . */
+	public static String buildIsdUsageDisplay(String template, String strategy, String count) {
+		String templateHelp = getIsdItemTitle(template,template);
+		String strategyHelp = getIsdItemTitle(template,strategy);
+		String usageStr = "<span id=\"detailEpssStrategies\" class=\"meta-value\"><span class=\"info\" title=\""+templateHelp+"\">" + template + "</span> ";
+		usageStr += "> <span class=\"info\" title=\""+strategyHelp+"\">" + strategy + "</span> "; 
+		usageStr += "(<span class=\"info\" title=\"Number of uses in this category\">" + count + "</span>)</span>";
+		return usageStr.replaceAll("'", "\'").replaceAll("\r", " ").replaceAll("\n", " ").trim();
+	}
+	
 	/* EPSS Editor / Combine a template, strategy, and count into usage data entry. Ensure that input strings don't contain delimiters. */
 	public static String buildIsdUsageEntry(String template, String strategy, String count) {
 		String usageStr = "";
