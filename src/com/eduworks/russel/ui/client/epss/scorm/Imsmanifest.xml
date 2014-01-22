@@ -1,0 +1,38 @@
+<?xml version="1.0" standalone="no" ?>
+
+<manifest identifier="wk.course.TEMPLATE" version="1"
+		 xmlns="http://www.imsglobal.org/xsd/imscp_v1p1"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3"
+          xmlns:adlseq="http://www.adlnet.org/xsd/adlseq_v1p3"
+          xmlns:adlnav="http://www.adlnet.org/xsd/adlnav_v1p3"
+          xmlns:imsss="http://www.imsglobal.org/xsd/imsss"
+          xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd
+                              http://www.adlnet.org/xsd/adlcp_v1p3 adlcp_v1p3.xsd
+                              http://www.adlnet.org/xsd/adlseq_v1p3 adlseq_v1p3.xsd
+                              http://www.adlnet.org/xsd/adlnav_v1p3 adlnav_v1p3.xsd
+                              http://www.imsglobal.org/xsd/imsss imsss_v1p0.xsd">
+	<metadata>
+		<schema>ADL SCORM</schema>
+		<schemaversion>2004 3rd Edition</schemaversion>
+	</metadata>
+	<organizations default="org1">
+		<organization identifier="org1" adlseq:objectivesGlobalToSystem="false">
+			<title>SCORM Template</title>
+			<item identifier="sco1" identifierref="sco1Media">
+				<title>Default Title</title>
+				<imsss:sequencing>
+					<imsss:deliverControls completionSetByContent="true" objectivesSetByContent="true" />
+				</imsss:sequencing>
+			</item>		
+		    <imsss:sequencing>
+				<imsss:controlMode choice="true" flow="true"/>
+			</imsss:sequencing>			
+		</organization>
+	</organizations>
+	<resources>
+		<resource identifier="sco1Media" type="webcontent" adlcp:scormType="sco" href="initPage.html">
+			<file href="initPage.html" />
+		</resource>
+	</resources>
+</manifest>

@@ -1,0 +1,61 @@
+{
+	"templateName" : "Gagne's Nine Events",
+	"templateTitle" : "Gagne's Nine Events of Instruction for a Lesson", 
+	"stages" : 
+			[
+				{
+					"shortTitle" : "Gain attention",
+					"longTitle" : "Gain attention of the students",
+					"guidance" : "Present a stimulus that gains attention to ensure the learners are ready to learn and participate in activities. Methods for gaining learners' attention include stimulating students with novelty, uncertainty and surprise and posing thought-provoking questions.  You can also ask students to pose questions to be answered by other students.",
+					"searchTerms" : "Gain Attention, Demonstration, Video, Image, Storytelling, Wrong Way, Discussion"
+				},
+				{
+					"shortTitle" : "Learning Objectives",
+					"longTitle" : "Inform students of the objectives",
+					"guidance" : "Inform students of the objectives or outcomes to help them understand what they are to learn during the lesson. You can state the outcomes by describing required performance, describing criteria for standard performance, or allowing the learner to establish criteria for standard performance.",
+					"searchTerms" : "Objectives, Goals, Outcomes, Outline, Organization"
+				},
+				{
+					"shortTitle" : "Stimulate Recall",
+					"longTitle" : "Stimulate recall of prior learning",
+					"guidance" : "Help students by relating the new information to something they already know or something they have already experienced.  Methods for stimulating recall of prior knowledge include asking questions about previous experiences and their understanding of previous concepts. ",
+					"searchTerms" : "Stimulate, Review, Survey, Discussion, Opinion, Integrate, Scaffolding"
+				},
+				{
+					"shortTitle" : "Present Content",
+					"longTitle" : "Present the information",
+					"guidance" : "Use strategies to present and cue lesson content to provide more effective, efficient instruction.  A good approach is to organize and chunk content in a meaningful way. Additional ways to present and cue lesson content include: presenting vocabulary; providing examples; providing explanations after demonstrations; presenting multiple versions of the same content (e.g., video, demonstration, lecture, podcast, group work); and using a variety of media to address different learning preferences.",
+					"searchTerms" : "Presentation, Lecture, Multimedia, Demonstration, Storytelling, Example, Case Study, Readings, Activity, Project"
+				},
+				{
+					"shortTitle" : "Provide Guidance",
+					"longTitle" : "Provide learning guidance",
+					"guidance" : "Advise students of recommended strategies to aid learning and of resources available.  One approach is to provide instructional support as scaffolds (cues, hints, prompts) which can be removed after the student learns the task or content. Additional methods to provide learning guidance include: modeling varied learning strategies, mnemonics, concept mapping, role playing, and visualizing; using examples and non-examples to help students see what to do or not to do; and providing case studies, analogies, visual images, and metaphors.",
+					"searchTerms" : "Instructions, Tips, Expectations, Strategy, Opinion, Guided Activity, Simulation, Case Study, Wrong Way, Resources"
+				},
+				{
+					"shortTitle" : "Elicit Performance",
+					"longTitle" : "Elicit performance (practice)",
+					"guidance" : "Activate student knowledge processing to help them internalize new skills and information and to confirm the correct understanding of these concepts. Ways to activate learner processing include:  eliciting student activities; asking deep-learning questions; making reference to what students already know; or have students collaborate with their peers. To elicit recall, you can ask students to receit, revisit, or reiterate information they have learned. You can facilitate student elaborations by asking them to explain details and provide more complexity to their responses.  New knowledge can be integrated with prior knowledge by using real-world examples.",
+					"searchTerms" : "Assignment, Practice, Lab, Exercise, Project, Question, Activity, Collaborate, Elaborate"
+				},
+				{
+					"shortTitle" : "Provide Feedback",
+					"longTitle" : "Provide feedback on learner performance",
+					"guidance" : "Provide immediate feedback of students' performance to assess and facilitate learning. Types of feedback include:  Confirmatory, Corrective, Remedial, Informative, and Analytical. Confirmatory feedback informs the student they did what he or she were supposed to do.  Corrective feedback informs the student of the accuracy of their performance or response.  Remedial feedback directs students in the right direction to find the correct answer, but does not provide the correct answer. Informative feedback provides information (new, different, additions, suggestions) to a student and confirms that you have been actively listening.  Analytical feedback provides the student with suggestions, recommendations, and information for them to correct their performance.",
+					"searchTerms" : "Rubric, Feedback, Evaluation, Discussion, Interaction, Recommendation"
+				},
+				{
+					"shortTitle" : "Assess Performance",
+					"longTitle" : "Measure and evaluate student performance",
+					"guidance" : "In order to evaluate the effectiveness of the instructional events, you must test to see if the expected learning outcomes have been achieved. Performance should be based on previously stated objectives. Methods for testing learning include: pretesting for mastery of prerequisites or for endpoint knowledge or skills; post-testing to check for mastery of content or skills; embedding questions throughout instruction through oral questioning and/or quizzes; including objective or criterion-referenced performances which measure how well a student has learned a topic; and identifying normative-referenced performances which compare one student to another student.",
+					"searchTerms" : "Quiz, Assignment, Application, Discussion, Rubric, Evaluation, Collaboration"
+				},
+				{
+					"shortTitle" : "Enhance Retention",
+					"longTitle" : "Enhance retention and transfer to real world situations",
+					"guidance" : "To help learners develop expertise, they must internalize new knowledge. Methods for helping learners internalize new knowledge include:  paraphrasing content; using metaphors; generating examples; creating concept maps or outlines; and creating job-aids, references, templates, or wizards.",
+					"searchTerms" : "Reflection, Discussion, Assignment, Collaboration, Contextualize, Personalize"
+				}
+			]
+}

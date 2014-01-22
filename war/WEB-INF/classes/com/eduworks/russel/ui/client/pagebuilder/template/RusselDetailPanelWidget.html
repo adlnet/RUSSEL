@@ -1,0 +1,414 @@
+<!--
+Copyright 2012-2013 Eduworks Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+  <div id="detailPanelInfo">
+	<!-- Detail widget actions -->
+	<div id="actions" class="row actions">
+		<div class="twelve columns">
+			<dl class="sub-nav">
+			  <dd class=""><a id="r-fullScreen" class="finger">Full Screen</a></dd>
+			  <!-- <dd class=""><a id="r-findSimilar" class="finger">Find Similar</a></dd> -->
+			  <dd class=""><a id="r-downloadDoc" class="finger">Download</a></dd>
+			  <dd class=""><a id="r-deleteDoc" class="finger">Delete</a></dd> <!-- only show this option to authorized users -->
+			  <dd id="r-editEPSSContainer" style="display:none"><a id="r-editEPSS" class="finger">Edit Project</a></dd>
+			  <!--<dd class=""><a id="r-duplicate" class="finger">Duplicate</a></dd>  -->
+			  <dd class=""><a id="r-postFlr" class="finger">Post to FLR</a></dd> <!-- only show this option to authorized users -->
+			  <!--
+			  <dd class="">
+				<select disabled="disabled" onchange="">
+					<option value="">Add to:</option>
+					<option value="">Collection</option>
+					<option value="">Course</option>
+				</select>
+			  </dd>
+			  -->
+              <dd class=""><a id="r-detailEditUpdate" style="float:right" class="nice small radius white button finger">Update</a></dd>
+              <dd id="r-detailSaveAlert" style="float:right" class="hide">Unsaved Changes</dd>
+		   </dl>
+		</div>
+	</div>
+    
+	<!-- Object Details -->	  
+    <form class="nice">
+        <div id="" class="row">
+            <div id="r-obj-full" class="twelve columns">
+            
+                <div id="r-obj-header" class="">
+                    <span class="r-goldStandard hidden"></span>
+                    <span id="r-detailIcon" class="r-icon"></span> <!-- class="r-icon video" -->
+					<br />
+                    <h2 id="r-detailTitle" class="header"><!-- Bradley Fighting Vehicle--></h2>
+                    <div id="r-detailWarning" class="r-warning hide"><!-- FOUO. Flash media may impact mobile delivery. --></div> <!-- Only show when needed -->
+                </div>
+                
+                <div id="r-preview" style="text-align:center" class="doc">
+                	<p>No Preview Available</p>
+  			    </div>
+           
+                <div id="r-metaDescription" class="row meta">
+					<div class="three columns phone-one"><span class="meta-label">Description</span></div>
+					<div class="nine columns phone-three"><span id="detailMetaDescription" class="meta-value editable"><!-- As with other infantry fighting vehicles, the Bradley is designed to transport infantry with armor protection while providing covering fire to suppress enemy troops and armored vehicles. --></span>
+						<textarea style="display:none;" rows="4" class="input-text nice value-input" placeholder="Please describe using 'Subject + verb + object' sentences" >Click to edit</textarea>
+					</div>
+				</div>
+                <hr>
+                        
+                <!-- Ratings and usage (paradata) -->                
+                <div id="r-paradata" class="row">
+                    <div class="twelve columns">
+                    
+                        <span class="inline-rating">
+                             <ul class="star-rating">
+                                <li id="r-ratingLabel" class="current-rating" style="width:50%;"><!-- Current rating: 2.5 (4 votes) --></li>
+                                <li><a id="r-rating-1" title="Click to rate this 'Poor'" class="one-star finger">1</a></li>
+                                <li><a id="r-rating-2" title="Click to rate this 'Fair'" class="two-stars finger">2</a></li>
+                                <li><a id="r-rating-3" title="Click to rate this 'Average'" class="three-stars finger">3</a></li>
+                                <li><a id="r-rating-4" title="Click to rate this 'Good'" class="four-stars finger">4</a></li>
+                                <li><a id="r-rating-5" title="Click to rate this 'Excellent'" class="five-stars finger">5</a></li>
+                            </ul>
+                         </span>
+                         <span id="r-rating-info"></span>
+                    <div id="r-detailFileData" class="paradata-blurb">
+                        <!-- Modified 1/5/2003 &bull; Used in 7 courses; Downloaded 2 times -->
+                    </div>
+                    </div>
+               </div>
+            
+                <div id="r-metadata" class="row">
+                    <div class="twelve columns"> 
+                      
+                        <!-- Hide/show full metadata -->
+                        <div id="r-metadata-hide" class=""> <!-- visible by default, hide this and show full metadata -->
+                            <a class="finger">Show more properties</a> 
+                        </div>
+                        
+                        <div id="r-metadata-show" style="display:none;">
+                           <div id="general-section" class="section">
+                                <a class="header">General</a>
+                                <div id="r-generalMetadata" class="section-content">
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Title</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaTitle" class="meta-value editable"><!-- A really really really long title Bradley Fighting Vehicle --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="A title is required" value="Click to edit">
+                                        </div>
+                                    </div>      
+									<div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Filename</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaFilename" class="meta-value"><!-- A really really really long title Bradley Fighting Vehicle --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="A title is required" value="Click to edit">
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Objectives</span></div>
+                                        <div class="nine columns phone-three">
+                                        <div id="displayObjectives" class="meta-value">
+                                        	<ul id="detail-objective-list" class="objList">
+												<!-- NOTES: Put the full title + description as the 'title' value for tooltip support -->
+<!--											<li>
+													<a href="#" title="Remove" class="delete"></a>
+													<p id="metaObjectives" class="objective value full-width" title="Objective Title A. Description: text appears here">Objective Title A</p>
+													<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Search for an objective" value="Click to edit"> 
+												</li>
+-->
+											</ul>
+<!-- 										<a id="detailAddObjective" href="#">Add Existing</a> | 
+--> 
+											<a id="detailCreateObjective" href="#">Create New</a>
+											<div id="detailCreateObjectiveWrapper" style="display: none;">
+												<form id="detailCreateObjectiveForm" class="nice">
+													<input id="detailNewObjectiveTitle" type="text" class="input-text nice " placeholder="Title" value="">
+													<input id="detailNewObjectiveDesc" type="text" class="input-text nice " placeholder="Description" value="">
+<!--												<input id="detailNewObjectiveDef" type="text" class="input-text nice " placeholder="Definition" value=""> 
+													<select id="detailNewObjectiveType" class="input-text nice">
+														<option>Enabling</option>
+														<option>Terminal</option>
+													</select> 
+-->
+													<a id="detailCreateObjectiveApply" class="nice tiny radius blue button" href="#">Apply</a>
+													<a id="detailCreateObjectiveCancel" class="nice tiny radius white button" href="#">Cancel</a>
+													<a id="detailCreateObjectiveHelp" href="#" title="How to write an objective"><img src="images/help.png">Help</a>
+												</form>
+											</div>
+											</div>
+										</div>
+                                    </div>  
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Keywords</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaKeywords" class="meta-value editable"><!-- bradley, repair, maintenance, M2, M3, tank --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Add comma separated words" value="Click to edit">
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Classification</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaClassification" class="meta-value editable"><!-- Unclassified --></span>
+											<select id="meta-securityClassification" class="input-text nice value-input" style="display:none;">
+											    <option id="detailClass1">Unclassified</option> <!-- green -->
+												<option id="detailClass2">Confidential</option> <!-- yellow -->
+												<option id="detailClass3">Secret</option> <!-- red -->
+												<option id="detailClass4">Top Secret</option> <!-- red -->
+											</select>
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Level</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaLevel" class="meta-value editable"><!-- None --></span>
+											<select id="meta-securityLevel" class="input-text nice value-input" style="display:none;">
+												 <option id="detailLevel1">None</option> <!-- green -->
+												 <option id="detailLevel2">For Official Use Only (FOUO)</option>  <!-- red -->
+											</select>
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Distribution</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaDistribution" class="meta-value editable"><!-- Statement A (Public) --></span>
+											<select id="meta-securityDistribution" class="input-text nice value-input" style="display:none;">
+											  <option id="detailDistribution1">Statement A (Public)</option>  <!-- green -->
+											  <option id="detailDistribution2">Statement B</option> <!-- yellow -->
+											  <option id="detailDistribution3">Statement C</option> <!-- yellow -->
+											  <option id="detailDistribution4">Statement D</option> <!-- yellow -->
+											  <option id="detailDistribution5">Statement E</option> <!-- red -->
+											  <option id="detailDistribution6">Statement F</option> <!-- red -->
+											  <option id="detailDistribution7">Statement X</option> <!-- red -->
+											  <option id="detailDistribution8">LR - Legal Restrictions</option>
+											  <option id="detailDistribution9">NR - No restriction</option>
+											  <option id="detailDistribution10">CP - Cleared for Public</option>
+											  <option id="detailDistribution11">CG - Cleared for US Gov</option>
+											  <option id="detailDistribution12">CD - Cleared for DoD</option>
+											  <option id="detailDistribution13">RD - Restrictions on DoD</option>
+											  <option id="detailDistribution14">NF - NOFORN</option>
+											  <option id="detailDistribution15">OT - Other</option> 
+											</select>                       
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">File Format</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaFormat" class="meta-value"><!-- Flash video (FLV) --></span></div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Publisher</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaPublisher" class="meta-value editable"><!-- (undefined) --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Who published this content?" value="Click to edit">
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Owner</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaOwner" class="meta-value"><!-- (undefined) --></span>
+                                       </div>
+                                    </div>
+                                </div>
+                           </div>
+
+                           <div id="educational-section" class="section collapsed">
+                                <a class="header">Educational</a>
+                                <div id="r-educationalMetadata" class="section-content" style="display:none;">
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Coverage</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaCoverage" class="meta-value editable"><!-- (undefined) --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Examples: time, culture, geography or region" value="Click to edit">
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Interactivity</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaInteractivity" class="meta-value editable"><!-- (undefined) --></span>
+											<select class="nice value-input" size="1" style="display:none;">
+												<option value="Very High">Very High: Game, simulation or manipulative</option>
+												<option value="High">High: Survey, quiz, or exercise</option>
+												<option value="Medium">Medium: Form or email reply</option>
+												<option value="Low">Low: Branching document or links</option>
+												<option value="Very Low">Very Low: Read, view or listen</option>
+											</select>
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Environment</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaEnvironment" class="meta-value editable"><!-- (undefined) --></span>
+											<select class="nice value-input" size="1" style="display:none;">
+												<option value="Primary Education">Grades 1-8 (Primary Education)</option>
+												<option value="Secondary Education">High school (Secondary Education)</option>
+												<option value="Higher Education">Post high school (Higher Education)</option>
+												<option value="University First Cycle">University basic course (1st cycle)</option>
+												<option value="University Second Cycle">University specialized course (2nd cycle)</option>
+												<option value="University Postgraduate">University Graduate level (Postgraduate)</option>
+												<option value="Technical School First Cycle">Technical school core course (1st Cycle)</option>
+												<option value="Technical School Second Cycle">Technical School specialized course (2nd Cycle)</option>
+												<option value="Professional Formation">Professional Development (Formation)</option>
+												<option value="Continuing Education">Continuing Education</option>
+												<option value="Vocational">Vocational</option>
+											</select>
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Skill Level</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaSkill" class="meta-value editable"><!-- (undefined) --></span>
+											<select class="nice value-input" size="1" style="display:none;">
+												<option value="Recruit">Recruit</option>
+												<option value="Apprentice">Apprentice</option>
+												<option value="Journeyman">Journeyman</option>
+												<option value="Master">Master</option>
+											</select>
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Language</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaLanguage" class="meta-value editable"><!-- English --></span>
+											<select class="nice value-input" size="1" style="display:none;">
+												<option value="en" selected="selected">English</option>
+												<option value="ar">Arabic</option>
+												<option value="hy">Armenian</option>
+												<option value="bg">Bulgarian</option>
+												<option value="ca">Catalan</option>
+												<option value="zh">Chinese</option>
+												<option value="hr">Croatian</option>
+												<option value="cs">Czech</option>
+												<option value="da">Danish</option>
+												<option value="nl">Dutch</option>
+												<option value="et">Estonian</option>
+												<option value="fi">Finnish</option>
+												<option value="fr">French</option>
+												<option value="de">German</option>
+												<option value="el">Greek</option>
+												<option value="he">Hebrew</option>
+												<option value="hu">Hungarian</option>
+												<option value="is">Icelandic</option>
+												<option value="ga">Irish</option>
+												<option value="it">Italian</option>
+												<option value="ja">Japanese</option>
+												<option value="ko">Korean</option>
+												<option value="lv">Latvian</option>
+												<option value="lt">Lithuanian</option>
+												<option value="mt">Maltese</option>
+												<option value="no">Norwegian</option>
+												<option value="pl">Polish</option>
+												<option value="pt">Portuguese</option>
+												<option value="ro">Romanian</option>
+												<option value="ru">Russian</option>
+												<option value="sk">Slovak</option>
+												<option value="sl">Slovenian</option>
+												<option value="es">Spanish</option>
+												<option value="sv">Swedish</option>
+												<option value="tr">Turkish</option>
+												<option value="uk">Ukrainian</option>
+												<option value="29">Other</option>
+											</select>
+										</div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">ISD Usage</span></div>
+                                        <div class="nine columns phone-three"><span id="detailEpssStrategies" class="meta-value">N/A</span> <!-- Not editable, system generated -->
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Useful for RUSSEL EPSS instructional strategies" value="Click to edit">
+                                        </div>
+                                    </div>
+
+                                </div>
+                           </div>
+                                                  
+                           <div id="technical-section" class="section collapsed">
+                                <a class="header">Technical</a>
+                                 <div id="r-technicalMetadata" class="section-content" style="display:none;">
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Version</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaVersion" class="meta-value"><!-- 1 by JSmith on 1/05/2003 --></span>
+											<!-- <input style="display:none;" type="file" class="input-text nice value-input" placeholder="Upload a new version" value="Upload a new version"> -->
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Thumbnail</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaThumb" class="meta-value">N/A</span>
+											<input style="display:none;" type="file" class="input-text nice value-input" placeholder="Upload an image" value="Upload an image">
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Size</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaSize" class="meta-value"><!-- 12MB --></span> <!-- Not editable, system generated -->
+											<input style="display:none;" type="number" class="input-number nice value-input" placeholder="File size in KB" value="Click to edit">
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Duration</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaDuration" class="meta-value editable"><!-- 30 min --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="hr:mm:ss" value="Click to edit">
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Requirements</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaTechnicalRequirements" class="meta-value editable"><!-- (undefined) --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Operating system, browser or media player" value="Click to edit">
+                                        </div>
+                                    </div>
+                                </div>
+                           </div>
+                           
+                           <div id="related-section" class="section collapsed">
+                                <a class="header">Related Material</a>
+                                 <div id="r-relatedMetadata" class="section-content" style="display:none;">
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Is part of</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaPartOf" class="meta-value editable"><!-- (undefined) --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="Asset ID" value="Click to edit">
+                                        </div>
+                                    </div>
+                                    <div class="row meta">
+                                        <div class="three columns phone-one"><span class="meta-label">Requires</span></div>
+                                        <div class="nine columns phone-three"><span id="detailMetaRequires" class="meta-value editable"><!-- (undefined) --></span>
+											<input style="display:none;" type="text" class="input-text nice value-input" placeholder="XXXXXXXXX" value="Click to edit">
+                                        </div>
+                                    </div>
+                                </div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row">
+                    <div id="r-comments" class="twelve columns"> 
+                    
+                        <!-- Add a Comment -->
+                        <div id="r-add-comment" class="row">
+                            <div class="one column hide-on-phones"> 
+                               <div class="user icon"></div>
+                            </div>
+                            <div class="eleven columns"> 
+                            <form class="nice">
+                               <textarea id="input-comment" placeholder="Add comment" ></textarea> <!-- When textarea recieves focus, un-hide the CONTEXT and SUBMIT elments, below -->
+                               <!--
+                               <select id="comment-context" class="">
+                                    <option value="context">Context:</option> 
+                                    <option value="general">General</option> 
+                                    <option value="course">Course</option> 
+                                </select>
+                                <input id="course-comment" type="text" class="input-text nice hide" value="Course Name"><!-- show only when "course" is selected -->
+                                <a id="comment-submit" class="nice small radius white button finger">Submit</a>
+                             </form>
+                            </div>
+                       </div>
+                       
+                       <!-- User comments -->
+                       <div id="r-commentArea">
+                           
+                        </div>
+						
+						<!--
+                       <div class="more-comments">
+                            <a id="r-commentCount" class="finger"></a>
+                       </div>
+                       -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+  </div>
