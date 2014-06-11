@@ -3,7 +3,7 @@ RUSSEL Interface:
        RUSSEL - https://github.com/adlnet/RUSSEL
        RUSSELlib - https://github.com/adlnet/RUSSELlib
 
-RUSSEL Alfresco Backend:
+RUSSEL Backend:
 
        RUSSELserver - https://github.com/adlnet/RUSSELserver
     
