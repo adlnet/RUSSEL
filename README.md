@@ -1,11 +1,11 @@
 RUSSEL Interface:
 
        RUSSEL - https://github.com/adlnet/RUSSEL
-       RUSSELgwt - https://github.com/adlnet/RUSSELgwt
+       RUSSELlib - https://github.com/adlnet/RUSSELlib
 
 RUSSEL Alfresco Backend:
 
-       RUSSELamp - https://github.com/adlnet/RUSSELamp
+       RUSSELserver - https://github.com/adlnet/RUSSELserver
     
 APACHE 2.0 LICENSE TEXT
 
