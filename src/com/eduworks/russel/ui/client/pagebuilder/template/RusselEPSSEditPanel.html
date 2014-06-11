@@ -71,7 +71,10 @@ limitations under the License.
             <div id="epssDownloadArea">
             </div>
             <dl class="nice vertical tabs">
-                <dd><a id="epssExportSCORM" class="finger" title="" onclick="$('#exportProjectModal').trigger('reveal:close');">SCORM 2004 4th Edition ...</a></dd>
+            	<form id="epssExportSCORMForm">
+            		<input id="epssExportSCORMPayload" type="hidden" name="session" />
+                	<dd><a id="epssExportSCORM" class="finger" title="" onclick="$('#exportProjectModal').trigger('reveal:close');">SCORM 2004 4th Edition ...</a></dd>
+                </form>
                 <!-- <dd><a id="epssSaveAs" class="finger" title="" onclick="$('#exportProjectModal').trigger('reveal:close');">Save As ...</a></dd> -->
             </dl>
             <a class="white small nice button radius finger" onclick="$('#exportProjectModal').trigger('reveal:close');" >Cancel</a> 

@@ -16,17 +16,19 @@ limitations under the License.
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.client.net.api.AlfrescoApi;
-import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import java.util.Vector;
+
+import com.eduworks.gwt.client.model.ZipRecord;
+import com.eduworks.gwt.client.net.api.ESBApi;
+import com.eduworks.gwt.client.net.callback.ESBCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
-import com.eduworks.gwt.client.net.packet.StatusPacket;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
+import com.eduworks.gwt.client.util.Logger;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Anchor;
@@ -61,7 +63,7 @@ public class LoginScreen extends Screen {
 		@Override
 		public void onEvent(Event event) {
 			if (event.getTypeInt() == Event.ONCLICK || event.getKeyCode() == KeyCodes.KEY_ENTER) {
-				String loginName = ((TextBox)PageAssembler.elementToWidget("loginName", PageAssembler.TEXT)).getText();
+				final String loginName = ((TextBox)PageAssembler.elementToWidget("loginName", PageAssembler.TEXT)).getText();
 				if (loginName.equalsIgnoreCase("guest")) {
 					final Element oldErrorDialog = (Element)Document.get().getElementById("errorDialog");
 					if (oldErrorDialog != null) oldErrorDialog.removeFromParent();
@@ -78,34 +80,19 @@ public class LoginScreen extends Screen {
 				}
 				else {
 					enableLogin0(false);
-					AlfrescoApi.login(loginName,
+					ESBApi.login(loginName,
 									  ((PasswordTextBox)PageAssembler.elementToWidget("loginPassword", PageAssembler.PASSWORD)).getText(),
-									  new AlfrescoCallback<AlfrescoPacket>() {
+									  new ESBCallback<ESBPacket>() {
 										@Override
-										public void onSuccess(AlfrescoPacket result) {
-											if (result.getTicket()==null)
+										public void onSuccess(ESBPacket result) {
+											if (result.getPayloadString()==null)
 												onFailure(new Throwable(LOGIN_BAD_LOGIN));
 											else
 											{
-												AlfrescoApi.ticket = result.getTicket();
-												AlfrescoApi.updateCurrentDirectory(UriUtils.sanitizeUri("Company%20Home/" + 
-																									    "User%20Homes/" + 
-																									    AlfrescoApi.username.toLowerCase()),
-																				   new AlfrescoCallback<AlfrescoPacket>() {
-																						@Override
-																						public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																							
-																						}
-																						
-																						@Override
-																						public void onFailure(Throwable caught) {
-																							StatusWindowHandler.createMessage(StatusWindowHandler.getHomeMessageError("Company Home/User Homes/" + AlfrescoApi.username.toLowerCase()), 
-																															  StatusPacket.ALERT_ERROR);
-																							AlfrescoApi.updateCurrentDirectory(UriUtils.sanitizeUri("Company%20Home"));
-																						}
-																					});
+												ESBApi.sessionId = result.getPayloadString();
+												ESBApi.username = loginName;
 												PageAssembler.setTemplate(templates().getHeader().getText(),
-														templates().getFooter().getText(),
+																	templates().getFooter().getText(),
 																		  "contentPane");
 												prepTemplateHooks0();
 												Russel.loginCheck.scheduleRepeating(1800000);
@@ -163,9 +150,9 @@ public class LoginScreen extends Screen {
 		PageAssembler.attachHandler("r-menuLogout", Event.ONCLICK, new EventCallback() {
 																       @Override
 																       public void onEvent(Event event) {
-																    	   AlfrescoApi.logout(new AlfrescoCallback<AlfrescoPacket>() {
+																    	   ESBApi.logout(new ESBCallback<ESBPacket>() {
 																								@Override
-																								public void onSuccess(AlfrescoPacket result) {
+																								public void onSuccess(ESBPacket result) {
 																									Russel.loginCheck.cancel();
 																									Russel.view.clearHistory();
 																									view().loadLoginScreen();

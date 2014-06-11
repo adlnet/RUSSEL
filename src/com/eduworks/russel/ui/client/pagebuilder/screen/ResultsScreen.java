@@ -18,14 +18,13 @@ package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import com.eduworks.gwt.client.net.api.Adl3DRApi;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.russel.ui.client.Constants;
 import com.eduworks.russel.ui.client.Utilities;
-import com.eduworks.russel.ui.client.handler.Adl3DRSearchHandler;
-import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
+import com.eduworks.russel.ui.client.handler.ESBSearchHandler;
 import com.eduworks.russel.ui.client.handler.SearchHandler;
 import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
+import com.eduworks.russel.ui.client.model.StatusRecord;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HTML;
@@ -50,41 +49,42 @@ public class ResultsScreen extends Screen {
 	 */
 	public void resetScreen()
 	{
-		if (searchType.equals(AlfrescoSearchHandler.SEARCH_TYPE) || searchType.equals(AlfrescoSearchHandler.EDIT_TYPE))
+		if (searchType.equals(ESBSearchHandler.SEARCH_TYPE) || searchType.equals(ESBSearchHandler.EDIT_TYPE))
 		{
 			Utilities.searchSetting = 0;
-			sh = new AlfrescoSearchHandler();
+			sh = new ESBSearchHandler();
 			pageTitle = "Search Results";
 			DOM.getElementById("searchOptions").removeClassName("hidden");
 			DOM.getElementById("filterOptions").removeClassName("hidden");
 		}
-		else if (searchType.equals(AlfrescoSearchHandler.COLLECTION_TYPE))
+		else if (searchType.equals(ESBSearchHandler.COLLECTION_TYPE))
 		{
 			Utilities.searchSetting = 0;
-			sh = new AlfrescoSearchHandler();
+			sh = new ESBSearchHandler();
 			pageTitle = "My Files";
 			DOM.getElementById("searchOptions").addClassName("hidden");
 			DOM.getElementById("filterOptions").removeClassName("hidden");
 		}
-		else if (searchType.equals(AlfrescoSearchHandler.FLR_TYPE))
+		else if (searchType.equals(ESBSearchHandler.FLR_TYPE))
 		{
 			Utilities.searchSetting = 0;
-			sh = new AlfrescoSearchHandler();
+			sh = new ESBSearchHandler();
 			pageTitle = "Federal Learning Registry Resources";
 			DOM.getElementById("searchOptions").addClassName("hidden");
 			DOM.getElementById("filterOptions").addClassName("hidden");
 		}
-		else if (searchType.equals(Adl3DRSearchHandler.SEARCH3DR_TYPE))
-		{
-			Utilities.searchSetting = 1;
-			sh = new Adl3DRSearchHandler();
-			pageTitle = "ADL 3D Repository Search Results";
-			DOM.getElementById("searchOptions").removeClassName("hidden");
-			DOM.getElementById("filterOptions").addClassName("hidden");
-		}
+		//TODO 3DR fix search
+//		else if (searchType.equals(Adl3DRSearchHandler.SEARCH3DR_TYPE))
+//		{
+//			Utilities.searchSetting = 1;
+//			sh = new Adl3DRSearchHandler();
+//			pageTitle = "ADL 3D Repository Search Results";
+//			DOM.getElementById("searchOptions").removeClassName("hidden");
+//			DOM.getElementById("filterOptions").addClassName("hidden");
+//		}
 		else
 		{
-			sh = new AlfrescoSearchHandler();
+			sh = new ESBSearchHandler();
 			Utilities.searchSetting = 0;
 			pageTitle = "Unknown Search Type: "+searchType;
 		}
@@ -129,7 +129,7 @@ public class ResultsScreen extends Screen {
 		String showType = "";
 		ListBox lb = (ListBox)PageAssembler.elementToWidget("resultsSearchSelectShow", PageAssembler.SELECT);
 		if (lb != null) {
-			if (searchType.equals(AlfrescoSearchHandler.FLR_TYPE))
+			if (searchType.equals(ESBSearchHandler.FLR_TYPE))
 			{
 				showType = Utilities.LINK;
 			}
@@ -154,7 +154,7 @@ public class ResultsScreen extends Screen {
 		if (lb != null) {
 //			RUSSEL is currently using file suffixes to satisfy the Show filter options in its Results screen... 
 //			nothing special needed here for now other than switch to generic search.
-			String searchType = AlfrescoSearchHandler.SEARCH_TYPE;
+			String searchType = ESBSearchHandler.SEARCH_TYPE;
 			sh.hook("r-menuSearchBar", "searchPanelWidgetScroll", searchType);
 		}
 	}
@@ -225,25 +225,41 @@ public class ResultsScreen extends Screen {
 			{
 				if (Adl3DRApi.ADL3DR_OPTION_MODE.equals(Adl3DRApi.ADL3DR_DISABLED))
 				{
-					StatusWindowHandler.createMessage(StatusWindowHandler.get3DRDisabledError("Search"),
-							StatusPacket.ALERT_ERROR);
+					StatusWindowHandler.createMessage(StatusWindowHandler.get3DRDisabledError("Search"), StatusRecord.ALERT_ERROR);
 				}
 				else
 				{
-					searchType = Adl3DRSearchHandler.SEARCH3DR_TYPE;
+					//TODO fix 3dr search
+					//searchType = Adl3DRSearchHandler.SEARCH3DR_TYPE;
 					saveFilters0();
 					resetScreen();
 				}
 			}
 			else
 			{
-				searchType = AlfrescoSearchHandler.SEARCH_TYPE;
+				searchType = ESBSearchHandler.SEARCH_TYPE;
 				saveFilters0();
 				resetScreen();
 			}
 		}
 	});
 
+	
+	PageAssembler.attachHandler("searchPreviousPage", Event.ONCLICK, new EventCallback() {
+		@Override
+		public void onEvent(Event event) {
+			sh.popPagingToken();
+			sh.popPagingToken();
+			sh.pageSearch();
+		}
+	});
+	
+	PageAssembler.attachHandler("searchNextPage", Event.ONCLICK, new EventCallback() {
+		@Override
+		public void onEvent(Event event) {
+			sh.pageSearch();
+		}
+	});
 }
 
 	protected HTML template()

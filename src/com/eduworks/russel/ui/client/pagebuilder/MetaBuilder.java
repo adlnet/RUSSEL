@@ -16,11 +16,14 @@ limitations under the License.
 
 package com.eduworks.russel.ui.client.pagebuilder;
 
-import com.eduworks.gwt.client.net.api.AlfrescoApi;
-import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.model.FileRecord;
+import com.eduworks.gwt.client.net.api.ESBApi;
+import com.eduworks.gwt.client.net.callback.ESBCallback;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.epss.ProjectFileModel;
+import com.eduworks.russel.ui.client.model.ProjectRecord;
+import com.eduworks.russel.ui.client.model.RUSSELFileRecord;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
@@ -77,9 +80,9 @@ public class MetaBuilder {
 	 * addProperty Extracts a specific field value from the metadata screen and prepares for save to node
 	 * @param property String Name of metadata property
 	 * @param elementID String id of metadata field
-	 * @param ap AlfrescoPacket to be updated with new value 
+	 * @param ap ESBPacket to be updated with new value 
 	 */
-	private void addProperty0(String property, String elementID, AlfrescoPacket ap) {
+	private void addProperty0(String property, String elementID, ESBPacket ap) {
 		String val = ((Label)PageAssembler.elementToWidget(elementID, PageAssembler.LABEL)).getText();
 		if (val==null||val=="")
 			val = ((TextBox)PageAssembler.elementToWidget(elementID, PageAssembler.TEXT)).getText();
@@ -88,205 +91,211 @@ public class MetaBuilder {
 		
 		if (val.trim().equalsIgnoreCase(".")) 
 			if (property!="tags")
-				ap.addKeyValue(property, "");
-			else
-				ap.addKeyArray(property, null);
+				ap.put(property, "");
+			else {
+				JSONArray ja = new JSONArray();
+				ja.set(0, null);
+				ap.put(property, ja);
+			}
 		else if (!val.equalsIgnoreCase("Click to edit") && !val.equalsIgnoreCase("N/A"))
 			if (property!="tags")
-				ap.addKeyValue(property, val.replaceAll("\"", "'").replaceAll("[\r\n]", " ").trim());
+				ap.put(property, val.replaceAll("\"", "'").replaceAll("[\r\n]", " ").trim());
 			else
-				ap.addKeyValue(property, val.split(","));
+				ap.put(property, val.split(","));
 	}
 
 	/**
 	 * addObjectiveProperty Extracts the list of objectives from the metadata screen and prepares for save to node
-	 * @param ap AlfrescoPacket to be updated with new objectives list
+	 * @param ap ESBPacket to be updated with new objectives list
 	 * @param elementID String id of objectives field
-	 * @return AlfrescoPacket
+	 * @return ESBPacket
 	 */
-	private AlfrescoPacket addObjectiveProperty0(AlfrescoPacket ap, String elementID) {
+	private ESBPacket addObjectiveProperty0(ESBPacket ap, String elementID) {
 		String val = getObjectives0(elementID);
 		
 		if (val==null)
 			val = "Click to edit";
 		if (!val.equalsIgnoreCase("Click to edit") && !val.equalsIgnoreCase("N/A"))
-			ap.addKeyValue("russel:objective", val.replaceAll("\"", "'").replaceAll("[\r\n]", " ").trim());
+			ap.put(RUSSELFileRecord.OBJECTIVES, val.replaceAll("\"", "'").replaceAll("[\r\n]", " ").trim());
 		
 		return ap;
 	}
 
 	/**
 	 * addMetadataToField Formats and places the appropriate value into the designated form field in the metadata screen indicated.
-	 * @param property String Name of metadata property
 	 * @param id String Name of element in node packet
-	 * @param alfrescoPacket AlfrescoPacket information for the node
+	 * @param clickToEdit
+	 * @param alfrescoPacket ESBPacket information for the node
 	 */
-	public void addMetaDataToField(String property, String id, AlfrescoPacket alfrescoPacket) {
-		String fieldVal = "Click to edit";
-		if (property.equalsIgnoreCase("cm:title") || property.equalsIgnoreCase("cmis:versionLabel") || property.equalsIgnoreCase("cmis:contentStreamLength") ||
-				property.equalsIgnoreCase("cmis:contentStreamMimeType") || property.equalsIgnoreCase("cmis:contentStreamLength") || property.equalsIgnoreCase("russel:epssStrategy"))
-			fieldVal = "N/A";
-
-		if (!alfrescoPacket.getRusselValue(property).trim().equalsIgnoreCase(""))
-			fieldVal = alfrescoPacket.getRusselValue(property);
-
+	public void addMetaDataToField(String id, String fieldVal, Boolean clickToEdit) {
+		if (fieldVal=="") {
+			fieldVal = "Click to edit";
+			if (!clickToEdit)
+				fieldVal = "N/A";
+		}
+		//TODO fix FLR metadata
+//		if (metaType.equals(DETAIL_SCREEN)&&(property == "russel:FLRtag")) {
+//			DOM.getElementById(id).setInnerHTML("<a href='"+fieldVal+"' target='_blank'>"+fieldVal+"</a");
+//		}
+		((Label)PageAssembler.elementToWidget(id, PageAssembler.LABEL)).setText(fieldVal);
+	}
+	
+	private void addEpssStrategyField(String id, String fieldVal) {
+		ProjectRecord.renderIsdUsage(fieldVal, id);
+	}
+	
+	private void addColoredMetadataToField(String elementId, FileRecord fr, String type) {
+		String fieldVal = "";
+				
 		// If no values are assigned for Classification, Level, or Distribution, set them to the public default values
-		if ((property == "russel:class") && (fieldVal == "Click to edit")) 
-			fieldVal = "Unclassified";
-		else if ((property == "russel:level") && (fieldVal == "Click to edit")) 
-			fieldVal = "None";
-		else if ((property == "russel:dist") && (fieldVal == "Click to edit")) 
-			fieldVal = "Statement A (Public)";
+		if (type.equalsIgnoreCase("classification")) { 
+			if (fr.getClassification() == "") 
+				fieldVal = "Unclassified";
+			else
+				fieldVal = fr.getClassification();
+		} else if (type.equalsIgnoreCase("level")) { 
+			if (fr.getLevel() == "") 
+				fieldVal = "None";
+			else
+				fieldVal = fr.getLevel();
+		} else if (type.equalsIgnoreCase("distribution")) { 
+			if (fr.getDistribution() == "") 
+				fieldVal = "Statement A (Public)";
+			else
+				fieldVal = fr.getDistribution();
+		}
 		
-		if ((metaType.equals(EDIT_SCREEN)&&(property=="russel:objective")) ||
-		    (metaType.equals(DETAIL_SCREEN)&&(property=="russel:objective"))) {
-			putObjectives0(fieldVal, id);
-		}
-		else if (metaType.equals(EDIT_SCREEN)&&(property=="russel:class"||property=="russel:level"||property=="russel:dist")) {
-			DOM.getElementById(id).setInnerHTML(doColors0(fieldVal));
-		}
-		else if (metaType.equals(DETAIL_SCREEN)&&(property == "russel:FLRtag")) {
-			DOM.getElementById(id).setInnerHTML("<a href='"+fieldVal+"' target='_blank'>"+fieldVal+"</a");
-		}
-		else if (metaType.equals(DETAIL_SCREEN)&&(property == "russel:epssStrategy")) {
-			ProjectFileModel.renderIsdUsage(fieldVal, id);
-		}		
-		else {
-			((Label)PageAssembler.elementToWidget(id, PageAssembler.LABEL)).setText(fieldVal);
-		}
+		if (metaType.equals(EDIT_SCREEN)) {
+			DOM.getElementById(elementId).setInnerHTML(doColors0(fieldVal));
+		} else
+			((Label)PageAssembler.elementToWidget(elementId, PageAssembler.LABEL)).setText(fieldVal);
+	}
+	
+	private void addObjectiveToField0(String elementId, FileRecord fr) {
+		putObjectives0(fr.getObjectives(), elementId);
 	}
 	
 	/**
 	 * addMetaDataFields Allocates all node information to the appropriate metadata screen fields
-	 * @param ap AlfrescoPacket information for the node
+	 * @param ap ESBPacket information for the node
 	 */
-	public void addMetaDataFields(AlfrescoPacket ap) {
+	public void addMetaDataFields(FileRecord ap) {
 		String ext = null;
-		if ((ap != null)&&(!ap.toJSONString().equals("{}"))) {
+		if (ap != null) {
 			ext = ap.getFilename().substring(ap.getFilename().lastIndexOf(".")+1);
 			if (metaType.equals(EDIT_SCREEN)) {
-				addMetaDataToField("cm:title", "metaTitle", ap);
-				addMetaDataToField("cm:description", "metaDescription", ap);
-				addMetaDataToField("cmis:createdBy", "metaOwner", ap);
-				addMetaDataToField("russel:publisher", "metaPublisher", ap);
-				addMetaDataToField("russel:class", "metaClassification", ap);
-				addMetaDataToField("russel:objective", "display-objective-list", ap);
-				addMetaDataToField("russel:activity", "metaInteractivity", ap);
-				addMetaDataToField("russel:env", "metaEnvironment", ap);
-				addMetaDataToField("russel:coverage", "metaCoverage", ap);
-				addMetaDataToField("russel:agerange", "metaSkill", ap);
-				addMetaDataToField("russel:language", "metaLanguage", ap);
-				addMetaDataToField("russel:duration", "metaDuration", ap);
-				addMetaDataToField("russel:techreqs", "metaTechnicalRequirements", ap);
-				addMetaDataToField("russel:dist", "metaDistribution", ap);
-				addMetaDataToField("russel:level", "metaLevel", ap);
-				addMetaDataToField("russel:partof", "metaPartOf", ap);
-				addMetaDataToField("russel:requires", "metaRequires", ap);
-				addMetaDataToField("cmis:contentStreamMimeType", "metaFormat", ap);
-				addMetaDataToField("cmis:versionLabel", "metaVersion", ap);
-				addMetaDataToField("cmis:contentStreamLength", "metaSize", ap);
+				addMetaDataToField("metaTitle", ap.getTitle(), false);
+				addMetaDataToField("metaDescription", ap.getDescription(), true);
+				addMetaDataToField("metaOwner", ap.getOwner(), true);
+				addMetaDataToField("metaPublisher", ap.getPublisher(), true);
+				addColoredMetadataToField("metaClassification", ap, "classification");
+				addObjectiveToField0("display-objective-list", ap);
+				addMetaDataToField("metaInteractivity", ap.getInteractivity(), true);
+				addMetaDataToField("metaEnvironment", ap.getEnvironment(), true);
+				addMetaDataToField("metaCoverage", ap.getCoverage(), true);
+				addMetaDataToField("metaSkill", ap.getSkill(), true);
+				addMetaDataToField("metaLanguage", ap.getLanguage(), true);
+				addMetaDataToField("metaDuration", Double.toString(ap.getDuration()), true);
+				addMetaDataToField("metaTechnicalRequirements", ap.getTechnicalRequirements(), true);
+				addColoredMetadataToField("metaDistribution", ap, "distribution");
+				addColoredMetadataToField("metaLevel", ap, "level");
+				addMetaDataToField("metaPartOf", ap.getPartOf(), true);
+				addMetaDataToField("metaRequires", ap.getRequires(), true);
+				addMetaDataToField("metaFormat", ap.getMimeType(), false);
+				addMetaDataToField("metaVersion", ap.getVersion(), false);
+				addMetaDataToField("metaSize", Integer.toString(ap.getFilesize()), false);
+				addMetaDataToField("metaKeywords", ap.getKeywords(), true);
+
 			} else {
-				addMetaDataToField("cm:title", "r-detailTitle", ap);
-				addMetaDataToField("cm:title", "detailMetaTitle", ap);
-				addMetaDataToField("cm:description", "detailMetaDescription", ap);
-				addMetaDataToField("cmis:name", "detailMetaFilename", ap);
-				addMetaDataToField("cmis:createdBy", "detailMetaOwner", ap);
-				addMetaDataToField("russel:publisher", "detailMetaPublisher", ap);
-				addMetaDataToField("russel:class", "detailMetaClassification", ap);
-				addMetaDataToField("russel:objective", "detail-objective-list", ap);
-				addMetaDataToField("russel:activity", "detailMetaInteractivity", ap);
-				addMetaDataToField("russel:env", "detailMetaEnvironment", ap);
-				addMetaDataToField("russel:coverage", "detailMetaCoverage", ap);
-				addMetaDataToField("russel:agerange", "detailMetaSkill", ap);
-				addMetaDataToField("russel:language", "detailMetaLanguage", ap);
-				addMetaDataToField("russel:duration", "detailMetaDuration", ap);
-				addMetaDataToField("russel:techreqs", "detailMetaTechnicalRequirements", ap);
-				addMetaDataToField("russel:dist", "detailMetaDistribution", ap);
-				addMetaDataToField("russel:level", "detailMetaLevel", ap);
-				addMetaDataToField("russel:partof", "detailMetaPartOf", ap);
-				addMetaDataToField("russel:requires", "detailMetaRequires", ap);
-				addMetaDataToField("russel:epssStrategy", "detailEpssStrategies", ap);
-				addMetaDataToField("cmis:contentStreamMimeType", "detailMetaFormat", ap);
-				addMetaDataToField("cmis:versionLabel", "detailMetaVersion", ap);
-				addMetaDataToField("cmis:contentStreamLength", "detailMetaSize", ap);
+				addMetaDataToField("r-detailTitle", ap.getTitle(), false);
+				addMetaDataToField("detailMetaTitle", ap.getTitle(), true);
+				addMetaDataToField("detailMetaDescription", ap.getDescription(), true);
+				addMetaDataToField("detailMetaFilename", ap.getFilename(), true);
+				addMetaDataToField("detailMetaOwner", ap.getOwner(), true);
+				addMetaDataToField("detailMetaPublisher", ap.getPublisher(), true);
+				addColoredMetadataToField("detailMetaClassification", ap, "classification");
+				addObjectiveToField0("detail-objective-list", ap);
+				addMetaDataToField("detailMetaInteractivity", ap.getInteractivity(), true);
+				addMetaDataToField("detailMetaEnvironment", ap.getEnvironment(), true);
+				addMetaDataToField("detailMetaCoverage", ap.getCoverage(), true);
+				addMetaDataToField("detailMetaSkill", ap.getSkill(), true);
+				addMetaDataToField("detailMetaLanguage", ap.getLanguage(), true);
+				addMetaDataToField("detailMetaDuration", Double.toString(ap.getDuration()), true);
+				addMetaDataToField("detailMetaTechnicalRequirements", ap.getTechnicalRequirements(), true);
+				addColoredMetadataToField("detailMetaDistribution", ap, "distribution");
+				addColoredMetadataToField("detailMetaLevel", ap, "level");
+				addMetaDataToField("detailMetaPartOf", ap.getPartOf(), true);
+				addMetaDataToField("detailMetaRequires", ap.getRequires(), true);
+
+				addEpssStrategyField("detailEpssStrategies", ((RUSSELFileRecord)ap).getStrategy());
+				addMetaDataToField("detailMetaFormat", ap.getMimeType(), false);
+				addMetaDataToField("detailMetaVersion", ap.getVersion(), false);
+				addMetaDataToField("detailMetaSize", Integer.toString(ap.getFilesize()), false);
 				if (ext.equalsIgnoreCase("rlr")) {
-					addMetaDataToField("russel:FLRtag", "r-preview", ap);
+					addMetaDataToField("r-preview", ap.getFileContents(), true);
 				}
+				addMetaDataToField("detailMetaKeywords", ap.getKeywords(), true);
 			}
 		}
-		String acc = "";
-		for (int x=0;x<ap.getTags().length();x++)
-			if (ap.getTags().get(x).trim()!="")
-				acc += "," + ap.getTags().get(x).trim();
-		if (acc!="") acc = acc.substring(1);
-		else acc = "Click to edit";
-		if (metaType.equals(EDIT_SCREEN))
-			((Label)PageAssembler.elementToWidget("metaKeywords", PageAssembler.LABEL)).setText(acc);
-		else
-			((Label)PageAssembler.elementToWidget("detailMetaKeywords", PageAssembler.LABEL)).setText(acc);
 	}
 	
 	/**
 	 * saveMetadata Collects edited metadata and saves it to the node in Alfresco
 	 * @param nodeId String Alfresco node id
-	 * @param callback AlfrescoCallback<AlfrescoPacket>
+	 * @param callback AlfrescoCallback<ESBPacket>
 	 */
-	public void saveMetadata(String nodeId, AlfrescoCallback<AlfrescoPacket> callback) {	
-		String postString = buildMetaPacket();
-		if (postString!=null&&nodeId!=null)
-			AlfrescoApi.setObjectMetadata(nodeId, postString, callback);
+	public void saveMetadata(FileRecord record, ESBCallback<ESBPacket> callback) {	
+		FileRecord postString = buildMetaPacket(record);
+		if (record.getGuid()!="")
+			ESBApi.updateResourceMetadata(postString.toObject(), callback);
 	}
 
 	/**
 	 * buildMetaPacket Creates a new packet and adds the current field values for each metadata field on the screen for the node.
 	 * @return String node packet in JSON format
 	 */
-	public String buildMetaPacket() {
-		AlfrescoPacket ap = AlfrescoPacket.makePacket();
-		AlfrescoPacket container = AlfrescoPacket.makePacket();
+	public FileRecord buildMetaPacket(FileRecord record) {
+		ESBPacket ap = new ESBPacket();
 		if (metaType.equals(DETAIL_SCREEN)) {
-			addProperty0("cm:title", "detailMetaTitle", ap);
-			addProperty0("cm:description", "detailMetaDescription", ap);
-			addProperty0("russel:publisher", "detailMetaPublisher", ap);
-			addProperty0("russel:class", "detailMetaClassification", ap);
+			addProperty0(RUSSELFileRecord.TITLE, "detailMetaTitle", ap);
+			addProperty0(RUSSELFileRecord.DESCRIPTION, "detailMetaDescription", ap);
+			addProperty0(RUSSELFileRecord.PUBLISHER, "detailMetaPublisher", ap);
+			addProperty0(RUSSELFileRecord.CLASSIFICATION, "detailMetaClassification", ap);
 			addObjectiveProperty0(ap, "detail-objective-list");
-			addProperty0("russel:activity", "detailMetaInteractivity", ap);
-			addProperty0("russel:env", "detailMetaEnvironment", ap);
-			addProperty0("russel:coverage", "detailMetaCoverage", ap);
-			addProperty0("russel:agerange", "detailMetaSkill", ap);
-			addProperty0("russel:language", "detailMetaLanguage", ap);
-			addProperty0("russel:duration", "detailMetaDuration", ap);
-			addProperty0("russel:techreqs", "detailMetaTechnicalRequirements", ap);
-			addProperty0("russel:dist", "detailMetaDistribution", ap);
-			addProperty0("russel:level", "detailMetaLevel", ap);
-			addProperty0("russel:partof", "detailMetaPartOf", ap);
-			addProperty0("russel:requires", "detailMetaRequires", ap);
-			addProperty0("russel:epssStrategy", "detailEpssStrategies", ap);
-			addProperty0("tags", "detailMetaKeywords", container);
+			addProperty0(RUSSELFileRecord.INTERACTIVITY, "detailMetaInteractivity", ap);
+			addProperty0(RUSSELFileRecord.ENVIRONMENT, "detailMetaEnvironment", ap);
+			addProperty0(RUSSELFileRecord.COVERAGE, "detailMetaCoverage", ap);
+			addProperty0(RUSSELFileRecord.SKILL, "detailMetaSkill", ap);
+			addProperty0(RUSSELFileRecord.LANGUAGE, "detailMetaLanguage", ap);
+			addProperty0(RUSSELFileRecord.DURATION, "detailMetaDuration", ap);
+			addProperty0(RUSSELFileRecord.TECHNICAL_REQUIREMENTS, "detailMetaTechnicalRequirements", ap);
+			addProperty0(RUSSELFileRecord.DISTRIBUTION, "detailMetaDistribution", ap);
+			addProperty0(RUSSELFileRecord.LEVEL, "detailMetaLevel", ap);
+			addProperty0(RUSSELFileRecord.PART_OF, "detailMetaPartOf", ap);
+			addProperty0(RUSSELFileRecord.REQUIRES, "detailMetaRequires", ap);
+			addProperty0(RUSSELFileRecord.STRATEGY, "detailEpssStrategies", ap);
+			addProperty0(RUSSELFileRecord.KEYWORDS, "detailMetaKeywords", ap);
 		} else {
-			addProperty0("cm:title", "metaTitle", ap);
-			addProperty0("cm:description", "metaDescription", ap);
-			addProperty0("russel:publisher", "metaPublisher", ap);
-			addProperty0("russel:class", "metaClassification", ap);
+			addProperty0(RUSSELFileRecord.TITLE, "metaTitle", ap);
+			addProperty0(RUSSELFileRecord.DESCRIPTION, "metaDescription", ap);
+			addProperty0(RUSSELFileRecord.PUBLISHER, "metaPublisher", ap);
+			addProperty0(RUSSELFileRecord.CLASSIFICATION, "metaClassification", ap);
 			addObjectiveProperty0(ap, "display-objective-list");
-			addProperty0("russel:activity", "metaInteractivity", ap);
-			addProperty0("russel:env", "metaEnvironment", ap);
-			addProperty0("russel:coverage", "metaCoverage", ap);
-			addProperty0("russel:agerange", "metaSkill", ap);
-			addProperty0("russel:language", "metaLanguage", ap);
-			addProperty0("russel:duration", "metaDuration", ap);
-			addProperty0("russel:techreqs", "metaTechnicalRequirements", ap);
-			addProperty0("russel:dist", "metaDistribution", ap);
-			addProperty0("russel:level", "metaLevel", ap);
-			addProperty0("russel:partof", "metaPartOf", ap);
-			addProperty0("russel:requires", "metaRequires", ap);
-			addProperty0("tags", "metaKeywords", container);
+			addProperty0(RUSSELFileRecord.INTERACTIVITY, "metaInteractivity", ap);
+			addProperty0(RUSSELFileRecord.ENVIRONMENT, "metaEnvironment", ap);
+			addProperty0(RUSSELFileRecord.COVERAGE, "metaCoverage", ap);
+			addProperty0(RUSSELFileRecord.SKILL, "metaSkill", ap);
+			addProperty0(RUSSELFileRecord.LANGUAGE, "metaLanguage", ap);
+			addProperty0(RUSSELFileRecord.DURATION, "metaDuration", ap);
+			addProperty0(RUSSELFileRecord.TECHNICAL_REQUIREMENTS, "metaTechnicalRequirements", ap);
+			addProperty0(RUSSELFileRecord.DISTRIBUTION, "metaDistribution", ap);
+			addProperty0(RUSSELFileRecord.LEVEL, "metaLevel", ap);
+			addProperty0(RUSSELFileRecord.PART_OF, "metaPartOf", ap);
+			addProperty0(RUSSELFileRecord.REQUIRES, "metaRequires", ap);
+			addProperty0(RUSSELFileRecord.KEYWORDS, "metaKeywords", ap);
 		}
-		if (!ap.toJSONString().equals("{}"))
-			container.addKeyValue("properties", ap);
-		if (container.toJSONString().equals("{}"))
-			return null;
-		return container.toJSONString();
+		record.parseESBPacket(ap);
+		return record;
 	}
 	
 	/**
@@ -294,13 +303,13 @@ public class MetaBuilder {
 	 * @param ap information on the node
 	 * @return String
 	 */
-	public static String convertToMetaPacket(AlfrescoPacket ap) {
-		AlfrescoPacket container = AlfrescoPacket.makePacket();
-		if (!ap.toJSONString().equals("{}"))
-			container.addKeyValue("properties", ap);
-		if (container.toJSONString().equals("{}"))
-			return null;
-		return container.toJSONString();
-	}	 
+//	public static String convertToMetaPacket(ESBPacket ap) {
+//		ESBPacket container = new ESBPacket();
+//		if (!ap.toString().equals("{}"))
+//			container.put("properties", ap);
+//		if (container.toString().equals("{}"))
+//			return null;
+//		return container.toString();
+//	}	 
 	
 }

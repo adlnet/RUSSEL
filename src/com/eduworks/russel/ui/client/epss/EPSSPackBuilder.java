@@ -16,16 +16,18 @@ limitations under the License.
 
 package com.eduworks.russel.ui.client.epss;
 
+import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 
 import org.vectomatic.file.Blob;
 
-import com.eduworks.gwt.client.net.api.AlfrescoURL;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.russel.ui.client.Constants;
+import com.eduworks.russel.ui.client.model.RUSSELFileRecord;
+import com.eduworks.russel.ui.client.model.ProjectRecord;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.json.client.JSONArray;
 
 /**
  * EPSSPackBuilder
@@ -35,17 +37,17 @@ import com.google.gwt.core.client.JsArrayString;
  */
 public class EPSSPackBuilder extends Constants {
 	private Vector<String> mediaList = new Vector<String>();
-	private ProjectFileModel pfm;
+	private ProjectRecord pfm;
 	private String missingFiles;
 	private Vector<String> filenameAndPath = new Vector<String>();
-	public JavaScriptObject zipWriter;
-	public Blob scormZip;
+	//public JavaScriptObject zipWriter;
+	//public Blob scormZip;
 	
 	/**
 	 * EPSSPackBuilder Loads an EPSS project file into the constructor.
 	 * @param pfm 
 	 */
-	public EPSSPackBuilder (ProjectFileModel pfm) {
+	public EPSSPackBuilder (ProjectRecord pfm) {
 		this.pfm = pfm;
 		missingFiles = "";
 		buildFileList();
@@ -98,37 +100,37 @@ public class EPSSPackBuilder extends Constants {
 	 * buildPackIE Used to export the project as a SCORM package when in IE.
 	 * @return AlfrescoPacket
 	 */
-	@SuppressWarnings("unchecked")
-	public AlfrescoPacket buildPackIE() {
-		JsArray<AlfrescoPacket> storage = (JsArray<AlfrescoPacket>) AlfrescoPacket.createArray();
+	public ESBPacket buildPackIE() {
+		JSONArray storage = new JSONArray();
 		
 		buildMediaList();
 		
 		for (int filenameIndex=0;filenameIndex<filenameAndPath.size();filenameIndex++) {
-			AlfrescoPacket zipPack = AlfrescoPacket.makePacket();
-			zipPack.addKeyValue("filename", filenameAndPath.get(filenameIndex));
-			zipPack.addKeyValue("filecontent", filenameToContents(filenameAndPath.get(filenameIndex)));
+			ESBPacket zipPack = new ESBPacket();
+			zipPack.put("filename", filenameAndPath.get(filenameIndex));
+			zipPack.put("data", filenameToContents(filenameAndPath.get(filenameIndex)));
 			storage.set(filenameIndex, zipPack);
 		}
 		
-		int mediaIndex = storage.length();
+		int mediaIndex = storage.size();
 		for (int filenameIndex=0;filenameIndex<mediaList.size();filenameIndex++) {
-			AlfrescoPacket zipPack = AlfrescoPacket.makePacket();
-			String[] mediaPair = mediaList.get(filenameIndex).split(",");
-			zipPack.addKeyValue("id", AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + mediaPair[0]);
-			zipPack.addKeyValue("location", "/media/");
+			ESBPacket zipPack = new ESBPacket();
+			String[] mediaPair = mediaList.get(filenameIndex).split(","); 
+			zipPack.put("id", mediaPair[0]);
+			zipPack.put("location", "/media/");
 			storage.set(mediaIndex, zipPack);
 			mediaIndex++;
 		}
 		
-		AlfrescoPacket projectPack = AlfrescoPacket.makePacket();
-		projectPack.addKeyValue("projectName", pfm.projectTitle.replaceAll(" ", "_") + ".rpf");
-		projectPack.addKeyValue("projectNodeId", AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + pfm.projectNodeId);
+		ESBPacket projectPack = new ESBPacket();
+		projectPack.put("projectName", pfm.projectTitle.replaceAll(" ", "_") + "Package.zip");
+		projectPack.put("projectZipName", pfm.projectTitle.replaceAll(" ", "_") + ".zip");
+		projectPack.put("projectNodeId", pfm.getGuid());
 		
 		
-		AlfrescoPacket outgoing = AlfrescoPacket.makePacket();
-		outgoing.addKeyValue("mediaToZip", storage);
-		outgoing.addKeyValue("projectToZip", projectPack);
+		ESBPacket outgoing = new ESBPacket();
+		outgoing.put("mediaToZip", storage);
+		outgoing.put("projectToZip", projectPack);
 		
 		return outgoing;
 	}
@@ -147,11 +149,12 @@ public class EPSSPackBuilder extends Constants {
 	 * buildMediaList Produces a list of media assets that are contained in the project.
 	 */
 	private void buildMediaList() {
-		JsArrayString keys = pfm.projectSectionAssets.getRootKeys();
-		for (int x=0;x<keys.length();x++) {
-			JsArray<AlfrescoPacket> assets = pfm.projectSectionAssets.getValue(keys.get(x)).cast();
-			for (int y=0;y<assets.length();y++)
-				mediaList.add(assets.get(y).getNodeId() + "," + assets.get(y).getFilename());
+		Set<String> keys = pfm.projectSectionAssets.getSectionList();
+		for (Iterator<String> keyPointer=keys.iterator();keyPointer.hasNext();) {
+			String key = keyPointer.next();
+			Vector<RUSSELFileRecord> assets = pfm.projectSectionAssets.getSectionAssets(key);
+			for (int y=0;y<assets.size();y++)
+				mediaList.add(assets.get(y).getGuid() + "," + assets.get(y).getFilename());
 		}
 	}
 	

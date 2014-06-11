@@ -18,7 +18,10 @@ package com.eduworks.russel.ui.client.extractor;
 
 import org.vectomatic.file.Blob;
 
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.russel.ui.client.Constants;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONString;
 
 /**
  * AssetExtractor
@@ -153,5 +156,63 @@ public class AssetExtractor extends Constants {
 		
 		//extractAssetsFromPlainText(filedata);
 		return acc;
+	}
+	
+	public static ESBPacket getAssetFilter() {
+		ESBPacket filter = new ESBPacket();
+		JSONArray extensions = new JSONArray();
+		extensions.set(extensions.size(), new JSONString("fla")); extensions.set(extensions.size(), new JSONString("7z")); extensions.set(extensions.size(), new JSONString("deb"));
+		extensions.set(extensions.size(), new JSONString("gz")); extensions.set(extensions.size(), new JSONString("wmv")); extensions.set(extensions.size(), new JSONString("pkg"));
+		extensions.set(extensions.size(), new JSONString("rar")); extensions.set(extensions.size(), new JSONString("rpm")); extensions.set(extensions.size(), new JSONString("sit"));
+		extensions.set(extensions.size(), new JSONString("sitx")); extensions.set(extensions.size(), new JSONString("zip")); extensions.set(extensions.size(), new JSONString("zipx"));
+		extensions.set(extensions.size(), new JSONString("csv")); extensions.set(extensions.size(), new JSONString("dat")); extensions.set(extensions.size(), new JSONString("efx"));
+		extensions.set(extensions.size(), new JSONString("epub")); extensions.set(extensions.size(), new JSONString("gbr")); extensions.set(extensions.size(), new JSONString("ged"));
+		extensions.set(extensions.size(), new JSONString("ibooks")); extensions.set(extensions.size(), new JSONString("sdf")); extensions.set(extensions.size(), new JSONString("tar"));
+		extensions.set(extensions.size(), new JSONString("vcf")); extensions.set(extensions.size(), new JSONString("accdb")); extensions.set(extensions.size(), new JSONString("db"));
+		extensions.set(extensions.size(), new JSONString("dbf")); extensions.set(extensions.size(), new JSONString("mdb")); extensions.set(extensions.size(), new JSONString("sql"));
+		extensions.set(extensions.size(), new JSONString("app")); extensions.set(extensions.size(), new JSONString("bat")); extensions.set(extensions.size(), new JSONString("cgi"));
+		extensions.set(extensions.size(), new JSONString("com")); extensions.set(extensions.size(), new JSONString("exe")); extensions.set(extensions.size(), new JSONString("gadget"));
+		extensions.set(extensions.size(), new JSONString("jar")); extensions.set(extensions.size(), new JSONString("msi")); extensions.set(extensions.size(), new JSONString("pif"));
+		extensions.set(extensions.size(), new JSONString("vb")); extensions.set(extensions.size(), new JSONString("wsf")); extensions.set(extensions.size(), new JSONString("fnt"));
+		extensions.set(extensions.size(), new JSONString("fon")); extensions.set(extensions.size(), new JSONString("otf")); extensions.set(extensions.size(), new JSONString("ttf"));
+		extensions.set(extensions.size(), new JSONString("3dm")); extensions.set(extensions.size(), new JSONString("3ds")); extensions.set(extensions.size(), new JSONString("dwg"));
+		extensions.set(extensions.size(), new JSONString("eps")); extensions.set(extensions.size(), new JSONString("ps")); extensions.set(extensions.size(), new JSONString("svg"));
+		extensions.set(extensions.size(), new JSONString("indd")); extensions.set(extensions.size(), new JSONString("pct")); extensions.set(extensions.size(), new JSONString("pdf"));
+		extensions.set(extensions.size(), new JSONString("xlr")); extensions.set(extensions.size(), new JSONString("xls")); extensions.set(extensions.size(), new JSONString("xlsx"));
+		extensions.set(extensions.size(), new JSONString("doc")); extensions.set(extensions.size(), new JSONString("docx")); extensions.set(extensions.size(), new JSONString("log"));
+		extensions.set(extensions.size(), new JSONString("msg")); extensions.set(extensions.size(), new JSONString("odt")); extensions.set(extensions.size(), new JSONString("pages"));
+		extensions.set(extensions.size(), new JSONString("rtf")); extensions.set(extensions.size(), new JSONString("tex")); extensions.set(extensions.size(), new JSONString("txt"));
+		extensions.set(extensions.size(), new JSONString("wpd")); extensions.set(extensions.size(), new JSONString("wps")); extensions.set(extensions.size(), new JSONString("3g2"));
+		extensions.set(extensions.size(), new JSONString("3gp")); extensions.set(extensions.size(), new JSONString("asf")); extensions.set(extensions.size(), new JSONString("asx"));
+		extensions.set(extensions.size(), new JSONString("avi")); extensions.set(extensions.size(), new JSONString("flv")); extensions.set(extensions.size(), new JSONString("mov"));
+		extensions.set(extensions.size(), new JSONString("mp4")); extensions.set(extensions.size(), new JSONString("mpg")); extensions.set(extensions.size(), new JSONString("rm"));
+		extensions.set(extensions.size(), new JSONString("srt")); extensions.set(extensions.size(), new JSONString("swf")); extensions.set(extensions.size(), new JSONString("vob"));
+		extensions.set(extensions.size(), new JSONString("rpf")); extensions.set(extensions.size(), new JSONString("rlr")); extensions.set(extensions.size(), new JSONString("rlk"));
+		extensions.set(extensions.size(), new JSONString("tcf")); extensions.set(extensions.size(), new JSONString("tpf")); extensions.set(extensions.size(), new JSONString("tdf"));
+		extensions.set(extensions.size(), new JSONString("tsz")); extensions.set(extensions.size(), new JSONString("tcz"));
+		filter.put("0", extensions);
+		extensions = new JSONArray();
+		extensions.set(extensions.size(), new JSONString("aif")); extensions.set(extensions.size(), new JSONString("iff")); extensions.set(extensions.size(), new JSONString("m3u"));
+		extensions.set(extensions.size(), new JSONString("m4a")); extensions.set(extensions.size(), new JSONString("mid")); extensions.set(extensions.size(), new JSONString("mp3"));
+		extensions.set(extensions.size(), new JSONString("mpa")); extensions.set(extensions.size(), new JSONString("ra")); extensions.set(extensions.size(), new JSONString("swa"));
+		extensions.set(extensions.size(), new JSONString("wav")); extensions.set(extensions.size(), new JSONString("wma"));
+		filter.put("10", extensions);
+		extensions = new JSONArray();
+		extensions.set(extensions.size(), new JSONString("gif")); extensions.set(extensions.size(), new JSONString("giff")); extensions.set(extensions.size(), new JSONString("jpeg"));
+		extensions.set(extensions.size(), new JSONString("jpg")); extensions.set(extensions.size(), new JSONString("png"));
+		filter.put("50", extensions);
+		extensions = new JSONArray();
+		extensions.set(extensions.size(), new JSONString("key")); extensions.set(extensions.size(), new JSONString("pps")); extensions.set(extensions.size(), new JSONString("ppt"));
+		extensions.set(extensions.size(), new JSONString("pptx")); extensions.set(extensions.size(), new JSONString("yuv")); extensions.set(extensions.size(), new JSONString("psd"));
+		extensions.set(extensions.size(), new JSONString("dds"));
+		filter.put("100", extensions);
+		extensions = new JSONArray();
+		extensions.set(extensions.size(), new JSONString("pspimage")); extensions.set(extensions.size(), new JSONString("tga")); extensions.set(extensions.size(), new JSONString("tif"));
+		extensions.set(extensions.size(), new JSONString("tiff"));
+		filter.put("200", extensions);
+		extensions = new JSONArray();
+		extensions.set(extensions.size(), new JSONString("bmp")); extensions.set(extensions.size(), new JSONString("dng"));
+		filter.put("400", extensions);
+		return filter;
 	}
 }

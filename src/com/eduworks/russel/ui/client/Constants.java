@@ -17,13 +17,12 @@ limitations under the License.
 package com.eduworks.russel.ui.client;
 
 import com.eduworks.gwt.client.net.CommunicationHub;
-import com.eduworks.gwt.client.net.api.AlfrescoApi;
-import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.api.ESBApi;
+import com.eduworks.gwt.client.net.callback.ESBCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.pagebuilder.ScreenTemplate;
-import com.eduworks.gwt.client.util.Logger;
 import com.eduworks.russel.ui.client.pagebuilder.HtmlTemplates;
 import com.eduworks.russel.ui.client.pagebuilder.screen.LoginScreen;
 import com.google.gwt.core.client.GWT;
@@ -60,7 +59,6 @@ public abstract class Constants
 	public static String			INCOMPLETE_FEATURE_MESSAGE	= "The function you are attempting to use is not implemented.";
 	public static String			UNSUPPORTED_IE_FEATURE		= "The function you are trying to use is not available in Internet Explorer 7/8.";
 	public static String			FOUO						= "For Official Use Only (FOUO)";
-	public static String			RUSSEL_ASPECTS				= "russel:metaTest,cm:versionable";
 	public static String			SESSION_EXPIRED				= "Your RUSSEL session has expired. Please login again.";
 	public static String			HTML_MIME					= "text/html";
 	public static String			XML_MIME					= "application/xml";
@@ -74,23 +72,18 @@ public abstract class Constants
 																	@Override
 																	public void run()
 																	{
-																		AlfrescoApi
-																				.validateTicket(new AlfrescoCallback<AlfrescoPacket>()
-																				{
-																					@Override
-																					public void onSuccess(
-																							AlfrescoPacket alfrescoPacket)
-																					{
-																					}
-
-																					@Override
-																					public void onFailure(
-																							Throwable caught)
-																					{
-																						logout();
-																					}
-
-																				});
+																		ESBApi.validateSession(new ESBCallback<ESBPacket>()
+																									{
+																										@Override
+																										public void onSuccess(ESBPacket ESBPacket) {}
+					
+																										@Override
+																										public void onFailure(Throwable caught)
+																										{
+																											logout();
+																										}
+					
+																									});
 																	}
 																};
 
@@ -101,12 +94,6 @@ public abstract class Constants
 	 * @param places
 	 * @return rounded result
 	 */
-	public final static native double roundNumber(double num, int places) /*-{
-        var result = Math.round(num * Math.pow(10, places))
-                / Math.pow(10, places);
-        return result;
-	}-*/;
-
 	public static void logout()
 	{
 		loginCheck.cancel();
@@ -129,15 +116,14 @@ public abstract class Constants
 		});
 	}
 
-	public static void fetchProperties()
+	public static void fetchProperties(final ESBCallback<ESBPacket> callback)
 	{
 		CommunicationHub.sendHTTP(CommunicationHub.GET, "../js/installation.settings", null, false,
-				new AlfrescoCallback<AlfrescoPacket>()
+				new ESBCallback<ESBPacket>()
 				{
-					@Override
-					public void onSuccess(AlfrescoPacket alfrescoPacket)
+					public void onSuccess(ESBPacket ESBPacket)
 					{
-						String[] rawProperties = alfrescoPacket.getRawString().split("\r\n|\r|\n");
+						String[] rawProperties = ESBPacket.getString("contentStream").split("\r\n|\r|\n");
 
 						// Parsing of installation.properties and
 						// module.properties is reserved for the entry point
@@ -154,21 +140,21 @@ public abstract class Constants
 									CommunicationHub.rootURL = rawProperties[propertyIndex].substring(
 											rawProperties[propertyIndex].indexOf("\"") + 1,
 											rawProperties[propertyIndex].lastIndexOf("\""));
-									Logger.logInfo("Root URL at: " + CommunicationHub.rootURL);
+									//Logger.logInfo("Root URL at: " + CommunicationHub.rootURL);
 								}
 								else if (rawProperties[propertyIndex].indexOf("site.url") != -1)
 								{
 									CommunicationHub.siteURL = rawProperties[propertyIndex].substring(
 											rawProperties[propertyIndex].indexOf("\"") + 1,
 											rawProperties[propertyIndex].lastIndexOf("\""));
-									Logger.logInfo("Site URL at: " + CommunicationHub.siteURL);
+									//Logger.logInfo("Site URL at: " + CommunicationHub.siteURL);
 								}
 								else if (rawProperties[propertyIndex].indexOf("alfresco.url") != -1)
 								{
 									CommunicationHub.baseURL = rawProperties[propertyIndex].substring(
 											rawProperties[propertyIndex].indexOf("\"") + 1,
 											rawProperties[propertyIndex].lastIndexOf("\""));
-									Logger.logInfo("Alfresco URL at: " + CommunicationHub.baseURL);
+									//Logger.logInfo("Alfresco URL at: " + CommunicationHub.baseURL);
 								}
 								else if (rawProperties[propertyIndex].indexOf("help.url") != -1)
 								{
@@ -176,7 +162,7 @@ public abstract class Constants
 											rawProperties[propertyIndex].indexOf("\"") + 1,
 											rawProperties[propertyIndex].lastIndexOf("\""));
 									PageAssembler.setHelp(helpURL);
-									Logger.logInfo("Help URL at: " + helpURL);
+									//Logger.logInfo("Help URL at: " + helpURL);
 								}
 								else if (rawProperties[propertyIndex].indexOf("site.name") != -1)
 								{
@@ -184,28 +170,11 @@ public abstract class Constants
 											rawProperties[propertyIndex].indexOf("\"") + 1,
 											rawProperties[propertyIndex].lastIndexOf("\""));
 									PageAssembler.setSiteName(siteName);
-									Logger.logInfo("Site name: " + siteName);
+									//Logger.logInfo("Site name: " + siteName);
 								}
 							}
 
-							CommunicationHub.sendHTTP(CommunicationHub.GET, "../js/module.properties", null, false,
-									new AlfrescoCallback<AlfrescoPacket>()
-									{
-										@Override
-										public void onSuccess(AlfrescoPacket alfrescoPacket)
-										{
-											PageAssembler.setBuildNumber(alfrescoPacket.getRawString().substring(
-													alfrescoPacket.getRawString().lastIndexOf("=") + 1));
-											view.setDefaultScreen(defaultScreen);
-											History.fireCurrentHistoryState();
-										}
-
-										@Override
-										public void onFailure(Throwable caught)
-										{
-											Window.alert("Couldn't find build number");
-										}
-									});
+							CommunicationHub.sendHTTP(CommunicationHub.GET, "../js/module.properties", null, false, callback);
 						}
 					}
 

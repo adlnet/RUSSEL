@@ -20,11 +20,10 @@ import com.eduworks.gwt.client.net.CommunicationHub;
 import com.eduworks.gwt.client.net.api.Adl3DRApi;
 import com.eduworks.gwt.client.net.api.FLRApi;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.callback.FLRCallback;
 import com.eduworks.gwt.client.net.packet.FLRPacket;
-import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
+import com.eduworks.russel.ui.client.model.StatusRecord;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.DOM;
@@ -308,23 +307,24 @@ public class UtilityScreen extends Screen {
 	 * launchFlrHarvest0 Initiates a request to harvest the FLR and sets up handlers for the response.
 	 */
 	private void launchFlrHarvest0() {
-		final StatusPacket flrStatus = StatusWindowHandler.createMessage(StatusWindowHandler.getFLRHarvestMessageBusy("FLR Sandbox"),
-				  StatusPacket.ALERT_BUSY);
-		FLRApi.getFLRdata(new FLRCallback<FLRPacket>() {
-							@Override
-							public void onSuccess(FLRPacket result) {
-								flrStatus.setMessage(StatusWindowHandler.getFLRHarvestDone(result.getValueString("docCount"), result.getValueString("badCount"), result.getValueString("partialCount")));
-								flrStatus.setState(StatusPacket.ALERT_SUCCESS);
-								StatusWindowHandler.alterMessage(flrStatus);
-							}
-							
-							@Override
-							public void onFailure(Throwable caught) {
-								flrStatus.setMessage(StatusWindowHandler.getFLRHarvestError());
-								flrStatus.setState(StatusPacket.ALERT_ERROR);
-								StatusWindowHandler.alterMessage(flrStatus);
-							}			
-						});
+		final StatusRecord flrStatus = StatusWindowHandler.createMessage(StatusWindowHandler.getFLRHarvestMessageBusy("FLR Sandbox"),
+				  StatusRecord.ALERT_BUSY);
+		//TODO FLR harvest
+//		FLRApi.getFLRdata(new FLRCallback<FLRPacket>() {
+//							@Override
+//							public void onSuccess(FLRPacket result) {
+//								flrStatus.setMessage(StatusWindowHandler.getFLRHarvestDone(result.getString("docCount"), result.getString("badCount"), result.getString("partialCount")));
+//								flrStatus.setState(StatusRecord.ALERT_SUCCESS);
+//								StatusWindowHandler.alterMessage(flrStatus);
+//							}
+//							
+//							@Override
+//							public void onFailure(Throwable caught) {
+//								flrStatus.setMessage(StatusWindowHandler.getFLRHarvestError());
+//								flrStatus.setState(StatusRecord.ALERT_ERROR);
+//								StatusWindowHandler.alterMessage(flrStatus);
+//							}			
+//						});
 	}
 
 }

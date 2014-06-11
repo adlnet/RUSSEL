@@ -2,11 +2,12 @@ package com.eduworks.russel.ui.client.handler;
 
 import java.util.Vector;
 
+import com.eduworks.gwt.client.model.Record;
 import com.eduworks.gwt.client.net.callback.EventCallback;
 import com.eduworks.gwt.client.net.packet.AjaxPacket;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
-import com.eduworks.gwt.client.net.packet.SearchResultsPacket;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.russel.ui.client.Constants;
+import com.eduworks.russel.ui.client.model.RUSSELFileRecord;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
@@ -29,8 +30,17 @@ public abstract class SearchHandler extends Constants
 	public Vector<String> filter = null;
 	protected Vector<String>	doNotShow	= new Vector<String>();
 	protected Vector<String>	showOnly	= new Vector<String>();
+	protected Vector<String> pagingTokens = new Vector<String>();
+	protected String lastQuery = "";
+	protected Boolean flipSearchPage = false;
 	
 	public static final String	NO_SEARCH_RESULTS	= "<p>No Search Results Found.</p>";
+	
+	
+	public void popPagingToken() {
+		if (pagingTokens.size()>0)
+			pagingTokens.remove(0);
+	}
 	
 	/**
 	 * cleanQuery Prepares the provided search text for query
@@ -56,9 +66,9 @@ public abstract class SearchHandler extends Constants
 				} else if (searchTerms[i].indexOf(":") != -1) {
 					fullSearch += " "+searchTerms[i];
 				} else if (operator == '-'||operator == '+'||operator == '!'||operator == '|'||operator == '~'||operator == '='){
-					fullSearch += " "+operator+"ALL:"+searchTerms[i].substring(1);
+					fullSearch += " "+operator+searchTerms[i].substring(1);
 				} else {
-					fullSearch += " ALL:"+searchTerms[i];
+					fullSearch += " "+searchTerms[i];
 				}
 			}
 		}
@@ -73,7 +83,7 @@ public abstract class SearchHandler extends Constants
 	 * @param objPanel String The name of the object panel where the tile should be placed
 	 * @param td Element The window element to which the tile should be appended
 	 */
-	protected abstract void buildTile0(AjaxPacket searchTermPacket, int index, int screenPosition, String objPanel, Element td);
+	protected abstract void buildTile0(Record searchRecord, int index, int screenPosition, String objPanel, Element td);
 
 	/**
 	 * hook Assigns the search handler to an object panel and designates a particular search type
@@ -88,14 +98,14 @@ public abstract class SearchHandler extends Constants
 	 * @param id String
 	 * @param record AjaxPacket
 	 */
-	public void toggleSelection(String id, AjaxPacket record){};
+	public abstract void toggleSelection(String id, Record record);
 	
 	/**
 	 * buildThumbnails Builds all of the tiles for the items in the search results
 	 * @param objPanel String Name of target panel for the tiles
 	 * @param searchTermPacket Adl3DRPacket 3DR search results
 	 */
-	public void buildThumbnails(String objPanel, SearchResultsPacket searchTermPacket)
+	public void buildThumbnails(String objPanel, AjaxPacket searchTermPacket)
 	{
 		RootPanel rp = RootPanel.get(objPanel);
 		if (rp!=null) {
@@ -104,17 +114,19 @@ public abstract class SearchHandler extends Constants
 			if (noResults!=null)
 				rp.remove(noResults);
 			
-			if (searchTermPacket.getSearchRecords().length()==0) {
+			if (searchTermPacket.get("obj").isObject().get("items").isArray().size()==0) {
 				rp.getElement().setAttribute("style", "text-align:center");
 				noResults = new HTML(NO_SEARCH_RESULTS); 
 				rp.add(noResults);
+				
 			} else 
 				rp.getElement().setAttribute("style", "");
 			
 			int screenPosition = 0;
-			for (int x=0;x<searchTermPacket.getSearchRecords().length();x++) {
+			for (int x=0;x<searchTermPacket.getObject("obj").get("items").isArray().size();x++) {
+				RUSSELFileRecord fr = new RUSSELFileRecord(new ESBPacket(searchTermPacket.getObject("obj").isObject().get("items").isArray().get(x).isObject()));
 				if (filter != null)
-					if (filter.contains(((AlfrescoPacket)searchTermPacket.getSearchRecords().get(x)).getNodeId()))
+					if (filter.contains(fr.getGuid()))
 						continue;
 
 				if (screenPosition % 2 == 0 && !doNotShow.contains(searchType) && (showOnly.isEmpty() || showOnly.contains(searchType)))
@@ -124,7 +136,7 @@ public abstract class SearchHandler extends Constants
 					td.setId(x +"-" + rp.getElement().getId());
 					rp.getElement().appendChild(td);					
 				}
-				buildTile0(searchTermPacket, x, screenPosition++, objPanel, td);
+				buildTile0(fr, x, screenPosition++, objPanel, td);
 			}
 			
 			processCallbacks();
@@ -186,6 +198,17 @@ public abstract class SearchHandler extends Constants
 		if (!pendingSearch)
 			t.schedule(1);
 	}
+	
+	/**
+	 * forceSearch Schedules another custom query if there isn't already a pending search
+	 * @param customQuery String
+	 */
+	public void pageSearch()
+	{
+		flipSearchPage = true;
+		if (!pendingSearch)
+			t.schedule(1);
+	}
 
 	/**
 	 * processCallbacks Sets up tile information and handlers for each item in search results
@@ -210,6 +233,4 @@ public abstract class SearchHandler extends Constants
 		// Derivative applications have the option to add actions to be processed after processCallbacks has finished.
 		// By default, this does not do anything. 
 	}
-
-
 }

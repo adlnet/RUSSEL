@@ -32,7 +32,7 @@ limitations under the License.
   <inherits name='com.google.gwt.jsonp.Jsonp' />
   <inherits name='com.google.gwt.json.JSON' />
   <inherits name="org.vectomatic.libgwtfile" />
-  <inherits name="com.eduworks.gwt.EwAppGwt" />
+  <inherits name="com.eduworks.gwt.EwGWTLib" />
 
   <!-- Override GWT styles with ours                               
   <stylesheet src="../Russel_ui.css" /> -->

@@ -17,11 +17,12 @@ package com.eduworks.russel.ui.client.handler;
 
 import java.util.Vector;
 
+import com.eduworks.gwt.client.model.ZipRecord;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
-import com.eduworks.gwt.client.net.packet.StatusPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.ui.handler.DragDropHandler;
+import com.eduworks.russel.ui.client.model.RUSSELFileRecord;
+import com.eduworks.russel.ui.client.model.StatusRecord;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -36,10 +37,10 @@ import com.google.gwt.user.client.ui.HTML;
 public class StatusWindowHandler {
 	private static final String statusItemTemplate = "<div id=\"x-status\" class=\"alert-box\"><span id=\"x-statusMessage\"></span><a id=\"x-statusClose\" class=\"close finger\">&times;</a></div>";
 	private static DragDropHandler ddh = null;
-	private static Vector<StatusPacket> messages = new Vector<StatusPacket>();
+	private static Vector<StatusRecord> messages = new Vector<StatusRecord>();
 	public static int pendingFileUploads = 0;
-	public static Vector<AlfrescoPacket> pendingServerZipUploads;
-	public static Vector<AlfrescoPacket> pendingZipUploads;
+	public static Vector<RUSSELFileRecord> pendingServerZipUploads;
+	public static Vector<ZipRecord> pendingZipUploads;
 	public static final String INVALID_FILENAME = "Invalid filename. Please try again.";
 	public static final String INVALID_NAME = "Invalid name. Please try again.";
 	public static final String DUPLICATE_NAME = "Can't have a duplicate name please try again";
@@ -57,24 +58,24 @@ public class StatusWindowHandler {
 										}
 									});
 
-		pendingZipUploads = new Vector<AlfrescoPacket>();
-		pendingServerZipUploads = new Vector<AlfrescoPacket>();
+		pendingZipUploads = new Vector<ZipRecord>();
+		pendingServerZipUploads = new Vector<RUSSELFileRecord>();
 		clearMessages();
 	}
 	
 	/**
 	 * addPendingServerZip Adds the provided packet to the pending server zip uploads list
-	 * @param packet AlfrescoPacket
+	 * @param packet EPSSFileRecord
 	 */
-	public static void addPendingServerZip(AlfrescoPacket packet) {
+	public static void addPendingServerZip(RUSSELFileRecord packet) {
 		pendingServerZipUploads.add(packet);
 	}
 	
 	/**
 	 * addPendingZip Adds the provided packet to the pending zip uploads list
-	 * @param packet AlfrescoPacket
+	 * @param packet EPSSFileRecord
 	 */
-	public static void addPendingZip (AlfrescoPacket packet) {
+	public static void addPendingZip (ZipRecord packet) {
 		pendingZipUploads.add(packet);
 	}
 	
@@ -456,10 +457,10 @@ public class StatusWindowHandler {
 	 * createMessage Creates a message entry in the global status window
 	 * @param message String 
 	 * @param initialState String
-	 * @return StatusPacket
+	 * @return StatusRecord
 	 */
-	public static StatusPacket createMessage(String message, String initialState) {
-		StatusPacket msg = StatusPacket.makePacket();
+	public static StatusRecord createMessage(String message, String initialState) {
+		StatusRecord msg = new StatusRecord();
 		msg.setMessage(message);
 		msg.setState(initialState);
 		msg.setRendered(false);
@@ -470,10 +471,10 @@ public class StatusWindowHandler {
 	
 	/**
 	 * removeMessage Removes a message entry in the global status window
-	 * @param message StatusPacket
+	 * @param message StatusRecord
 	 */
-	public static void removeMessage(StatusPacket message) {
-		DOM.getElementById(message.getStatusIdPrefix() + "-status").removeFromParent();
+	public static void removeMessage(StatusRecord message) {
+		DOM.getElementById(message.getGuid() + "-status").removeFromParent();
 		messages.remove(message);
 		refreshMessages();
 	}
@@ -484,15 +485,15 @@ public class StatusWindowHandler {
 	private static void refreshMessages() {
 		int messageCount = messages.size();
 		for (int messageIndex=0;messageIndex<messageCount;messageIndex++) {
-			if (!messages.get(messageIndex).getStatusRendered()) {
+			if (!messages.get(messageIndex).getRendered()) {
 				Vector<String> ids = PageAssembler.inject("statusList", "x", new HTML(statusItemTemplate), true);
 				String idNumPrefix = ids.get(0).substring(0, ids.get(0).indexOf("-"));
-				final StatusPacket message = messages.get(messageIndex);
-				message.setIdPrefix(idNumPrefix);
-				PageAssembler.merge(idNumPrefix + "-statusMessage", "x", new HTML(message.getStatusMessage()).getElement());
+				final StatusRecord message = messages.get(messageIndex);
+				message.setGuid(idNumPrefix);
+				PageAssembler.merge(idNumPrefix + "-statusMessage", "x", new HTML(message.getMessage()).getElement());
 				message.setRendered(true);
-				if (message.getStatusState()!="")
-					DOM.getElementById(idNumPrefix + "-status").addClassName(message.getStatusState());
+				if (message.getState()!="")
+					DOM.getElementById(idNumPrefix + "-status").addClassName(message.getState());
 				PageAssembler.attachHandler(idNumPrefix + "-statusClose", 
 											Event.ONCLICK, 
 											new EventCallback() {
@@ -517,33 +518,33 @@ public class StatusWindowHandler {
 		boolean hasError = false;
 		boolean isBusy = false;
 		for (int messageIndex=0;messageIndex<messageCount;messageIndex++)
-			if (messages.get(messageIndex).getStatusState()==StatusPacket.ALERT_ERROR)
+			if (messages.get(messageIndex).getState()==StatusRecord.ALERT_ERROR)
 				hasError = true;
-			else if (messages.get(messageIndex).getStatusState()==StatusPacket.ALERT_BUSY)
+			else if (messages.get(messageIndex).getState()==StatusRecord.ALERT_BUSY)
 				isBusy = true;
-		DOM.getElementById("icon").removeClassName(StatusPacket.STATUS_BUSY);
-		DOM.getElementById("icon").removeClassName(StatusPacket.STATUS_ERROR);
-		DOM.getElementById("icon").removeClassName(StatusPacket.STATUS_DONE);
+		DOM.getElementById("icon").removeClassName(StatusRecord.STATUS_BUSY);
+		DOM.getElementById("icon").removeClassName(StatusRecord.STATUS_ERROR);
+		DOM.getElementById("icon").removeClassName(StatusRecord.STATUS_DONE);
 		if (hasError)
-			DOM.getElementById("icon").addClassName(StatusPacket.STATUS_ERROR);
+			DOM.getElementById("icon").addClassName(StatusRecord.STATUS_ERROR);
 		else if (isBusy)
-			DOM.getElementById("icon").addClassName(StatusPacket.STATUS_BUSY);
+			DOM.getElementById("icon").addClassName(StatusRecord.STATUS_BUSY);
 		else
-			DOM.getElementById("icon").addClassName(StatusPacket.STATUS_DONE);
+			DOM.getElementById("icon").addClassName(StatusRecord.STATUS_DONE);
 	}
 	
 	/** 
 	 * alterMessage Changes the contents of the designated message in the global status window
-	 * @param message StatusPacket
+	 * @param message StatusRecord
 	 */
-	public static void alterMessage(StatusPacket message) {
+	public static void alterMessage(StatusRecord message) {
 		int messageCount = messages.size();
 		for (int messageIndex=0;messageIndex<messageCount;messageIndex++) {
-			if (messages.get(messageIndex).getStatusIdPrefix()==message.getStatusIdPrefix()) {
-				messages.get(messageIndex).setMessage(message.getStatusMessage());
-				messages.get(messageIndex).setState(message.getStatusState());
+			if (messages.get(messageIndex).getGuid()==message.getGuid()) {
+				messages.get(messageIndex).setMessage(message.getMessage());
+				messages.get(messageIndex).setState(message.getState());
 				messages.get(messageIndex).setRendered(false);
-				DOM.getElementById(message.getStatusIdPrefix() + "-status").getParentElement().removeFromParent();
+				DOM.getElementById(message.getGuid() + "-status").getParentElement().removeFromParent();
 			}
 		}		
 		refreshMessages();

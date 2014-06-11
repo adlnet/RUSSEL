@@ -21,36 +21,34 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.vectomatic.dnd.DropPanel;
-import org.vectomatic.file.Blob;
 import org.vectomatic.file.File;
 
-import com.eduworks.gwt.client.net.CommunicationHub;
-import com.eduworks.gwt.client.net.api.AlfrescoApi;
-import com.eduworks.gwt.client.net.api.AlfrescoURL;
-import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.model.ZipRecord;
+import com.eduworks.gwt.client.net.api.ESBApi;
+import com.eduworks.gwt.client.net.callback.ESBCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
-import com.eduworks.gwt.client.net.packet.StatusPacket;
+import com.eduworks.gwt.client.net.packet.AjaxPacket;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.eduworks.gwt.client.ui.handler.DragDropHandler;
-import com.eduworks.gwt.client.util.Base64;
 import com.eduworks.gwt.client.util.BlobUtils;
 import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.gwt.client.util.Zip;
-import com.eduworks.russel.ui.client.Russel;
-import com.eduworks.russel.ui.client.epss.ProjectFileModel;
 import com.eduworks.russel.ui.client.extractor.AssetExtractor;
-import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
+import com.eduworks.russel.ui.client.handler.ESBSearchHandler;
 import com.eduworks.russel.ui.client.handler.SearchHandler;
 import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
+import com.eduworks.russel.ui.client.model.ProjectRecord;
+import com.eduworks.russel.ui.client.model.RUSSELFileRecord;
+import com.eduworks.russel.ui.client.model.StatusRecord;
 import com.eduworks.russel.ui.client.pagebuilder.MetaBuilder;
-import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -58,8 +56,8 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -77,8 +75,8 @@ public class EditScreen extends Screen {
 	private static final String PENDING_UPLOADS = " Pending Uploads";
 	private static final String RUSSEL_LINK = "russel/link";
 	private Vector<String> editIDs = new Vector<String>();
-	private HashMap<String, String> thumbIDs = new HashMap<String, String>();
-	protected Vector<AlfrescoPacket> passedInEdits;
+	private HashMap<String, RUSSELFileRecord> thumbIDs = new HashMap<String, RUSSELFileRecord>();
+	protected Vector<RUSSELFileRecord> passedInEdits;
 	private MetaBuilder meta = new MetaBuilder(MetaBuilder.EDIT_SCREEN);
 		
 	/**
@@ -91,9 +89,9 @@ public class EditScreen extends Screen {
 	
 	/**
 	 * EditScreen Constructor for the class given a list of pending edits
-	 * @param pendingEdits Vector<AlfrescoPacket> 
+	 * @param pendingEdits Vector<ESBPacket> 
 	 */
-	public EditScreen(Vector<AlfrescoPacket> pendingEdits) {
+	public EditScreen(Vector<RUSSELFileRecord> pendingEdits) {
 		this.passedInEdits = pendingEdits;
 	}
 	
@@ -101,7 +99,7 @@ public class EditScreen extends Screen {
 	 * EditScreen Constructor for the class with nothing pending
 	 */
 	public EditScreen() {
-		this.passedInEdits = new Vector<AlfrescoPacket>();
+		this.passedInEdits = new Vector<RUSSELFileRecord>();
 	}
 	
 	/**
@@ -109,7 +107,7 @@ public class EditScreen extends Screen {
 	 */
 	public void display() {
 		editIDs = new Vector<String>();
-		thumbIDs = new HashMap<String, String>();
+		thumbIDs = new HashMap<String, RUSSELFileRecord>();
 
 		if (DOM.getElementById("r-generalMetadata") == null) {
 			PageAssembler.inject("contentPane", "x", new HTML(templates().getDetailModal().getText()), true);
@@ -126,10 +124,9 @@ public class EditScreen extends Screen {
 			PageAssembler.buildContents();
 			hookDragDrop0(dp);
 		}
+		SearchHandler ash = new ESBSearchHandler();
 		
-		SearchHandler ash = new AlfrescoSearchHandler();
-		
-		ash.hook("r-menuSearchBar", "", AlfrescoSearchHandler.EDIT_TYPE);
+		ash.hook("r-menuSearchBar", "", ESBSearchHandler.EDIT_TYPE);
 	
 		//PageAssembler.attachHandler("r-saveAs", Event.ONCLICK, Russel.nonFunctional);
 		
@@ -164,8 +161,8 @@ public class EditScreen extends Screen {
 										public void onEvent(Event event) {
 											selectionClear0();
 										}
-									});
-
+									});	
+		
 		PageAssembler.attachHandler("r-editAddFile", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
@@ -175,7 +172,6 @@ public class EditScreen extends Screen {
 																												      true);
 																			final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
 																			buildEmptyUploadTile0(idPrefix);
-																			thumbIDs.put(idPrefix + "-object", null);
 																	   		PageAssembler.closePopup("addFileModal");
 
 																		}
@@ -212,7 +208,7 @@ public class EditScreen extends Screen {
 		PageAssembler.attachHandler("r-editAddLink", Event.ONCLICK, new EventCallback() {
 																		@Override
 																		public void onEvent(Event event) {
-																			final StatusPacket status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(""), StatusPacket.ALERT_BUSY);
+																			final StatusRecord status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(""), StatusRecord.ALERT_BUSY);
 																			if (((TextBox)PageAssembler.elementToWidget("editTitleLinkField", PageAssembler.TEXT)).getText()!="") {
 																				String rawFilename = ((TextBox)PageAssembler.elementToWidget("editTitleLinkField", PageAssembler.TEXT)).getText();
 																				String filenameRaw = "";
@@ -227,51 +223,36 @@ public class EditScreen extends Screen {
 																					urlBody = "http://" + urlBody;
 																				status.setMessage(StatusWindowHandler.getFileMessageBusy(filename + ".rlk"));
 																				StatusWindowHandler.alterMessage(status);
-																				AlfrescoApi.createObjectNode(filename + ".rlk", 
-																											 Base64.encode(urlBody), 
-																											 RUSSEL_LINK, 
-																											 AlfrescoApi.getCurrentDirectoryPath(), 
-																											 AlfrescoApi.DOCUMENT_OBJECT, 
-																											 new AlfrescoCallback<AlfrescoPacket>() {
-																												@Override
-																												public void onSuccess(final AlfrescoPacket alfrescoAtom) {
-																													String nodeRef = alfrescoAtom.getAlfrescoPropertyValue("cmis:objectId");
-																													AlfrescoApi.addAspectToNode(nodeRef.substring(nodeRef.lastIndexOf("/")+1), 
-																																				Russel.RUSSEL_ASPECTS.split(","), 
-																																				new AlfrescoCallback<AlfrescoPacket>() {
-																																					@Override 
-																																					public void onSuccess(AlfrescoPacket alfrescoAspect) {
-																																						Vector<String> iDs = PageAssembler.inject("r-previewArea", 
-																																															      "x", 
-																																															      new HTML(templates().getEditPanelWidget().getText()),
-																																															      true);
-																																						final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
-																																						fillTemplateDetails0(alfrescoAtom, idPrefix);
-																																				   		PageAssembler.closePopup("addLinkModal");
-																																				   		status.setMessage(StatusWindowHandler.getFileMessageDone(filename + ".rlk"));
-																																				   		status.setState(StatusPacket.ALERT_SUCCESS);
-																																						StatusWindowHandler.alterMessage(status);
-																																					}
-																																					
-																																					@Override
-																																					public void onFailure(Throwable caught) {
-																																						status.setMessage(StatusWindowHandler.getFileMessageError(filename + ".rlk"));
-																																						status.setState(StatusPacket.ALERT_ERROR);
-																																						StatusWindowHandler.alterMessage(status);
-																																					}
-																																				});
-																												}
-																												
-																												@Override
-																												public void onFailure(Throwable caught) {
-																													status.setMessage(StatusWindowHandler.DUPLICATE_NAME);
-																													status.setState(StatusPacket.ALERT_WARNING);
-																													StatusWindowHandler.alterMessage(status);
-																												}
-																											});
+																				ESBApi.uploadResource(filename + ".rlk", 
+																									  urlBody,
+																									  RUSSEL_LINK,
+																									  new ESBCallback<ESBPacket>() {
+																										 @Override
+																										 public void onSuccess(final ESBPacket esbPacket) {
+																											 RUSSELFileRecord fr = new RUSSELFileRecord();
+																											 fr.setGuid(esbPacket.getPayloadString());
+																											 fr.setFilename(filename + ".rlk");
+																											 Vector<String> iDs = PageAssembler.inject("r-previewArea", 
+																																				       "x", 
+																																				       new HTML(templates().getEditPanelWidget().getText()),
+																																				       true);
+																											 final String idPrefix = iDs.firstElement().substring(0, iDs.firstElement().indexOf("-"));
+																											 fillTemplateDetails0(fr, idPrefix);
+																									   		 PageAssembler.closePopup("addLinkModal");
+																									   		 status.setMessage(StatusWindowHandler.getFileMessageDone(filename + ".rlk"));
+																									   		 status.setState(StatusRecord.ALERT_SUCCESS);
+																											 StatusWindowHandler.alterMessage(status);
+																										}
+																										
+																										public void onFailure(Throwable caught) {
+																											status.setMessage(StatusWindowHandler.DUPLICATE_NAME);
+																											status.setState(StatusRecord.ALERT_WARNING);
+																											StatusWindowHandler.alterMessage(status);
+																										}
+																									});
 																			} else {
 																				status.setMessage(StatusWindowHandler.INVALID_NAME);
-																				status.setState(StatusPacket.ALERT_WARNING);
+																				status.setState(StatusRecord.ALERT_WARNING);
 																				StatusWindowHandler.alterMessage(status);
 																			}
 																		}
@@ -286,20 +267,20 @@ public class EditScreen extends Screen {
 																					if (editIDs.size()>0) {
 																						final String idNumPrefix = editIDs.firstElement().substring(0, editIDs.firstElement().indexOf("-"));
 																						final String filename = DOM.getElementById(idNumPrefix + "-objectTitle").getInnerText();
-																						final StatusPacket status = StatusWindowHandler.createMessage(StatusWindowHandler.getUpdateMetadataMessageBusy(filename), StatusPacket.ALERT_BUSY);
-																						meta.saveMetadata(thumbIDs.get(editIDs.firstElement()), new AlfrescoCallback<AlfrescoPacket>() {
+																						final StatusRecord status = StatusWindowHandler.createMessage(StatusWindowHandler.getUpdateMetadataMessageBusy(filename), StatusRecord.ALERT_BUSY);
+																						 
+																						meta.saveMetadata(thumbIDs.get(editIDs.firstElement()), new ESBCallback<ESBPacket>() {
 																							@Override
-																							public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																							public void onSuccess(ESBPacket esbPacket) {
 																								status.setMessage(StatusWindowHandler.getUpdateMetadataMessageDone(filename));
-																								status.setState(StatusPacket.ALERT_SUCCESS);
+																								status.setState(StatusRecord.ALERT_SUCCESS);
 																								StatusWindowHandler.alterMessage(status);
 																								refreshInformation0();
 																							}
 																							
-																							@Override
 																							public void onFailure(Throwable caught) {
 																								status.setMessage(StatusWindowHandler.getUpdateMetadataMessageError(filename));
-																								status.setState(StatusPacket.ALERT_ERROR);
+																								status.setState(StatusRecord.ALERT_ERROR);
 																								StatusWindowHandler.alterMessage(status);
 																							}
 																						});
@@ -351,89 +332,89 @@ public class EditScreen extends Screen {
 	private void buildEmptyUploadTile0(final String idPrefix) {
 		final FormPanel formPanel = (FormPanel)PageAssembler.elementToWidget("addFileForm", PageAssembler.FORM);
 		final FileUpload fileUpload = (FileUpload)PageAssembler.elementToWidget("addFileData", PageAssembler.FILE);
-		final Hidden hiddenDestination = (Hidden)PageAssembler.elementToWidget("addFileDestination", PageAssembler.HIDDEN);
-		final Hidden hiddenOverwrite = (Hidden)PageAssembler.elementToWidget("addFileOverwrite", PageAssembler.HIDDEN);
 		formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
-		formPanel.setAction(AlfrescoURL.getAlfrescoUploadURL());
-		hiddenDestination.setValue(AlfrescoURL.ALFRESCO_STORE_TYPE + "://" + AlfrescoURL.ALFRESCO_STORE_ID + "/" + AlfrescoApi.currentDirectoryId);
-		hiddenOverwrite.setValue("false");
+		formPanel.setAction(ESBApi.getESBActionURL("fileUpload") + "?inline=true");
 		StatusWindowHandler.pendingFileUploads++;
-		final StatusPacket status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(""), StatusPacket.ALERT_BUSY);
+		final StatusRecord status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(""), StatusRecord.ALERT_BUSY);
 		formPanel.addSubmitCompleteHandler(new SubmitCompleteHandler() {
+												@Override
+												public void onSubmitComplete(SubmitCompleteEvent event) {
+													ESBPacket node = new ESBPacket(AjaxPacket.parseJSON(event.getResults()));
+													RUSSELFileRecord fr = new RUSSELFileRecord();
+													fr.setGuid(node.getPayloadString());
+													String filename = fileUpload.getFilename();
+													final String justFileName = filename.substring(filename.lastIndexOf("\\")+1);
+													fr.setFilename(justFileName);
+													if (DOM.getElementById(idPrefix + "-objectDescription")!=null) {
+														RootPanel.get(idPrefix + "-objectDescription").getElement().setInnerText("");
+														fillTemplateDetails0(fr, idPrefix);
+														DOM.getElementById(idPrefix + "-objectDetailButton").removeAttribute("hidden");
+													}
+													StatusWindowHandler.pendingFileUploads--;
+													status.setState(StatusRecord.ALERT_SUCCESS);
+													status.setMessage(StatusWindowHandler.getFileMessageDone(justFileName));
+													StatusWindowHandler.alterMessage(status);
+													if (justFileName.substring(justFileName.lastIndexOf(".")+1).equalsIgnoreCase("rpf"))
+														ProjectRecord.updatePfmNodeId(fr);
+													
+													thumbIDs.put(idPrefix + "-object", fr);
+													checkIEAndPromptServerDisaggregation0(fr);
+													refreshInformation0();
+												}
+											});
+		formPanel.addSubmitHandler(new SubmitHandler() {
 										@Override
-										public void onSubmitComplete(SubmitCompleteEvent event) {
-											AlfrescoPacket node = AlfrescoPacket.wrap(CommunicationHub.parseJSON(CommunicationHub.unwrapJSONString(event.getResults())));
-											if (DOM.getElementById(idPrefix + "-objectDescription")!=null) {
-												RootPanel.get(idPrefix + "-objectDescription").getElement().setInnerText("");
-												fillTemplateDetails0(node, idPrefix);
-												DOM.getElementById(idPrefix + "-objectDetailButton").removeAttribute("hidden");
+										public void onSubmit(SubmitEvent event) {
+											String fn = fileUpload.getFilename();
+											String justFileName = fn.substring(fn.lastIndexOf("\\")+1);
+											PageAssembler.attachHandler(idPrefix + "-objectDetail", 
+																		Event.ONCLICK, 
+																		new EventCallback() {
+																			@Override
+																			public void onEvent(Event event) {
+																				toggleSelection0(idPrefix + "-object");
+																			}
+																		});
+											if (fn=="") {
+												status.setState(StatusRecord.ALERT_WARNING);
+												status.setMessage(StatusWindowHandler.INVALID_FILENAME);
+												StatusWindowHandler.alterMessage(status);
+												fileUpload.setName("data");
+												DOM.getElementById(idPrefix + "-object").removeFromParent();
+												StatusWindowHandler.pendingFileUploads--;
+												event.cancel();
+											} else {
+												DOM.getElementById(idPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
+												status.setMessage(StatusWindowHandler.getFileMessageBusy(justFileName));
+												StatusWindowHandler.alterMessage(status);
+												DOM.getElementById("addFileData").setAttribute("name", justFileName);
+												DOM.getElementById("session").setAttribute("value", "{ \"sessionId\":\"" + ESBApi.sessionId + "\",\"username\":\"" + ESBApi.username + "\", \"legacy\":\"true\"}");
+												if (justFileName.indexOf(".")!=-1&&justFileName.substring(justFileName.lastIndexOf(".")+1).toLowerCase().equals("zip")) { 
+													//TODO invert browser check
+													if (Browser.isIE()) {
+														File file = BlobUtils.getFile("addFileData");
+														String filename = file.getName();
+														if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("zip")&&Window.confirm("Do you wish to disaggregate the zip " + filename + " package?")) {
+															Zip.grabEntries(file, new AsyncCallback<Vector<ZipRecord>>() {
+																@Override public void onFailure(Throwable caught) {}
+										
+																@Override
+																public void onSuccess(Vector<ZipRecord> zipRecords) {
+																	for (int x=0;x<zipRecords.size();x++) {
+																		StatusWindowHandler.pendingZipUploads.add(zipRecords.get(x));
+																	}
+																	doPendingUploads0();
+																}
+															});
+														}
+													}
+												}	
+												RootPanel.get(idPrefix + "-objectDescription").add(new Image("images/orbit/loading.gif"));
+												DOM.getElementById(idPrefix + "-objectTitle").setInnerText(justFileName);
+												DOM.getElementById(idPrefix + "-objectDescription").setAttribute("style", "text-align:center");
 											}
-											StatusWindowHandler.pendingFileUploads--;
-											String filename = fileUpload.getFilename();
-											final String justFileName = filename.substring(filename.lastIndexOf("\\")+1);
-											status.setState(StatusPacket.ALERT_SUCCESS);
-											status.setMessage(StatusWindowHandler.getFileMessageDone(justFileName));
-											StatusWindowHandler.alterMessage(status);
-											if (justFileName.substring(justFileName.lastIndexOf(".")+1).equalsIgnoreCase("rpf"))
-												ProjectFileModel.updatePfmNodeId(node);
-											
-											checkIEAndPromptServerDisaggregation0(node);
-											refreshInformation0();
 										}
 									});
-		formPanel.addSubmitHandler(new SubmitHandler() {
-								@Override
-								public void onSubmit(SubmitEvent event) {
-									String fn = fileUpload.getFilename();
-									String justFileName = fn.substring(fn.lastIndexOf("\\")+1);
-									PageAssembler.attachHandler(idPrefix + "-objectDetail", 
-																Event.ONCLICK, 
-																new EventCallback() {
-																	@Override
-																	public void onEvent(Event event) {
-																		toggleSelection0(idPrefix + "-object");
-																	}
-																});
-									if (fn=="") {
-										status.setState(StatusPacket.ALERT_WARNING);
-										status.setMessage(StatusWindowHandler.INVALID_FILENAME);
-										StatusWindowHandler.alterMessage(status);
-										fileUpload.setName("data");
-										DOM.getElementById(idPrefix + "-object").removeFromParent();
-										StatusWindowHandler.pendingFileUploads--;
-										event.cancel();
-									} else {
-										DOM.getElementById(idPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
-										status.setMessage(StatusWindowHandler.getFileMessageBusy(justFileName));
-										StatusWindowHandler.alterMessage(status);
-										if (justFileName.indexOf(".")!=-1&&justFileName.substring(justFileName.lastIndexOf(".")+1).toLowerCase().equals("zip")) { 
-											if (!Browser.isIE()) {
-												File file = BlobUtils.getFile("addFileData");
-												String filename = file.getName();
-												if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("zip")&&Window.confirm("Do you wish to disaggregate the zip " + filename + " package?")) {
-													Zip.grabEntries(file, new AlfrescoCallback<AlfrescoPacket>() {
-														@Override public void onFailure(Throwable caught) {}
-								
-														@SuppressWarnings("unchecked")
-														@Override
-														public void onSuccess(AlfrescoPacket alfrescoPacket) {
-															if (alfrescoPacket.hasKey("zipEntries")) {
-																JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
-																for (int x=0;x<zipEntries.length();x++)
-																	StatusWindowHandler.pendingZipUploads.add(zipEntries.get(x));
-																doPendingUploads0();
-															}
-														}
-													});
-												}
-											}
-										}	
-										RootPanel.get(idPrefix + "-objectDescription").add(new Image("images/orbit/loading.gif"));
-										DOM.getElementById(idPrefix + "-objectTitle").setInnerText(justFileName);
-										DOM.getElementById(idPrefix + "-objectDescription").setAttribute("style", "text-align:center");
-									}
-								}
-							});
 		formPanel.submit();
 		refreshInformation0();
 	}
@@ -442,8 +423,8 @@ public class EditScreen extends Screen {
 	 * processServerZipFiles0 Continues the processing of the list of pendingServerZipUploads
 	 */
 	private void processServerZipFiles0() {
-		final AlfrescoPacket node = StatusWindowHandler.pendingServerZipUploads.remove(0);
-		StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageDone(node.getFilename()), StatusPacket.ALERT_SUCCESS);
+		final RUSSELFileRecord node = StatusWindowHandler.pendingServerZipUploads.remove(0);
+		StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageDone(node.getFilename()), StatusRecord.ALERT_SUCCESS);
 		if (DOM.getElementById("r-previewArea")!=null) {
  			Vector<String> iDs = PageAssembler.inject("r-previewArea", 
 												      "x", 
@@ -453,7 +434,7 @@ public class EditScreen extends Screen {
 			fillTemplateDetails0(node, idPrefix);
 		}
 		if (node.getFilename().substring(node.getFilename().lastIndexOf(".")+1).equalsIgnoreCase("rpf"))
-			ProjectFileModel.updatePfmNodeId(node);
+			ProjectRecord.updatePfmNodeId(node);
 		checkIEAndPromptServerDisaggregation0(node);
 		if (StatusWindowHandler.pendingServerZipUploads.size()!=0)
 			processServerZipFiles0();
@@ -461,21 +442,23 @@ public class EditScreen extends Screen {
 	
 	/**
 	 * checkIEAndPromptServerDisaggregation0 Determines if the zip is being uploaded in IE, and if so initiates disaggregation on the server side.
-	 * @param node AlfrescoPacket 
+	 * @param node ESBPacket 
 	 */
-	private final void checkIEAndPromptServerDisaggregation0(final AlfrescoPacket node) {
-		if (Browser.isIE()&&node.getFilename().indexOf(".")!=-1&&node.getFilename().substring(node.getFilename().indexOf(".")+1).equalsIgnoreCase("zip")&&
+	private final void checkIEAndPromptServerDisaggregation0(final RUSSELFileRecord node) {
+		//TODO invert browser check once finished
+		if (!Browser.isIE()&&node.getFilename().indexOf(".")!=-1&&node.getFilename().substring(node.getFilename().indexOf(".")+1).equalsIgnoreCase("zip")&&
 				Window.confirm("Do you wish to disaggregate the zip " + node.getFilename() + " package?"))
-				AlfrescoApi.importZipPackage(node.getNodeId(),
-											 new AlfrescoCallback<AlfrescoPacket>() {
+				ESBApi.importZipPackage(node.getGuid(),
+										AssetExtractor.getAssetFilter(),
+											 new ESBCallback<ESBPacket>() {
 										     	@Override
 										     	public void onFailure(Throwable caught) {
-										     		StatusWindowHandler.createMessage(StatusWindowHandler.getZipImportMessageError(node.getFilename()), StatusPacket.ALERT_ERROR);
+										     		StatusWindowHandler.createMessage(StatusWindowHandler.getZipImportMessageError(node.getFilename()), StatusRecord.ALERT_ERROR);
 										     	}
 										     	
 										     	@Override
-										     	public void onSuccess(AlfrescoPacket alfrescoPacket) {
-										     		processServerZipIds0(alfrescoPacket);
+										     	public void onSuccess(ESBPacket esbPacket) {
+										     		processServerZipIds0(esbPacket);
 										     		processServerZipFiles0();
 										     	}
 											 });
@@ -483,15 +466,15 @@ public class EditScreen extends Screen {
 	
 	/**
 	 * processServerZipIds0 Processes the imported node IDs when a zip was unzipped on the server side.
-	 * @param alfrescoPacket AlfrescoPacket
+	 * @param ESBPacket esbPacket
 	 */
-	private final void processServerZipIds0(AlfrescoPacket alfrescoPacket) {
- 		JsArrayString rawImport = (JsArrayString) alfrescoPacket.getValue("importedIDs");
- 		for (int importIndex=0;importIndex<rawImport.length();importIndex++) {
- 			AlfrescoPacket node = AlfrescoPacket.makePacket();
- 			String[] importPair = rawImport.get(importIndex).split(";");
-			node.addKeyValue("id", importPair[0]);
-			node.addKeyValue("fileName", importPair[1]);
+	private final void processServerZipIds0(ESBPacket esbPacket) {
+ 		JSONArray rawImport = esbPacket.getArray("importedIDs");
+ 		for (int importIndex=0;importIndex<rawImport.size();importIndex++) {
+ 			RUSSELFileRecord node = new RUSSELFileRecord();
+ 			String[] importPair = rawImport.get(importIndex).toString().split(";");
+			node.setGuid(importPair[0]);
+			node.setFilename(importPair[1]);
  			StatusWindowHandler.addPendingServerZip(node);
  		}
 	}
@@ -528,14 +511,38 @@ public class EditScreen extends Screen {
 		if (DOM.getElementById("r-previewArea")!=null) {
 			if (editIDs.size()>0) {
 				DOM.getElementById("r-metadataToolbar").removeClassName("hide");
-				AlfrescoApi.getMetadataAndTags(thumbIDs.get(editIDs.lastElement()), 
-															new AlfrescoCallback<AlfrescoPacket>() {
-																public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																	meta.addMetaDataFields(alfrescoPacket);
-																};
-																
-																public void onFailure(Throwable caught) {};
-															});
+				ESBApi.getResourceMetadata(thumbIDs.get(editIDs.lastElement()).getGuid(), 
+										new ESBCallback<ESBPacket>() {
+											public void onSuccess(final ESBPacket esbPacket) {
+												PageAssembler.removeHandler("generateMetadata");
+												PageAssembler.attachHandler("generateMetadata", 
+														Event.ONCLICK, 
+														new EventCallback() {
+															@Override
+															public void onEvent(Event event) {
+//																ESBApi.generateMetadata(esbPacket.getNodeId(), 
+//																					   new ESBCallback<ESBPacket>() {
+//																							@Override
+//																							public void onFailure(Throwable caught) {
+//																								
+//																							}
+//																							
+//																							@Override
+//																							public void onSuccess(ESBPacket esbPacket) {
+//																								((Label)PageAssembler.elementToWidget("metaTitle", PageAssembler.LABEL)).setText(esbPacket.getTitle());
+//																								((Label)PageAssembler.elementToWidget("metaDescription", PageAssembler.LABEL)).setText(esbPacket.getDescription()); 
+//																								((Label)PageAssembler.elementToWidget("metaKeywords", PageAssembler.LABEL)).setText(esbPacket.getKeywords());
+//																								((Label)PageAssembler.elementToWidget("metaLanguage", PageAssembler.LABEL)).setText(esbPacket.getLanguage());
+//																							}
+//																					   });
+															}
+														});
+												thumbIDs.get(editIDs.lastElement()).parseESBPacket(esbPacket);
+												meta.addMetaDataFields(thumbIDs.get(editIDs.lastElement()));
+											};
+											
+											public void onFailure(Throwable caught) {};
+										});
 			} else
 				DOM.getElementById("r-metadataToolbar").addClassName("hide");
 			
@@ -590,7 +597,7 @@ public class EditScreen extends Screen {
 	private void deleteObjects0() {
 		while (editIDs.size()>0) {
 			String tId = editIDs.remove(0);
-			String nId = thumbIDs.remove(tId);
+			String nId = thumbIDs.remove(tId).getGuid();
 			if (nId!=null)
 				deleteObject0(nId, tId);
 			else {
@@ -609,13 +616,13 @@ public class EditScreen extends Screen {
 		if (nodeId!=null) {
 			final String idNumPrefix = thumbId.substring(0, thumbId.indexOf("-"));
 			final String filename = DOM.getElementById(idNumPrefix + "-objectTitle").getInnerText();
-			final StatusPacket status = StatusWindowHandler.createMessage(StatusWindowHandler.getDeleteMessageBusy(filename), StatusPacket.ALERT_BUSY);
-			AlfrescoApi.deleteDocument(nodeId, 
-									   new AlfrescoCallback<AlfrescoPacket>() {
+			final StatusRecord status = StatusWindowHandler.createMessage(StatusWindowHandler.getDeleteMessageBusy(filename), StatusRecord.ALERT_BUSY);
+			ESBApi.deleteResource(nodeId, 
+									   new ESBCallback<ESBPacket>() {
 											@Override
-											public void onSuccess(AlfrescoPacket result) {
+											public void onSuccess(ESBPacket result) {
 												status.setMessage(StatusWindowHandler.getDeleteMessageDone(filename));
-												status.setState(StatusPacket.ALERT_SUCCESS);
+												status.setState(StatusRecord.ALERT_SUCCESS);
 												StatusWindowHandler.alterMessage(status);
 												DOM.getElementById(thumbId).removeFromParent();
 												refreshInformation0();
@@ -624,7 +631,7 @@ public class EditScreen extends Screen {
 											@Override
 											public void onFailure(Throwable caught) {
 												status.setMessage(StatusWindowHandler.getDeleteMessageError(filename));
-												status.setState(StatusPacket.ALERT_ERROR);
+												status.setState(StatusRecord.ALERT_ERROR);
 												StatusWindowHandler.alterMessage(status);
 												DOM.getElementById(thumbId).removeFromParent();
 												refreshInformation0();
@@ -639,34 +646,33 @@ public class EditScreen extends Screen {
 	 */
 	private void doPendingUploads0() {
 		if (StatusWindowHandler.pendingZipUploads.size()>0) {
-			AlfrescoPacket zipEntry = StatusWindowHandler.pendingZipUploads.remove(0);
+			ZipRecord zipEntry = StatusWindowHandler.pendingZipUploads.remove(0);
 			Zip.inflateEntry(zipEntry, 
 							 true, 
-							 new AlfrescoCallback<AlfrescoPacket>() {
+							 new AsyncCallback<ZipRecord>() {
 								@Override public void onFailure(Throwable caught) {}
 								
 								@Override
-								public void onSuccess(AlfrescoPacket alfrescoPacket) {
-									String FullFilename = alfrescoPacket.getValueString("zipEntryFilename");
+								public void onSuccess(ZipRecord zipEntry) {
+									String FullFilename = zipEntry.getFilename();
 									if (FullFilename.lastIndexOf(".")!=-1) {
-										final String filename = (FullFilename.lastIndexOf("/")!=-1)?FullFilename.substring(FullFilename.lastIndexOf("/")+1):FullFilename;
-										if (AssetExtractor.checkAsset(filename, ((Blob)alfrescoPacket.getValue("zipEntryData").cast()))) {
-											final StatusPacket status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(filename), StatusPacket.ALERT_BUSY);
-											if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("zip")&&Window.confirm("Do you wish to disaggregate the zip " + alfrescoPacket.getValue("zipEntryFilename") + " package?")) {
-												Zip.grabEntries(((Blob)alfrescoPacket.getValue("zipEntryData").cast()), new AlfrescoCallback<AlfrescoPacket>() {
-													@Override public void onFailure(Throwable caught) {}
-							
-													@SuppressWarnings("unchecked")
-													@Override
-													public void onSuccess(AlfrescoPacket alfrescoPacket) {
-														if (alfrescoPacket.hasKey("zipEntries")) {
-															JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
-															for (int x=0;x<zipEntries.length();x++)
-																StatusWindowHandler.pendingZipUploads.add(zipEntries.get(x));
-															doPendingUploads0();
-														}
-													}
-												});
+										final String filename = (FullFilename.lastIndexOf("/")!=-1) ? FullFilename.substring(FullFilename.lastIndexOf("/")+1) : FullFilename;
+										if (AssetExtractor.checkAsset(filename, zipEntry.getData())) {
+											final StatusRecord status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(filename), StatusRecord.ALERT_BUSY);
+											if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("zip")&&
+													Window.confirm("Do you wish to disaggregate the zip " + zipEntry.getFilename() + " package?")) {
+												Zip.grabEntries(zipEntry.getData(), 
+																new AsyncCallback<Vector<ZipRecord>>() {
+																	@Override public void onFailure(Throwable caught) {}
+											
+																	@Override
+																	public void onSuccess(Vector<ZipRecord> zipEntries) {
+																		for (int x=0;x<zipEntries.size();x++) {
+																			StatusWindowHandler.pendingZipUploads.add(zipEntries.get(x));
+																		}
+																		doPendingUploads0();
+																	}
+																});
 											}
 											if (DOM.getElementById("r-previewArea")!=null) {
 												final Vector<String> iDs = PageAssembler.inject("r-previewArea", 
@@ -678,53 +684,57 @@ public class EditScreen extends Screen {
 												DOM.getElementById(idNumPrefix + "-objectTitle").setInnerText(filename);
 												DOM.getElementById(idNumPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
 												DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
-												AlfrescoApi.uploadFile(((Blob)alfrescoPacket.getValue("zipEntryData").cast()),
+												ESBApi.uploadResource(zipEntry.getData(),
 																	   filename,
-																	   Russel.RUSSEL_ASPECTS.split(","),
-																	   new AlfrescoCallback<AlfrescoPacket>() {
+																	   new ESBCallback<ESBPacket>() {
 																			@Override
 																			public void onFailure(Throwable caught) {
 																				status.setMessage(StatusWindowHandler.getFileMessageError(filename));
-																				status.setState(StatusPacket.ALERT_ERROR);
+																				status.setState(StatusRecord.ALERT_ERROR);
 																				StatusWindowHandler.alterMessage(status);
 																			}
 											
 																			@Override
-																			public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																			public void onSuccess(ESBPacket esbPacket) {
+																				RUSSELFileRecord fr = new RUSSELFileRecord();
+																				fr.setGuid(esbPacket.getPayloadString());
+																				fr.setFilename(filename);
 																				status.setMessage(StatusWindowHandler.getFileMessageDone(filename));
-																				status.setState(StatusPacket.ALERT_SUCCESS);
+																				status.setState(StatusRecord.ALERT_SUCCESS);
 																				StatusWindowHandler.alterMessage(status);
 																				RootPanel.get(idNumPrefix + "-objectDescription").clear();
 																				DOM.getElementById(idNumPrefix + "-objectDetailButton").removeAttribute("hidden");
 																				DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
-																				fillTemplateDetails0(alfrescoPacket, idNumPrefix);
-																				String filename = alfrescoPacket.getFilename();
+																				fillTemplateDetails0(fr, idNumPrefix);
+																				String filename = fr.getFilename();
 																				if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
-																					ProjectFileModel.updatePfmNodeId(alfrescoPacket);
+																					ProjectRecord.updatePfmNodeId(fr);
 																				}
 																				doPendingUploads0();
 																			}
 																		});
 											} else
-												AlfrescoApi.uploadFile(((Blob)alfrescoPacket.getValue("zipEntryData").cast()),
+												ESBApi.uploadResource(zipEntry.getData(),
 																	   filename,
-																	   Russel.RUSSEL_ASPECTS.split(","),
-																	   new AlfrescoCallback<AlfrescoPacket>() {
+																	   new ESBCallback<ESBPacket>() {
 																			@Override
 																			public void onFailure(Throwable caught) {
 																				status.setMessage(StatusWindowHandler.getFileMessageError(filename));
-																				status.setState(StatusPacket.ALERT_ERROR);
+																				status.setState(StatusRecord.ALERT_ERROR);
 																				StatusWindowHandler.alterMessage(status);
 																			}
 											
 																			@Override
-																			public void onSuccess(AlfrescoPacket alfrescoPacket) {
+																			public void onSuccess(ESBPacket esbPacket) {
+																				RUSSELFileRecord fr = new RUSSELFileRecord();
+																				fr.setGuid(esbPacket.getPayloadString());
+																				fr.setFilename(filename);
 																				status.setMessage(StatusWindowHandler.getFileMessageDone(filename));
-																				status.setState(StatusPacket.ALERT_SUCCESS);
+																				status.setState(StatusRecord.ALERT_SUCCESS);
 																				StatusWindowHandler.alterMessage(status);
-																				String filename = alfrescoPacket.getFilename();
+																				String filename = fr.getFilename();
 																				if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
-																					ProjectFileModel.updatePfmNodeId(alfrescoPacket);
+																					ProjectRecord.updatePfmNodeId(fr);
 																				}
 																				doPendingUploads0();
 																			}
@@ -750,22 +760,19 @@ public class EditScreen extends Screen {
 					public void run(final File file)
 					{
 						final String filename = file.getName();
-						final StatusPacket status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(filename), StatusPacket.ALERT_BUSY);
+						final StatusRecord status = StatusWindowHandler.createMessage(StatusWindowHandler.getFileMessageBusy(filename), StatusRecord.ALERT_BUSY);
 						if (filename.lastIndexOf(".")!=-1&&filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("zip")) { 
 							if (Window.confirm("Do you wish to disaggregate the zip " + filename + " package?")) {
 								Zip.grabEntries(file, 
-												new AlfrescoCallback<AlfrescoPacket>() {
+												new AsyncCallback<Vector<ZipRecord>>() {
 													@Override public void onFailure(Throwable caught) {}
 							
-													@SuppressWarnings("unchecked")
 													@Override
-													public void onSuccess(AlfrescoPacket alfrescoPacket) {
-														if (alfrescoPacket.hasKey("zipEntries")) {
-															JsArray<AlfrescoPacket> zipEntries = ((JsArray<AlfrescoPacket>)alfrescoPacket.getValue("zipEntries"));
-															for (int x=0;x<zipEntries.length();x++)
-																StatusWindowHandler.pendingZipUploads.add(zipEntries.get(x));
-															doPendingUploads0();
+													public void onSuccess(Vector<ZipRecord> zipEntries) {
+														for (int x=0;x<zipEntries.size();x++) {
+															StatusWindowHandler.pendingZipUploads.add(zipEntries.get(x));
 														}
+														doPendingUploads0();
 													}
 												});
 							}
@@ -782,58 +789,62 @@ public class EditScreen extends Screen {
 							DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "text-align:center");
 							DOM.getElementById(idNumPrefix + "-objectDetailButton").setAttribute("hidden", "hidden");
 						
-							AlfrescoApi.uploadFile(file,
+							ESBApi.uploadResource(file,
 												   file.getName(),
-												   Russel.RUSSEL_ASPECTS.split(","),
-												   new AlfrescoCallback<AlfrescoPacket>(){
+												   new ESBCallback<ESBPacket>(){
 														@Override
 														public void onFailure(Throwable caught) {
 															status.setMessage(StatusWindowHandler.getFileMessageError(filename));
-															status.setState(StatusPacket.ALERT_ERROR);
+															status.setState(StatusRecord.ALERT_ERROR);
 															StatusWindowHandler.alterMessage(status);
 														}
 									
 														@Override
-														public void onSuccess(AlfrescoPacket result) {
+														public void onSuccess(ESBPacket result) {
+															RUSSELFileRecord fr = new RUSSELFileRecord();
+															fr.setGuid(result.getPayloadString());
+															fr.setFilename(filename);
 															status.setMessage(StatusWindowHandler.getFileMessageDone(filename));
-															status.setState(StatusPacket.ALERT_SUCCESS);
+															status.setState(StatusRecord.ALERT_SUCCESS);
 															StatusWindowHandler.alterMessage(status);
 															if (DOM.getElementById(idNumPrefix + "-objectDescription")!=null) {
 																RootPanel.get(idNumPrefix + "-objectDescription").clear();
 																DOM.getElementById(idNumPrefix + "-objectDetailButton").removeAttribute("hidden");
 																DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "");
-																fillTemplateDetails0(result, idNumPrefix);
+																fillTemplateDetails0(fr, idNumPrefix);
 															}
-															String filename = result.getFilename();
+															String filename = fr.getFilename();
 															if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
-																ProjectFileModel.updatePfmNodeId(result);
+																ProjectRecord.updatePfmNodeId(fr);
 															}
+															thumbIDs.put(idNumPrefix + "-object", fr);
 															readNext();
 														}
 													});
-							thumbIDs.put(idNumPrefix + "-object", "");
 							refreshInformation0();
 						}
 						else
-							AlfrescoApi.uploadFile(file,
+							ESBApi.uploadResource(file,
 												   file.getName(),
-												   Russel.RUSSEL_ASPECTS.split(","),
-												   new AlfrescoCallback<AlfrescoPacket>(){
+												   new ESBCallback<ESBPacket>(){
 														@Override
 														public void onFailure(Throwable caught) {
 															status.setMessage(StatusWindowHandler.getFileMessageError(filename));
-															status.setState(StatusPacket.ALERT_ERROR);
+															status.setState(StatusRecord.ALERT_ERROR);
 															StatusWindowHandler.alterMessage(status);
 														}
 									
 														@Override
-														public void onSuccess(AlfrescoPacket result) {
+														public void onSuccess(ESBPacket result) {
+															RUSSELFileRecord fr = new RUSSELFileRecord();
+															fr.setFilename(filename);
+															fr.setGuid(result.getPayloadString());
 															status.setMessage(StatusWindowHandler.getFileMessageDone(filename));
-															status.setState(StatusPacket.ALERT_SUCCESS);
+															status.setState(StatusRecord.ALERT_SUCCESS);
 															StatusWindowHandler.alterMessage(status);
-															String filename = result.getFilename();
+															String filename = fr.getFilename();
 															if (filename.substring(filename.lastIndexOf(".")+1).equalsIgnoreCase("rpf")) {
-																ProjectFileModel.updatePfmNodeId(result);
+																ProjectRecord.updatePfmNodeId(fr);
 															}
 															readNext();
 														}
@@ -859,30 +870,30 @@ public class EditScreen extends Screen {
 	
 	/**
 	 * fillTemplateDetails0 Updates tile with node info
-	 * @param jsonResult AlfrescoPacket
+	 * @param jsonResult ESBPacket
 	 * @param idNumPrefix tile id prefix
 	 */
-	private void fillTemplateDetails0(final AlfrescoPacket jsonResult, final String idNumPrefix)
+	private void fillTemplateDetails0(final RUSSELFileRecord fr, final String idNumPrefix)
 	{
 		if (DOM.getElementById("r-previewArea")!=null) {
-			final String nodeID = jsonResult.getNodeId();
-			thumbIDs.put(idNumPrefix + "-object", nodeID);
-			((Label)PageAssembler.elementToWidget(idNumPrefix + "-objectTitle", PageAssembler.LABEL)).setText(jsonResult.getFilename());
+			final String nodeID = fr.getGuid();
+			thumbIDs.put(idNumPrefix + "-object", fr);
+			((Label)PageAssembler.elementToWidget(idNumPrefix + "-objectTitle", PageAssembler.LABEL)).setText(fr.getFilename());
 			PageAssembler.attachHandler(idNumPrefix + "-objectDetail", Event.ONCLICK, new EventCallback() {
 																	  	@Override
 																	  	public void onEvent(Event event) {
-																	  		view().loadDetailScreen(jsonResult, DetailScreen.MODAL);
+																	  		view().loadDetailScreen(fr, DetailScreen.MODAL);
 																	  	}
 																	  });
-			AlfrescoApi.getThumbnail(nodeID, new AlfrescoCallback<AlfrescoPacket>() {
+			ESBApi.getThumbnail(nodeID, new ESBCallback<ESBPacket>() {
 												@Override
-												public void onSuccess(AlfrescoPacket alfrescoPacket) {
-													DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "background-image:url(" + alfrescoPacket.getValueString("imageURL") + ");");
+												public void onSuccess(ESBPacket esbPacket) {
+													DOM.getElementById(idNumPrefix + "-objectDescription").setAttribute("style", "background-image:url(" + esbPacket.getString("imageURL") + ");");
 												}
 												
 												@Override
 												public void onFailure(Throwable caught) {
-													((Label)PageAssembler.elementToWidget(idNumPrefix + "-objectDescription", PageAssembler.LABEL)).setText(jsonResult.getDescription());
+													((Label)PageAssembler.elementToWidget(idNumPrefix + "-objectDescription", PageAssembler.LABEL)).setText(fr.getDescription());
 												}
 											});
 			PageAssembler.attachHandler(idNumPrefix + "-objectDescription", 

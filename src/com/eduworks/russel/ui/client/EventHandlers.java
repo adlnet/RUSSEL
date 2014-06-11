@@ -1,15 +1,15 @@
 package com.eduworks.russel.ui.client;
 
-import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.model.FileRecord;
+import com.eduworks.gwt.client.net.callback.ESBCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
-import com.eduworks.gwt.client.net.packet.StatusPacket;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.epss.ProjectFileModel;
-import com.eduworks.russel.ui.client.handler.Adl3DRSearchHandler;
-import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
+import com.eduworks.russel.ui.client.handler.ESBSearchHandler;
 import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
 import com.eduworks.russel.ui.client.handler.TileHandler;
+import com.eduworks.russel.ui.client.model.ProjectRecord;
+import com.eduworks.russel.ui.client.model.StatusRecord;
 import com.eduworks.russel.ui.client.pagebuilder.screen.FeatureScreen;
 import com.eduworks.russel.ui.client.pagebuilder.screen.UtilityScreen;
 import com.google.gwt.user.client.Event;
@@ -33,36 +33,37 @@ public class EventHandlers
 			@Override
 			public void onEvent(Event event)
 			{
-				if (tile.tileType.equals(AlfrescoSearchHandler.PROJECT_TYPE))
-					ProjectFileModel.importFromAlfrescoNode(tile.searchRecord.getNodeId(),
-							tile.searchRecord.getFilename(), new AlfrescoCallback<AlfrescoPacket>()
-							{
-								@Override
-								public void onSuccess(AlfrescoPacket alfrescoPacket)
-								{
-									Constants.view.loadEPSSEditScreen(alfrescoPacket);
-								}
-
-								@Override
-								public void onFailure(Throwable caught)
-								{
-									Window.alert("Fooing couldn't load project file " + caught);
-								}
-							});
-				else if (tile.tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.ASSET_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.FLR_TYPE)
+				//TODO fix 3dr search
+				if (tile.tileType.equals(ESBSearchHandler.PROJECT_TYPE))
+					ProjectRecord.importFromServer(tile.searchRecord.getGuid(), 
+														 new ESBCallback<ESBPacket>()
+														 {
+															@Override
+															public void onSuccess(ESBPacket alfrescoPacket)
+															{
+																ProjectRecord pr = new ProjectRecord(alfrescoPacket);
+																Constants.view.loadEPSSEditScreen(pr);
+															}
+							
+															@Override
+															public void onFailure(Throwable caught)
+															{
+																Window.alert("Fooing couldn't load project file " + caught);
+															}
+														});
+				else if (tile.tileType.equals(ESBSearchHandler.RECENT_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.ASSET_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.SEARCH_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.COLLECTION_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.FLR_TYPE)/*
 						|| tile.tileType.equals(Adl3DRSearchHandler.SEARCH3DR_TYPE)
-						|| tile.tileType.equals(Adl3DRSearchHandler.ASSET3DR_TYPE))
+						|| tile.tileType.equals(Adl3DRSearchHandler.ASSET3DR_TYPE)*/)
 					view().loadDetailScreen(tile.searchRecord, tile);
 			}
 		};
 	}
 
 	public EventCallback tileOpenHandler(TileHandler tile) {
-		// TODO Auto-generated method stub
 		return tileOpenHandlerActual(tile);
 	}
 
@@ -73,29 +74,30 @@ public class EventHandlers
 			@Override
 			public void onEvent(Event event)
 			{
-				if (tile.tileType.equals(AlfrescoSearchHandler.PROJECT_TYPE))
-					ProjectFileModel.importFromAlfrescoNode(tile.searchRecord.getNodeId(),
-							tile.searchRecord.getFilename(), new AlfrescoCallback<AlfrescoPacket>()
-							{
-								@Override
-								public void onSuccess(AlfrescoPacket alfrescoPacket)
-								{
-									Constants.view.loadEPSSEditScreen(alfrescoPacket);
-								}
-
-								@Override
-								public void onFailure(Throwable caught)
-								{
-									Window.alert("Fooing couldn't load project file " + caught);
-								}
-							});
-				else if (tile.tileType.equals(AlfrescoSearchHandler.RECENT_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.ASSET_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.SEARCH_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.COLLECTION_TYPE)
-						|| tile.tileType.equals(AlfrescoSearchHandler.FLR_TYPE)
+				if (tile.tileType.equals(ESBSearchHandler.PROJECT_TYPE))
+					ProjectRecord.importFromServer(tile.searchRecord.getGuid(),
+														 new ESBCallback<ESBPacket>()
+														 {
+															@Override
+															public void onSuccess(ESBPacket alfrescoPacket)
+															{
+																ProjectRecord pr = new ProjectRecord(alfrescoPacket);
+																Constants.view.loadEPSSEditScreen(pr);
+															}
+							
+															@Override
+															public void onFailure(Throwable caught)
+															{
+																Window.alert("Fooing couldn't load project file " + caught);
+															}
+														});
+				else if (tile.tileType.equals(ESBSearchHandler.RECENT_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.ASSET_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.SEARCH_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.COLLECTION_TYPE)
+						|| tile.tileType.equals(ESBSearchHandler.FLR_TYPE) /*
 						|| tile.tileType.equals(Adl3DRSearchHandler.SEARCH3DR_TYPE)
-						|| tile.tileType.equals(Adl3DRSearchHandler.ASSET3DR_TYPE))
+						|| tile.tileType.equals(Adl3DRSearchHandler.ASSET3DR_TYPE)*/)
 					view().loadDetailScreen(tile.searchRecord, tile);
 			}
 		};
@@ -206,30 +208,31 @@ public class EventHandlers
 		};
 	}
 
-	public EventCallback goToEditEpssScreenFor(final AlfrescoPacket record)
+	public EventCallback goToEditEpssScreenFor(final FileRecord record)
 	{
 		return new EventCallback()
 		{
 			@Override
 			public void onEvent(Event event)
 			{
-				ProjectFileModel.importFromAlfrescoNode(record.getNodeId(), record.getFilename(),
-						new AlfrescoCallback<AlfrescoPacket>()
-						{
-							@Override
-							public void onSuccess(AlfrescoPacket alfrescoPacket)
-							{
-								view().loadEPSSEditScreen(alfrescoPacket);
-							}
-
-							@Override
-							public void onFailure(Throwable caught)
-							{
-								StatusWindowHandler.createMessage(
-										StatusWindowHandler.getProjectLoadMessageError(record.getFilename()),
-										StatusPacket.ALERT_ERROR);
-							}
-						});
+				ProjectRecord.importFromServer(record.getGuid(),
+													 new ESBCallback<ESBPacket>()
+													 {
+														 @Override
+														 public void onSuccess(ESBPacket alfrescoPacket)
+														 {
+														    ProjectRecord pr = new ProjectRecord(alfrescoPacket);
+															view().loadEPSSEditScreen(pr);
+														 }
+							
+														 @Override
+														 public void onFailure(Throwable caught)
+														 {
+															 StatusWindowHandler.createMessage(
+																	 StatusWindowHandler.getProjectLoadMessageError(record.getFilename()),
+																	 StatusRecord.ALERT_ERROR);
+														 }
+													 });
 			}
 		};
 	}

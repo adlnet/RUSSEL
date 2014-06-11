@@ -18,28 +18,29 @@ package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import java.util.Vector;
 
-import com.eduworks.gwt.client.net.api.AlfrescoApi;
-import com.eduworks.gwt.client.net.api.AlfrescoURL;
-import com.eduworks.gwt.client.net.callback.AlfrescoCallback;
+import com.eduworks.gwt.client.net.CommunicationHub;
+import com.eduworks.gwt.client.net.api.ESBApi;
+import com.eduworks.gwt.client.net.callback.ESBCallback;
 import com.eduworks.gwt.client.net.callback.EventCallback;
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
-import com.eduworks.gwt.client.net.packet.StatusPacket;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
-import com.eduworks.gwt.client.util.Browser;
 import com.eduworks.russel.ui.client.Russel;
 import com.eduworks.russel.ui.client.epss.EPSSPackBuilder;
-import com.eduworks.russel.ui.client.epss.ProjectFileModel;
-import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
+import com.eduworks.russel.ui.client.handler.ESBSearchHandler;
 import com.eduworks.russel.ui.client.handler.SearchHandler;
 import com.eduworks.russel.ui.client.handler.StatusWindowHandler;
 import com.eduworks.russel.ui.client.handler.TileHandler;
-import com.google.gwt.core.client.JsArray;
+import com.eduworks.russel.ui.client.model.ProjectRecord;
+import com.eduworks.russel.ui.client.model.RUSSELFileRecord;
+import com.eduworks.russel.ui.client.model.StatusRecord;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.Image;
@@ -56,7 +57,7 @@ import com.google.gwt.user.client.ui.TextBox;
  */
 public class EPSSEditScreen extends Screen {
 
-	public static ProjectFileModel pfmNow, pfmLast;
+	public static ProjectRecord pfmNow, pfmLast;
 	private static Vector<String> searchTerms;
 	private static SearchHandler assetSearchHandler;
 	private static String activeSection;
@@ -95,7 +96,7 @@ public class EPSSEditScreen extends Screen {
 	 * EPSSEditScreen Constructor for the class given a project file
 	 * @param incomingProject ProjectFileModel
 	 */
-	public EPSSEditScreen(ProjectFileModel incomingProject) {
+	public EPSSEditScreen(ProjectRecord incomingProject) {
 		EPSSEditScreen.pfmNow = incomingProject; 
 		EPSSEditScreen.pfmLast = pfmNow.copyProject(); 
 	}
@@ -120,9 +121,9 @@ public class EPSSEditScreen extends Screen {
 	public void populateTemplate() {
 		DOM.getElementById("template-name").setInnerText(pfmNow.projectTemplateName);
 		
-		for (int sectionIndex=0;sectionIndex<pfmNow.projectSections.length();sectionIndex++)
+		for (int sectionIndex=0;sectionIndex<pfmNow.projectSections.size();sectionIndex++)
 			insertSection0(DOM.getElementById("template-sections-area"),  
-						  pfmNow.projectSections.get(sectionIndex).getValueString(ProjectFileModel.TEMPLATE_SECTION_SHORT_TITLE),
+						  new ESBPacket(pfmNow.projectSections.get(sectionIndex).isObject()).getString(ProjectRecord.TEMPLATE_SECTION_SHORT_TITLE),
 						  (sectionIndex+1));
 	}
 	
@@ -134,9 +135,9 @@ public class EPSSEditScreen extends Screen {
 		PageAssembler.ready(new HTML(templates().getEPSSEdit().getText()));
 		PageAssembler.buildContents();
 		populateTemplate();
-		assetSearchHandler = new AlfrescoSearchHandler();
+		assetSearchHandler = new ESBSearchHandler();
 		
-		assetSearchHandler.hook("r-projectAssetSearch", "epssAssetPanel", AlfrescoSearchHandler.ASSET_TYPE);
+		assetSearchHandler.hook("r-projectAssetSearch", "epssAssetPanel", ESBSearchHandler.ASSET_TYPE);
 		
 		PageAssembler.attachHandler("epssExportButton", Event.ONCLICK, new EventCallback() {
 																		@Override
@@ -190,7 +191,7 @@ public class EPSSEditScreen extends Screen {
 																}		
 															  });
 		
-		for (int sectionIndex=1;sectionIndex<=pfmNow.projectSections.length();sectionIndex++) {
+		for (int sectionIndex=1;sectionIndex<=pfmNow.projectSections.size();sectionIndex++) {
 			final int lockedSectionIndex = sectionIndex;
 			PageAssembler.attachHandler("section" + lockedSectionIndex, 
 										Event.ONCLICK, 
@@ -207,35 +208,23 @@ public class EPSSEditScreen extends Screen {
 															   	public void onEvent(Event event) {
 															   		saveProject0();
 															   		EPSSPackBuilder epb = new EPSSPackBuilder(pfmNow);
-														   			AlfrescoApi.exportZipPackage(pfmNow.projectTitle.replaceAll(" ", "_") + ".zip", 
-														   										 epb.buildPackIE(), 
-														   										 new AlfrescoCallback<AlfrescoPacket>() {
-														   											@Override
-														   											public void onFailure(Throwable caught) {
-														   												StatusWindowHandler.createMessage(StatusWindowHandler.getZipExportMessageError(pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"), 
-														   																			  	  StatusPacket.ALERT_ERROR);
-														   												RootPanel.get("epssDownloadArea").clear();
-														   											}
-														   											
-														   											@Override
-														   											public void onSuccess(AlfrescoPacket zipPack) {
-														   												if (Browser.isIE()) {
-															   												Frame avoidPopup = new Frame();
-															   												avoidPopup.addStyleName("hidden");
-															   												avoidPopup.setUrl(AlfrescoURL.getObjectStreamAndDelete(zipPack.getNodeId(), 
-					   																								 		  pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"));
-															   												RootPanel.get("epssDownloadArea").add(avoidPopup);
-														   												} else 
-														   													Window.open(AlfrescoURL.getObjectStreamAndDelete(zipPack.getNodeId(), 
-														   																								 	 pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"),
-				   																								 	    "_blank",
-														   																"");
+															   		FormPanel fp = ((FormPanel)PageAssembler.elementToWidget("epssExportSCORMForm", PageAssembler.FORM));
+															   		fp.setAction(ESBApi.getESBActionURL("exportToZip"));
+															   		fp.setMethod(CommunicationHub.POST);
+															   		fp.setEncoding(FormPanel.ENCODING_MULTIPART);
+															   		ESBPacket postData = epb.buildPackIE();
+															   		postData.put("sessionId", ESBApi.sessionId);
+															   		((Hidden)PageAssembler.elementToWidget("epssExportSCORMPayload", PageAssembler.HIDDEN)).setValue(postData.toString());
+															   		fp.addSubmitHandler(new SubmitHandler() {
+																									@Override
+																									public void onSubmit(SubmitEvent event) {
 														   												StatusWindowHandler.createMessage(StatusWindowHandler.getZipExportMessageDone(pfmNow.projectTitle.replaceAll(" ", "_") + ".zip"), 
-														   																				  StatusPacket.ALERT_SUCCESS);
-														   												RootPanel.get("epssDownloadArea").clear();
-														   											}
-														   										 });
-															   		
+																											  StatusRecord.ALERT_SUCCESS);
+													   													RootPanel.get("epssDownloadArea").clear();
+													   													PageAssembler.closePopup("exportProjectModal");
+																									}
+																								});
+															   		fp.submit();															   		
 															   		RootPanel.get("epssDownloadArea").add(new Image("images/orbit/loading.gif"));
 															   	}
 															   });
@@ -299,10 +288,10 @@ public class EPSSEditScreen extends Screen {
 			td.appendChild(new HTML(templates().getEPSSNoteAssetObjectWidget().getText()).getElement());
 			Vector<String> iDs = PageAssembler.merge(assetsDiv, "x", td);
 			String idPrefix = iDs.firstElement().substring(0,iDs.firstElement().indexOf("-"));	
-			AlfrescoPacket ap = AlfrescoPacket.makePacket();
-			ap.addKeyValue("id", nodeId);
-			ap.addKeyValue("fileName", filename);
-			new TileHandler(null, idPrefix, AlfrescoSearchHandler.NOTES_TYPE, ap).refreshTile(null);
+			RUSSELFileRecord ap = new RUSSELFileRecord();
+			ap.setGuid(nodeId);
+			ap.setFilename(filename);
+			new TileHandler(null, idPrefix, ESBSearchHandler.NOTES_TYPE, ap).refreshTile(null);
 		}
 	}
 	
@@ -313,12 +302,7 @@ public class EPSSEditScreen extends Screen {
 	private static boolean isAssetInSection0() {
 		boolean acc = false;
 		if (pfmNow.projectSectionAssets!=null)
-			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
-				JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(activeSection).cast();
-				for (int x=0;x<assets.length();x++)
-					if (!acc&&assets.get(x).getNodeId() == activeAssetId)
-						acc = true;
-			}
+			return pfmNow.projectSectionAssets.hasSectionAsset(activeSection, activeAssetId);
 		return acc;
 	}
 	
@@ -328,12 +312,7 @@ public class EPSSEditScreen extends Screen {
 	 */
 	private static String getAssetNotesInSection0() {
 		if (pfmNow.projectSectionAssets!=null)
-			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
-				JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(activeSection).cast();
-				for (int x=0;x<assets.length();x++)
-					if (assets.get(x).getNodeId() == activeAssetId)
-						return assets.get(x).getValueString("notes"); 
-			}
+			return pfmNow.projectSectionAssets.getSectionAssetNotes(activeSection, activeAssetId);
 		return "";
 	}
 	
@@ -403,13 +382,13 @@ public class EPSSEditScreen extends Screen {
 		int termCount = searchArea.getChildCount();
 		for (int termIndex=0;termIndex<termCount;termIndex++)
 			searchArea.removeChild(searchArea.getChild(0));
-		String[] searchTerms = pfmNow.projectSections.get(sectionIndex).getValueString(ProjectFileModel.TEMPLATE_SECTION_TERMS).split(", ");
+		String[] searchTerms = new ESBPacket(pfmNow.projectSections.get(sectionIndex).isObject()).getString(ProjectRecord.TEMPLATE_SECTION_TERMS).split(", ");
 		for (int termsIndex=0;termsIndex<searchTerms.length;termsIndex++)
 			PageAssembler.merge("searchTerms", 
 								"x", 
 								(Element)new HTML("<a id=\"epssTerm" + (termsIndex+1) + "\" class=\"searchTerm small white button finger\">" + 
 										searchTerms[termsIndex] + "</a>").getElement().getChild(0));
-		DOM.getElementById("helptext-asset").setInnerText(pfmNow.projectSections.get(sectionIndex).getValueString(ProjectFileModel.TEMPLATE_SECTION_GUIDENCE));
+		DOM.getElementById("helptext-asset").setInnerText(new ESBPacket(pfmNow.projectSections.get(sectionIndex).isObject()).getString(ProjectRecord.TEMPLATE_SECTION_GUIDENCE));
 		
 		for (int termIndex=1;termIndex<=searchTerms.length;termIndex++) {
 			final int lockedTermIndex = termIndex;
@@ -425,13 +404,12 @@ public class EPSSEditScreen extends Screen {
 		}
 		
 		if (pfmNow.projectSectionNotes!=null)
-			((TextBox)PageAssembler.elementToWidget("inputSectionNotes", PageAssembler.TEXT)).setText(pfmNow.projectSectionNotes.getValueString(activeSection));
+			((TextBox)PageAssembler.elementToWidget("inputSectionNotes", PageAssembler.TEXT)).setText(pfmNow.projectSectionNotes.getSectionNotes(activeSection));
 		
 		if (pfmNow.projectSectionAssets!=null) {
-			if (pfmNow.projectSectionAssets.hasKey(activeSection)) {
-				JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(activeSection).cast();
-				for (int x=0;x<assets.length();x++)
-					buildAssetTile0(sectionPanel, assets.get(x).getNodeId(), assets.get(x).getFilename());
+			Vector<RUSSELFileRecord> assets = pfmNow.projectSectionAssets.getSectionAssets(activeSection);
+			for (int x=0;x<assets.size();x++) {
+				buildAssetTile0(sectionPanel, assets.get(x).getGuid(), assets.get(x).getFilename());
 			}
 			PageAssembler.runCustomJSHooks();
 		}
@@ -440,7 +418,7 @@ public class EPSSEditScreen extends Screen {
 	/**
 	 * toggleSearchTerms0 Reverses the selection state of a search term button
 	 * @param eId String
-	 * @param term String
+	 * @param term String 
 	 */
 	private void toggleSearchTerms0(String eId, String term) {
 		if (!searchTerms.contains(term))
@@ -463,10 +441,10 @@ public class EPSSEditScreen extends Screen {
 		String accQuery = "";
 		if (searchTerms.size()!=0) {
 			for (int x=0;x<searchTerms.size();x++) {
-				if (AlfrescoSearchHandler.cleanQuery(enteredTerm) =="")
-					accQuery += " OR ALL:\"" + searchTerms.get(x) + "\"";
+				if (ESBSearchHandler.cleanQuery(enteredTerm) =="")
+					accQuery += " OR \"" + searchTerms.get(x) + "\"";
 				else
-					accQuery += " OR (\"" + AlfrescoSearchHandler.cleanQuery(enteredTerm) + "\" ALL:\"" + searchTerms.get(x) + "\")";
+					accQuery += " OR (\"" + ESBSearchHandler.cleanQuery(enteredTerm) + "\" \"" + searchTerms.get(x) + "\")";
 			}
 			accQuery = accQuery.substring(" OR ".length()).trim();
 		} else accQuery = enteredTerm;
@@ -495,7 +473,7 @@ public class EPSSEditScreen extends Screen {
 		pfmNow.projectTitle = ((Anchor)PageAssembler.elementToWidget("projectTitleText", PageAssembler.A)).getText();
 		if (pfmNow.projectTitle==null||pfmNow.projectTitle.equalsIgnoreCase("Click here to add a title"))
 			pfmNow.projectTitle = "DefaultName";
-		pfmNow.projectCreator = AlfrescoApi.username;
+		pfmNow.projectCreator = ESBApi.username;
 		pfmNow.projectNotes = cleanString0(((TextBox)PageAssembler.elementToWidget("epssProjectNotes", PageAssembler.TEXT)).getText());
 		pfmNow.projectLearningObjectives = cleanString0(getObjectives0("project-objective-list"));
 		int imiIndex = ((ListBox)PageAssembler.elementToWidget("projectImiLevel", PageAssembler.SELECT)).getSelectedIndex();
@@ -514,81 +492,70 @@ public class EPSSEditScreen extends Screen {
 			int section, x, y;
 			String sectionName = null;
 			Boolean found;
-			for (section=1; section<=pfmNow.projectSections.length(); section++) {
+			for (section=1; section<=pfmNow.projectSections.size(); section++) {
 				sectionName = DOM.getElementById("section" + section).getInnerText();
-				JsArray<AlfrescoPacket> assetsNow = null;
-				JsArray<AlfrescoPacket> assetsLast = null;
-				if (pfmNow.projectSectionAssets.hasKey(sectionName)) {
-					assetsNow = pfmNow.projectSectionAssets.getValue(sectionName).cast();
+				Vector<RUSSELFileRecord> assetsNow = null;
+				Vector<RUSSELFileRecord> assetsLast = null;
+				if (pfmNow.projectSectionAssets.hasSection(sectionName)) {
+					assetsNow = pfmNow.projectSectionAssets.getSectionAssets(sectionName);
 				}
-				if (pfmLast.projectSectionAssets.hasKey(sectionName)) {
-					assetsLast = pfmLast.projectSectionAssets.getValue(sectionName).cast();
+				if (pfmLast.projectSectionAssets.hasSection(sectionName)) {
+					assetsLast = pfmLast.projectSectionAssets.getSectionAssets(sectionName);
 				}
 				// check for assets that are in the last save but not the current version
 				if (assetsLast != null) {
-					for (x=0;x<assetsLast.length();x++) {
+					for (x=0;x<assetsLast.size();x++) {
 						found = false;
 						if (assetsNow != null)
-							for (y=0;y<assetsNow.length();y++) {
-								if (assetsLast.get(x).getNodeId() == assetsNow.get(y).getNodeId())  found = true;
+							for (y=0;y<assetsNow.size();y++) {
+								if (assetsLast.get(x).getGuid() == assetsNow.get(y).getGuid())  found = true;
 						}
 						if (!found) {
 							// this asset has been removed from the section
-							pfmLast.updateAlfrescoAssetUsage(sectionName, assetsLast.get(x).getNodeId(), assetsLast.get(x).getFilename(), false);							
+							pfmLast.updateAlfrescoAssetUsage(sectionName, assetsLast.get(x).getGuid(), assetsLast.get(x).getFilename(), false);							
 						}
 					}
 				}
 				// check for assets that are in the current version but not the last save
 				if (assetsNow != null) {
-					for (x=0;x<assetsNow.length();x++) {
+					for (x=0;x<assetsNow.size();x++) {
 						found = false;
 						if (assetsLast != null)
-							for (y=0;y<assetsLast.length();y++) {
-								if (assetsLast.get(y).getNodeId() == assetsNow.get(x).getNodeId())  found = true;
+							for (y=0;y<assetsLast.size();y++) {
+								if (assetsLast.get(y).getGuid() == assetsNow.get(x).getGuid())  found = true;
 						}
 						if (!found) {
 							// this asset has been added to the section
-							pfmLast.updateAlfrescoAssetUsage(sectionName, assetsNow.get(x).getNodeId(), assetsNow.get(x).getFilename(), true);		
+							pfmLast.updateAlfrescoAssetUsage(sectionName, assetsNow.get(x).getGuid(), assetsNow.get(x).getFilename(), true);		
 						}
 					}
 				}
 			}
 		}
 		
-		if (pfmNow.projectNodeId==null) {
-			AlfrescoPacket ap = AlfrescoPacket.makePacket();
-			ap.addKeyValue("filename", pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf");
-			ap.addKeyValue("filecontent", pfmNow.toJSONString());
-			AlfrescoApi.uploadContentStream(ap.toJSONString(),
-			 								new AlfrescoCallback<AlfrescoPacket>() {
+		if (pfmNow.getGuid()==null) {
+			ESBApi.uploadResource(pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf",
+								  pfmNow.toJSONString(),
+								  ProjectRecord.RUSSEL_PROJECT,
+			 								new ESBCallback<ESBPacket>() {
 												@Override
-												public void onSuccess(AlfrescoPacket alfrescoPacket) {
-													pfmNow.projectNodeId = alfrescoPacket.getNodeId();
-													AlfrescoApi.addAspectToNode(pfmNow.projectNodeId, 
-																				Russel.RUSSEL_ASPECTS.split(","), 
-																				new AlfrescoCallback<AlfrescoPacket>() {
-																					@Override
-																					public void onFailure(Throwable caught) {
-																						
-																					}
+												public void onSuccess(ESBPacket alfrescoPacket) {
+													pfmNow.setGuid(alfrescoPacket.getPayloadString());
+													ESBApi.updateResource(pfmNow.getGuid(),
+																		  pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf",
+																	      pfmNow.toJSONString(),
+																		  ProjectRecord.RUSSEL_PROJECT,
+																		  new ESBCallback<ESBPacket>() {
+																			  @Override
+																			  public void onSuccess(ESBPacket alfrescoPacket) {
 																					
-																					@Override
-																					public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																						AlfrescoApi.updateContentStream(pfmNow.projectNodeId, 
-																														"{\"nodeData\":" + pfmNow.toJSONString() + "}",
-																													    new AlfrescoCallback<AlfrescoPacket>() {
-																															@Override
-																															public void onSuccess(AlfrescoPacket alfrescoPacket) {
-																																
-																															}
-																															
-																															@Override 
-																															public void onFailure(Throwable caught) {
-																																
-																															}
-																													    });
-																					}
-																				});
+																			  }
+																				
+																			  @Override 
+																			  public void onFailure(Throwable caught) {
+																				
+																			  }
+																		  });
 												}
 												
 												@Override
@@ -597,20 +564,22 @@ public class EPSSEditScreen extends Screen {
 												}
 											});
 		} else
-			AlfrescoApi.updateContentStream(pfmNow.projectNodeId, 
-											"{\"nodeData\":" + pfmNow.toJSONString() + "}",
-										    new AlfrescoCallback<AlfrescoPacket>() {
-												@Override
-												public void onSuccess(AlfrescoPacket alfrescoPacket) {
-													fillData0();
-												}
-												
-												@Override 
-												public void onFailure(Throwable caught) {
-													
-												}
-										    });
-		
+			ESBApi.updateResource(pfmNow.getGuid(), 
+								  pfmNow.projectTitle.replaceAll(" ", "_") + ".rpf",
+								  pfmNow.toJSONString(),
+								  ProjectRecord.RUSSEL_PROJECT,
+							      new ESBCallback<ESBPacket>() {
+									  @Override
+									  public void onSuccess(ESBPacket alfrescoPacket) {
+  										  fillData0();
+									  }
+									
+									  @Override 
+									  public void onFailure(Throwable caught) {
+										
+  									  }
+							      });
+
 		pfmLast = pfmNow.copyProject() ;
 		PageAssembler.closePopup("epssSaveProperties");
 	}
@@ -637,17 +606,17 @@ public class EPSSEditScreen extends Screen {
 	 * fillData0 Populates the EPSS editor with current project assets and notes
 	 */
 	private void fillData0() {
-		fillPropData0();		
+		fillPropData0();
 		if (pfmNow.projectSectionNotes!=null)
-			for (int x = 1;x<=pfmNow.projectSections.length() ;x++)
-				if (pfmNow.projectSectionNotes.hasKey(DOM.getElementById("section"+x).getInnerText()))
+			for (int x = 1;x<=pfmNow.projectSections.size() ;x++)
+				if (pfmNow.projectSectionNotes.hasSection(DOM.getElementById("section"+x).getInnerText()))
 					DOM.getElementById("section"+x).removeClassName("empty");
 		if (pfmNow.projectSectionAssets!=null)
-			for (int x=1;x<=pfmNow.projectSections.length() ;x++) { 
+			for (int x=1;x<=pfmNow.projectSections.size() ;x++) { 
 				String sectionName = DOM.getElementById("section" + x).getInnerText();
-				if (pfmNow.projectSectionAssets.hasKey(sectionName)) {
-					JsArray<AlfrescoPacket> assets = pfmNow.projectSectionAssets.getValue(sectionName).cast(); 
-					if (assets.length()>0)
+				if (pfmNow.projectSectionAssets.hasSection(sectionName)) {
+					Vector<RUSSELFileRecord> assets = pfmNow.projectSectionAssets.getSectionAssets(sectionName);
+					if (assets.size()>0)
 						DOM.getElementById("section" + x).removeClassName("empty");
 				}
 			}

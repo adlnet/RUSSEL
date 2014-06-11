@@ -16,6 +16,9 @@ limitations under the License.
 
 package com.eduworks.russel.ui.client;
 
+import com.eduworks.gwt.client.net.callback.ESBCallback;
+import com.eduworks.gwt.client.net.packet.ESBPacket;
+import com.eduworks.gwt.client.pagebuilder.PageAssembler;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -81,7 +84,22 @@ public class Russel extends Constants implements EntryPoint, ValueChangeHandler<
 										});
 		
 		detailId = Window.Location.getParameter("id");
-		fetchProperties();
+		fetchProperties(new ESBCallback<ESBPacket>() {
+							@Override
+							public void onSuccess(ESBPacket ESBPacket)
+							{
+								PageAssembler.setBuildNumber(ESBPacket.getString("contentStream").substring(
+										ESBPacket.getString("contentStream").lastIndexOf("=") + 1));
+								view.setDefaultScreen(defaultScreen);
+								History.fireCurrentHistoryState();
+							}
+				
+							@Override
+							public void onFailure(Throwable caught)
+							{
+								Window.alert("Couldn't find build number");
+							}
+						});
 	}
 
 

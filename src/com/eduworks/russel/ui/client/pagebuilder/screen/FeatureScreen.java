@@ -18,8 +18,9 @@ package com.eduworks.russel.ui.client.pagebuilder.screen;
 
 import com.eduworks.gwt.client.net.callback.EventCallback;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
+import com.eduworks.russel.ui.client.handler.ESBSearchHandler;
 import com.eduworks.russel.ui.client.handler.SearchHandler;
+import com.eduworks.russel.ui.client.model.ProjectRecord;
 import com.eduworks.russel.ui.client.pagebuilder.EpssTemplates;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -84,14 +85,14 @@ public class FeatureScreen extends Screen {
 		}
 
 		DOM.getElementById("r-pageTitle").setInnerHTML("<h4>"+pageTitle+"</h4>");
-				
-		ash = new AlfrescoSearchHandler();
+		
+		ash = new ESBSearchHandler();
 		if (featureType.equals(PROJECTS_TYPE)) {
 			// The newCollectionModal is not "hooked" in the template, so it does not need to be removed for the Projects feature.
 			DOM.getElementById("r-newEntityFront").setInnerHTML("<p class='title'>New Project</p>");
 			DOM.getElementById("r-newEntityBack").setInnerHTML("<p class='status'><span class='status-label'>Click to create a new project...</span></p>");
 			DOM.getElementById("r-newEntityAction").setTitle("Start a new project");
-			ash.hook("r-menuSearchBar", "searchObjectPanelScroll", AlfrescoSearchHandler.PROJECT_TYPE);
+			ash.hook("r-menuSearchBar", "searchObjectPanelScroll", ESBSearchHandler.PROJECT_TYPE);
 		}
 		else if (featureType.equals(COLLECTIONS_TYPE)) {
 			// Currently, the newProjectModal is "hooked" in the template, so it must be removed for the Collections feature.
@@ -104,13 +105,13 @@ public class FeatureScreen extends Screen {
 			PageAssembler.attachHandler("r-newEntityAction", Event.ONCLICK, new EventCallback() {
 																   	   @Override
 																   	   public void onEvent(Event event) {
-																   		   view().loadResultsScreen(AlfrescoSearchHandler.COLLECTION_TYPE);
+																   		   view().loadResultsScreen(ESBSearchHandler.COLLECTION_TYPE);
 																	   }
 																   });
 			//DOM.getElementById("r-newEntityAction").setAttribute("onclick", ""); //$('#newCollectionModal').reveal();
 			// For now (since there is only one collection implemented), use of the search bar on this screen will initiate a global search. 
 			// Later, when we have implemented the ability to build collections, this should probably change to a search of all collections.
-			ash.hook("r-menuSearchBar", "searchPanelWidgetScroll", AlfrescoSearchHandler.SEARCH_TYPE);
+			ash.hook("r-menuSearchBar", "searchPanelWidgetScroll", ESBSearchHandler.SEARCH_TYPE);
 		}
 		
 		// Handlers for EPSS Home Screen
@@ -118,7 +119,8 @@ public class FeatureScreen extends Screen {
 												   	   @Override
 												   	   public void onEvent(Event event) {
 												   		   PageAssembler.closePopup("newProjectModal");
-												   		   view().loadEPSSEditScreen(EpssTemplates.INSTANCE.getGagneTemplate().getText());
+												   		   ProjectRecord pr = new ProjectRecord(EpssTemplates.INSTANCE.getGagneTemplate().getText());
+												   		   view().loadEPSSEditScreen(pr);
 													   }
 												   });
 
@@ -126,7 +128,8 @@ public class FeatureScreen extends Screen {
 														@Override
 														public void onEvent(Event event) {
 												   		   PageAssembler.closePopup("newProjectModal");
-												   		   view().loadEPSSEditScreen(EpssTemplates.INSTANCE.getSimulationTemplate().getText());
+												   		   ProjectRecord pr = new ProjectRecord(EpssTemplates.INSTANCE.getSimulationTemplate().getText());
+												   		   view().loadEPSSEditScreen(pr);
 														}
 													});
 		
@@ -134,19 +137,17 @@ public class FeatureScreen extends Screen {
 		PageAssembler.attachHandler("myFiles", Event.ONCLICK, new EventCallback() {
 												   	   @Override
 												   	   public void onEvent(Event event) {
-													   		view().loadResultsScreen(AlfrescoSearchHandler.COLLECTION_TYPE);
+													   		view().loadResultsScreen(ESBSearchHandler.COLLECTION_TYPE);
 													   }
 												   });
 
 		PageAssembler.attachHandler("FLRFiles", Event.ONCLICK, new EventCallback() {
 												   	   @Override
 												   	   public void onEvent(Event event) {
-													   		view().loadResultsScreen(AlfrescoSearchHandler.FLR_TYPE);
+													   		view().loadResultsScreen(ESBSearchHandler.FLR_TYPE);
 													   }
 												   });
 
 		//PageAssembler.attachHandler("newCollectionModal", Event.ONCLICK, Russel.nonFunctional);
-
-
 	}
 }

@@ -2,9 +2,10 @@ package com.eduworks.russel.ui.client;
 
 import java.util.Vector;
 
-import com.eduworks.gwt.client.net.packet.AlfrescoPacket;
-import com.eduworks.russel.ui.client.epss.ProjectFileModel;
+import com.eduworks.gwt.client.model.FileRecord;
 import com.eduworks.russel.ui.client.handler.TileHandler;
+import com.eduworks.russel.ui.client.model.RUSSELFileRecord;
+import com.eduworks.russel.ui.client.model.ProjectRecord;
 import com.eduworks.russel.ui.client.pagebuilder.screen.DetailScreen;
 import com.eduworks.russel.ui.client.pagebuilder.screen.EPSSEditScreen;
 import com.eduworks.russel.ui.client.pagebuilder.screen.EditScreen;
@@ -28,7 +29,7 @@ public class ScreenDispatch extends com.eduworks.gwt.client.pagebuilder.ScreenDi
 		loadScreen(rs, true);
 	}
 
-	public void loadEditScreen(Vector<AlfrescoPacket> pendingEdits)
+	public void loadEditScreen(Vector<RUSSELFileRecord> pendingEdits)
 	{
 		loadScreen(new EditScreen(pendingEdits), true);
 	}
@@ -38,20 +39,19 @@ public class ScreenDispatch extends com.eduworks.gwt.client.pagebuilder.ScreenDi
 		loadScreen(new EditScreen(), true);
 	}
 
-	public void loadEPSSEditScreen(AlfrescoPacket alfrescoPacket)
+	public void loadEPSSEditScreen(ProjectRecord fr)
 	{
-		loadScreen(new EPSSEditScreen(new ProjectFileModel(alfrescoPacket)), true);
-		
+		loadScreen(new EPSSEditScreen(fr), true);
 	}
 
-	public void loadDetailScreen(AlfrescoPacket searchRecord, TileHandler tile)
+	public void loadDetailScreen(FileRecord fr, TileHandler tile)
 	{
-		loadScreen(new DetailScreen(searchRecord, tile), false);
+		loadScreen(new DetailScreen(fr, tile), false);
 	}
 
-	public void loadDetailScreen(AlfrescoPacket searchRecord, boolean isModal)
+	public void loadDetailScreen(FileRecord fr, boolean isFull)
 	{
-		loadScreen(new DetailScreen(searchRecord, isModal), true);
+		loadScreen(new DetailScreen(fr, isFull), true);
 	}
 
 	public void loadDetailScreen(String tempDetailId)
@@ -70,11 +70,11 @@ public class ScreenDispatch extends com.eduworks.gwt.client.pagebuilder.ScreenDi
 		fs.featureType = featureType;
 		loadScreen(fs, true);
 	}
-
-	public void loadEPSSEditScreen(String text)
-	{
-		   Russel.view.loadScreen(new EPSSEditScreen(new ProjectFileModel(text)), true);
-	}
+	
+//	public void loadEPSSEditScreen(String text)
+//	{
+//		   Russel.view.loadScreen(new EPSSEditScreen(new ProjectRecord(text)), true);
+//	}
 
 	public void loadUtilityScreen(String accountType)
 	{

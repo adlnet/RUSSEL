@@ -16,10 +16,10 @@ limitations under the License.
 
 package com.eduworks.russel.ui.client.pagebuilder.screen;
 
-import com.eduworks.gwt.client.net.api.AlfrescoApi;
+import com.eduworks.gwt.client.net.api.ESBApi;
 import com.eduworks.gwt.client.net.callback.EventCallback;
 import com.eduworks.gwt.client.pagebuilder.PageAssembler;
-import com.eduworks.russel.ui.client.handler.AlfrescoSearchHandler;
+import com.eduworks.russel.ui.client.handler.ESBSearchHandler;
 import com.eduworks.russel.ui.client.handler.SearchHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -51,7 +51,7 @@ public class HomeScreen extends Screen {
 	 * display Renders the RUSSEL home screen using appropriate templates and sets up handlers
 	 */
 	public void display() {
-		((Label)PageAssembler.elementToWidget("r-menuUserName", PageAssembler.LABEL)).setText(AlfrescoApi.username);
+		((Label)PageAssembler.elementToWidget("r-menuUserName", PageAssembler.LABEL)).setText(ESBApi.username);
 
 		PageAssembler.ready(new HTML(templates().getMenuBar().getText()));
 		PageAssembler.ready(new HTML(templates().getObjectPanel().getText()));
@@ -61,7 +61,7 @@ public class HomeScreen extends Screen {
 		DOM.getElementById("r-menuCollections").getParentElement().removeClassName("active");
 		DOM.getElementById("r-menuProjects").getParentElement().removeClassName("active");
 
-		ash = new AlfrescoSearchHandler();
+		ash = new ESBSearchHandler();
 		
 		PageAssembler.attachHandler("r-uploadContentTile", Event.ONCLICK, new EventCallback() {
 																				@Override
@@ -143,6 +143,6 @@ public class HomeScreen extends Screen {
 
 		((TextBox)PageAssembler.elementToWidget("r-menuSearchBar", PageAssembler.TEXT)).setFocus(true);
 		
-		ash.hook("r-menuSearchBar", "searchObjectPanel", AlfrescoSearchHandler.RECENT_TYPE);
+		ash.hook("r-menuSearchBar", "searchObjectPanel", ESBSearchHandler.RECENT_TYPE);
 	}
 }

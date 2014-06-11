@@ -19,10 +19,8 @@ limitations under the License.
         <p class="lead">Browse for the file you wish to upload.</p>
 		<form id="addFileForm" class="filesToUpload nice" method="POST">
 			<div class="classicFileBrowser" style="display:block">
-				<input type="hidden" id="addFileDestination" name="destination" />
-				<input type="hidden" id="addFileOverwrite" name="overwrite" />
-				<input type="hidden" name="aspects" value="russel:metaTest,cm:versionable" />
 				<input type="file" id="addFileData" name="filedata" class="fileBrowser" placeholder="Upload a new version" value="Upload a new version" />
+				<input type="hidden" id="session" name="session" />
 			</div>
 		</form>
 		<hr>
@@ -96,6 +94,7 @@ limitations under the License.
         -->
         <div class="section">
         	<p class="bold">Use "." to blank a field</p>
+        	<a id="generateMetadata" class="finger">Generate Metadata</a>
         </div>
         
         <div id="edit-title" class="section">
