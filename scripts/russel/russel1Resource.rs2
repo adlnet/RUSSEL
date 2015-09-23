@@ -1,0 +1,93 @@
+resourceIndex = #string(obj="resource");
+resourceMetaIndex = #string(obj="resourceMeta");
+
+//-------
+
+generateResourceMetadata=#if(operator="@type",
+							 operand="link",
+							 eq=#httpGet(obj=#add(a=#urlMetadataGeneration(), b="?url=", c=#getResourceApi(resourceId="@resourceId").fileToString())),
+							 ne=#httpPost(obj=#getResourceApi(resourceId="@resourceId"),
+										  contentType=#toObject(obj="@meta").cget(mimeType_s=""),
+										  multipart="true",
+										  name=#toObject(obj="@meta").cget(fileName_s=""),
+										  url=#urlMetadataGeneration()).ccall(meta=#getResourceMetadataApi(resourceId="@resourceId")));
+#generateResourceMetadataApi = generateResourceMetadata;
+
+//-------
+
+checkResource = #idxHas(indexDir=#dbDirectory(), databaseName=#dbResource(), index=resourceIndex, key="@resourceId");
+#checkResourceApi = checkResource;
+
+//-------
+
+getResource = #if(operator=#checkResourceApi(resourceId="@resourceId"),
+				  operand="true",
+				  eq=#base64ToFile(obj=#toObject(obj="@rawFile"),
+								   mimeType=#mimeType(file=#toObject(obj="@rawFile").base64ToFile())).ccall(rawFile=#idxGet(indexDir=#dbDirectory(), 
+																															databaseName=#dbResource(), 
+																															index=resourceIndex,
+																															key="@resourceId").toObject().cget(data="")),
+				  ne=#errorInvalidResource());
+#getResourceApi = getResource;
+
+//-------		
+					  
+updateResourceMetadata = #object(a=#solrAddDocument(solrURL=#urlSolrSearch(), documents=#toArray(obj=#toObject(obj="@record").putInObject(item="@resourceId", dest="id"))),
+								 b="@resourceId").ccall(b=#resourceMetadataSchema().ccall(_params=#toObject(obj="@metadata")).idxPut(key="@resourceId",
+																																	 indexDir=#dbDirectory(), 
+																																	 databaseName=#dbResource(), 
+																																	 index=resourceMetaIndex),
+													    record=#idxGet(indexDir=#dbDirectory(), 
+																	   databaseName=#dbResource(), 
+																	   index=resourceMetaIndex,
+																	   key="@resourceId")).cget(b="");
+#updateResourceMetadataApi = updateResourceMetadata;
+		
+//-------
+		
+checkResourceMetadata = #idxHas(indexDir=#dbDirectory(), databaseName=#dbResource(), index=resourceMetaIndex, key="@resourceId");
+#checkResourceMetadataApi = checkResourceMetadata;
+		
+//-------
+		
+getResourceMetadata = #idxGet(indexDir=#dbDirectory(), 
+							  databaseName=#dbResource(), 
+							  index=resourceMetaIndex,
+							  key="@resourceId").toObject();
+#getResourceMetadataApi = getResourceMetadata;
+		
+//-------
+		
+addResource = #object(a=#idxPut(indexDir=#dbDirectory(), 
+							    databaseName=#dbResource(), 
+								index=resourceIndex,
+								key="@resourceId",
+								data="@data"),
+					  b="@resourceId").cget(b="");
+#addResourceApi = addResource; 
+		
+//-------
+		
+removeResource = #object(a=#idxDelete(indexDir=#dbDirectory(), 
+									  databaseName=#dbResource(), 
+									  index=resourceIndex,
+									  key="@resourceId"),
+						 b=#idxDelete(indexDir=#dbDirectory(), 
+									  databaseName=#dbResource(),
+									  index=resourceMetaIndex,
+									  key="@resourceId"),
+						 c=#solrDeleteDocument(solrURL=#urlSolrSearch(),
+											   ids=#toArray(obj=#add(a="[", b="@resourceId", c="]"))),
+						 d="true").cget(d="");
+#removeResourceApi = removeResource;
+		
+//-------
+		
+getResourceList = #idxKeys(indexDir=#dbDirectory(), databaseName=#dbResource(), index=resourceIndex);
+#getResourceListApi = getResourceList;
+
+//-------
+
+zipResources = #filesToZip(obj=#sessionResourceMetadata().cforEach(op=#getResourceApi(resourceId="@id"), 
+															   paramName="id").valueSet());
+#zipResourcesApi = zipResources;

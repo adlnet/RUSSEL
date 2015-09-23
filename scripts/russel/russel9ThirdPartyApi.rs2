@@ -1,0 +1,27 @@
+
+
+//---------------------------------------//---------------------------------------
+//--------------Service calls
+//==============
+
+//==============
+//publish the given document to the FLR
+
+flrPublish=#if(operator=#checkACLAllServiceApi(username="@username",
+											   groups=#getGroupUserReverseApi(username="@username"),
+											   servicename=#serviceResource(),
+											   permissionname=#permissionPostFlr()),
+			   operand="true",
+			   eq=#if(operator=#checkACLAllResourceApi(username="@username",
+													   groups=#getGroupUserReverseApi(username="@username"),
+													   resourceid=#sessionResourceId(),
+													   permissionname=#permissionPostFlr()),
+				      operand="true",
+					  eq=#object(documents=#toArray(obj=#toObject(obj=#sessionResourceMetadata()))).httpPost(url=#urlLearningRegistry(),
+																										 contentType="application/json;charset=UTF-8",
+																										 name="something",
+																										 multipart="false",
+																										 authToken=#tokenLearningRegistry()).displayJson(),
+					  ne=#errorInsufficientPermissions()),
+			   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/publishToFlr=flrPublish;

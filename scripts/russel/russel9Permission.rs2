@@ -1,0 +1,423 @@
+russelGroup = #string(obj="Group");
+russelResource = #string(obj="Resource");
+russelUser = #string(obj="User");
+russelService = #string(obj="Service");
+
+getServicePermissionLists = #if(operator=#checkACLAllServiceApi(username="@username",
+																groups=#getGroupUserReverseApi(username="@username"),
+																servicename=#serviceService(),
+																permissionname=#permissionGetServiceList()),
+								operand="true",
+								eq=#getServicePermissionListsApi().displayJson(),
+								ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getServicePermissionLists = getServicePermissionLists;
+
+//-------------
+
+getUserUserPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															 groups=#getGroupUserReverseApi(username="@username"),
+															 servicename=#serviceUser(),
+															 permissionname=#permissionGetPermissions()),
+							 operand="true",
+							 eq=#if(operator=#checkACLAllUserApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 targetuser=#sessionTargetUser(),
+																 permissionname=#permissionGetPermissions()),
+									operand="true",
+									eq=#getACLUserUserApi(username=#sessionUsername(),
+														  targetuser=#sessionTargetUser()).displayJson(),
+									ne=#errorInsufficientPermissions()),
+							 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getUserUserPermissions = getUserUserPermissions;
+
+//-------------
+
+getUserResourcePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 servicename=#serviceResource(),
+																 permissionname=#permissionGetPermissions()),
+								 operand="true",
+								 eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																		 groups=#getGroupUserReverseApi(username="@username"),
+																		 resourceid=#sessionResourceId(),
+																		 permissionname=#permissionGetPermissions()), 
+									    operand="true",
+									    eq=#getACLUserResourceApi(username=#sessionUsername(),
+																  resourceid=#sessionResourceId()).displayJson(),
+									    ne=#errorInsufficientPermissions()),
+								  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getUserResourcePermissions = getUserResourcePermissions;
+
+//-------------
+
+getUserServicePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																groups=#getGroupUserReverseApi(username="@username"),
+																servicename=#serviceService(),
+																permissionname=#permissionGetPermissions()),
+								operand="true",
+								eq=#getACLUserServiceApi(username=#sessionUsername()).displayJson(),
+								ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getUserServicePermissions = getUserServicePermissions;
+
+//-------------
+
+getUserGroupPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															  groups=#getGroupUserReverseApi(username="@username"),
+															  servicename=#serviceGroup(),
+															  permissionname=#permissionGetPermissions()),
+							  operand="true",
+							  eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																   groups=#getGroupUserReverseApi(username="@username"),
+																   groupname=#sessionGroupName(),
+																   permissionname=#permissionGetPermissions()),
+									 operand="true",
+									 eq=#getACLUserGroupApi(username=#sessionUsername(),
+															groupname=#sessionGroupName()).displayJson(),
+									 ne=#errorInsufficientPermissions()),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getUserGroupPermissions = getUserGroupPermissions;
+
+//-------------
+
+getGroupUserPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															  groups=#getGroupUserReverseApi(username="@username"),
+															  servicename=#serviceUser(),
+															  permissionname=#permissionGetPermissions()),
+							  operand="true",
+							  eq=#if(operator=#checkACLAllUserApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  targetuser=#sessionUsername(),
+																  permissionname=#permissionGetPermissions()),
+									 operand="true",
+									 eq=#getACLGroupUserApi(groupname=#sessionGroupName(),
+															username=#sessionUsername()).displayJson(),
+									 ne=#errorInsufficientPermissions()),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getGroupUserPermissions = getGroupUserPermissions;
+
+//-------------
+
+getGroupResourcePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  servicename=#serviceResource(),
+																  permissionname=#permissionGetPermissions()),
+								  operand="true",
+								  eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																		  groups=#getGroupUserReverseApi(username="@username"),
+																		  resourceid=#sessionResourceId(),
+																		  permissionname=#permissionGetPermissions()),
+										 operand="true",
+										 eq=#getACLGroupResourceApi(groupname=#sessionGroupName(),
+																	resourceid=#sessionResourceId()).displayJson(),
+										 ne=#errorInsufficientPermissions()),
+									 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getGroupResourcePermissions = getGroupResourcePermissions;
+
+//-------------
+
+getGroupServicePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 servicename=#serviceService(),
+																 permissionname=#permissionGetPermissions()),
+								 operand="true",
+								 eq=#getACLGroupServiceApi(groupname=#sessionGroupName()).displayJson(),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getGroupServicePermissions = getGroupServicePermissions;
+
+//-------------
+
+getGroupGroupPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															   groups=#getGroupUserReverseApi(username="@username"),
+															   servicename=#serviceGroup(),
+															   permissionname=#permissionGetPermissions()),
+							   operand="true",
+							   eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																    groups=#getGroupUserReverseApi(username="@username"),
+																    groupname=#sessionTargetGroup(),
+																    permissionname=#permissionGetPermissions()),
+									  operand="true",
+									  eq=#getACLGroupGroupApi(groupname=#sessionGroupName(),
+															  targetgroup=#sessionTargetGroup()).displayJson(),
+									  ne=#errorInsufficientPermissions()),
+								ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getGroupGroupPermissions = getGroupGroupPermissions;
+
+//-------------
+
+addGroupGroupPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															   groups=#getGroupUserReverseApi(username="@username"),
+															   servicename=#serviceGroup(),
+															   permissionname=#permissionAddPermissions()),
+							   operand="true",
+							   eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																    groups=#getGroupUserReverseApi(username="@username"),
+																    groupname=#sessionTargetGroup(),
+																    permissionname=#permissionAddPermissions()),
+									  operand="true",
+									  eq=#addACLGroupGroupPermissionApi(groupname=#sessionGroupName(),
+																		targetgroup=#sessionTargetGroup(),
+																		permissionname=#sessionPermissionName()).displayJson(),
+									  ne=#errorInsufficientPermissions()),
+							   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addGroupGroupPermissions = addGroupGroupPermissions;
+
+//-------------
+
+removeGroupGroupPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  servicename=#serviceGroup(),
+																  permissionname=#permissionRemovePermissions()),
+								  operand="true",
+								  eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																	   groups=#getGroupUserReverseApi(username="@username"),
+																	   groupname=#sessionTargetGroup(),
+																	   permissionname=#permissionRemovePermissions()),
+										 operand="true",
+										 eq=#removeACLGroupGroupPermissionApi(groupname=#sessionGroupName(),
+																			  targetgroup=#sessionTargetGroup(),
+																			  permissionname=#sessionPermissionName()).displayJson(),
+										 ne=#errorInsufficientPermissions()),
+								  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeGroupGroupPermissions = removeGroupGroupPermissions;
+
+//-------------
+
+addGroupServicePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 servicename=#serviceService(),
+																 permissionname=#permissionAddPermissions()),
+								 operand="true",
+								 eq=#addACLGroupServicePermissionApi(groupname=#sessionGroupName(),
+																	 servicename=#sessionServiceName(),
+																	 permissionname=#sessionPermissionName()).displayJson(),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addGroupServicePermissions = addGroupServicePermissions;
+
+//-------------
+
+removeGroupServicePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																    groups=#getGroupUserReverseApi(username="@username"),
+																    servicename=#serviceService(),
+																    permissionname=#permissionRemovePermissions()),
+								    operand="true",
+								    eq=#removeACLGroupServicePermissionApi(groupname=#sessionGroupName(),
+																		   servicename=#sessionServiceName(),
+																		   permissionname=#sessionPermissionName()).displayJson(),
+								    ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeGroupServicePermissions = removeGroupServicePermissions;
+
+//-------------
+
+addGroupResourcePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  servicename=#serviceResource(),
+																  permissionname=#permissionAddPermissions()),
+								  operand="true",
+								  eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																		  groups=#getGroupUserReverseApi(username="@username"),
+																		  resourceid=#sessionResourceId(),
+																		  permissionname=#permissionAddPermissions()),
+										 operand="true",
+										 eq=#addACLGroupResourcePermissionApi(groupname=#sessionGroupName(),
+																			  resourceid=#sessionResourceId(),
+																			  permissionname=#sessionPermissionName()).displayJson(),
+										 ne=#errorInsufficientPermissions()),
+								  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addGroupResourcePermissions = addGroupResourcePermissions;
+
+//-------------
+
+removeGroupResourcePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																	 groups=#getGroupUserReverseApi(username="@username"),
+																	 servicename=#serviceResource(),
+																	 permissionname=#permissionRemovePermissions()),
+									 operand="true",
+									 eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																			 groups=#getGroupUserReverseApi(username="@username"),
+																			 resourceid=#sessionResourceId(),
+																			 permissionname=#permissionRemovePermissions()),
+											operand="true",
+											eq=#removeACLGroupResourcePermissionApi(groupname=#sessionGroupName(),
+																				    resourceid=#sessionResourceId(),
+																				    permissionname=#sessionPermissionName()).displayJson(),
+											ne=#errorInsufficientPermissions()),
+									 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeGroupResourcePermissions = removeGroupResourcePermissions;
+
+//-------------
+
+addGroupUserPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															  groups=#getGroupUserReverseApi(username="@username"),
+															  servicename=#serviceUser(),
+															  permissionname=#permissionAddPermissions()),
+							  operand="true",
+							  eq=#if(operator=#checkACLAllUserApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  targetuser=#sessionUsername(),
+																  permissionname=#permissionAddPermissions()),
+									 operand="true",
+									 eq=#addACLGroupUserPermissionApi(groupname=#sessionGroupName(),
+																	  username=#sessionUsername(),
+																	  permissionname=#sessionPermissionName()).displayJson(),
+									 ne=#errorInsufficientPermissions()),
+							  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addGroupUserPermissions = addGroupUserPermissions;
+
+//-------------
+
+removeGroupUserPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 servicename=#serviceUser(),
+																 permissionname=#permissionRemovePermissions()),
+								 operand="true",
+								 eq=#if(operator=#checkACLAllUserApi(username="@username",
+																	 groups=#getGroupUserReverseApi(username="@username"),
+																	 targetuser=#sessionUsername(),
+																	 permissionname=#permissionRemovePermissions()),
+										operand="true",
+										eq=#removeACLGroupUserPermissionApi(groupname=#sessionGroupName(),
+																			username=#sessionUsername(),
+																			permissionname=#sessionPermissionName()).displayJson(),
+										ne=#errorInsufficientPermissions()),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeGroupUserPermissions = removeGroupUserPermissions;
+
+//-------------
+
+addUserGroupPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															  groups=#getGroupUserReverseApi(username="@username"),
+															  servicename=#serviceGroup(),
+															  permissionname=#permissionAddPermissions()),
+							   operand="true",
+							   eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																    groups=#getGroupUserReverseApi(username="@username"),
+																    groupname=#sessionGroupName(),
+																    permissionname=#permissionAddPermissions()),
+									  operand="true",
+									  eq=#addACLUserGroupPermissionApi(username=#sessionUsername(),
+																	   groupname=#sessionGroupName(),
+																	   permissionname=#sessionPermissionName()).displayJson(),
+									  ne=#errorInsufficientPermissions()),
+							   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addUserGroupPermissions = addUserGroupPermissions;
+
+//-------------
+
+removeUserGroupPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 servicename=#serviceGroup(),
+																 permissionname=#permissionRemovePermissions()),
+								  operand="true",
+								  eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																	   groups=#getGroupUserReverseApi(username="@username"),
+																	   groupname=#sessionGroupName(),
+																	   permissionname=#permissionRemovePermissions()),
+										 operand="true",
+										 eq=#removeACLUserGroupPermissionApi(username=#sessionUsername(),
+																			 groupname=#sessionGroupName(),
+																			 permissionname=#sessionPermissionName()).displayJson(),
+										 ne=#errorInsufficientPermissions()),
+								  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeUserGroupPermissions = removeUserGroupPermissions;
+
+//-------------
+
+addUserServicePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 servicename=#serviceService(),
+																 permissionname=#permissionAddPermissions()),
+								 operand="true",
+								 eq=#addACLUserServicePermissionApi(username=#sessionUsername(),
+																	servicename=#sessionServiceName(),
+																	permissionname=#sessionPermissionName()).displayJson(),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addUserServicePermissions = addUserServicePermissions;
+
+//-------------
+
+removeUserServicePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																   groups=#getGroupUserReverseApi(username="@username"),
+																   servicename=#serviceService(),
+																   permissionname=#permissionRemovePermissions()),
+								   operand="true",
+								   eq=#removeACLUserServicePermissionApi(username=#sessionUsername(),
+																		 servicename=#sessionServiceName(),
+																		 permissionname=#sessionPermissionName()).displayJson(),
+								   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeUserServicePermissions = removeUserServicePermissions;
+
+//-------------
+
+addUserResourcePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 servicename=#serviceResource(),
+																 permissionname=#permissionAddPermissions()),
+								 operand="true",
+								 eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																		 groups=#getGroupUserReverseApi(username="@username"),
+																		 resourceid=#sessionResourceId(),
+																		 permissionname=#permissionAddPermissions()),
+										operand="true",
+										eq=#addACLUserResourcePermissionApi(username=#sessionUsername(),
+																			resourceid=#sessionResourceId(),
+																			permissionname=#sessionPermissionName()).displayJson(),
+										ne=#errorInsufficientPermissions()),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addUserResourcePermissions = addUserResourcePermissions;
+
+//-------------
+
+removeUserResourcePermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																	 groups=#getGroupUserReverseApi(username="@username"),
+																	 servicename=#serviceResource(),
+																	 permissionname=#permissionRemovePermissions()),
+									 operand="true",
+									 eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																			 groups=#getGroupUserReverseApi(username="@username"),
+																			 resourceid=#sessionResourceId(),
+																			 permissionname=#permissionRemovePermissions()),
+											operand="true",
+											eq=#removeACLUserResourcePermissionApi(username=#sessionUsername(),
+																				   resourceid=#sessionResourceId(),
+																				   permissionname=#sessionPermissionName()).displayJson(),
+											ne=#errorInsufficientPermissions()),
+									 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeUserResourcePermissions = removeUserResourcePermissions;
+
+//-------------
+
+addUserUserPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+															 groups=#getGroupUserReverseApi(username="@username"),
+															 servicename=#serviceUser(),
+															 permissionname=#permissionAddPermissions()),
+							  operand="true",
+							  eq=#if(operator=#checkACLAllUserApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  targetuser=#sessionTargetUser(),
+																  permissionname=#permissionAddPermissions()),
+									 operand="true",
+									 eq=#addACLUserUserPermissionApi(username=#sessionUsername(),
+																     targetuser=#sessionTargetUser(),
+																	 permissionname=#sessionPermissionName()).displayJson(),
+									 ne=#errorInsufficientPermissions()),
+							  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addUserUserPermissions = addUserUserPermissions;
+
+//-------------
+
+removeUserUserPermissions = #if(operator=#checkACLAllServiceApi(username="@username",
+																groups=#getGroupUserReverseApi(username="@username"),
+																servicename=#serviceUser(),
+																permissionname=#permissionRemovePermissions()),
+								 operand="true",
+								 eq=#if(operator=#checkACLAllUserApi(username="@username",
+																	 groups=#getGroupUserReverseApi(username="@username"),
+																	 targetuser=#sessionTargetUser(),
+																	 permissionname=#permissionRemovePermissions()),
+										operand="true",
+										eq=#removeACLUserUserPermissionApi(username=#sessionUsername(),
+																		   targetuser=#sessionTargetUser(),
+																		   permissionname=#sessionPermissionName()).displayJson(),
+										ne=#errorInsufficientPermissions()),
+								 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeUserUserPermissions = removeUserUserPermissions;

@@ -1,0 +1,130 @@
+groupIndex = #string(obj="group");
+
+//--------
+
+checkGroup = #idxHas(indexDir=#dbDirectory(), databaseName=#dbGroup(), index=groupIndex, key="@groupname");
+
+//--------
+
+getGroup = #object(users=#idxKeys(indexDir=#dbDirectory(), databaseName=#dbGroupMemberUsers(), index="@groupname"),
+				   groups=#idxKeys(indexDir=#dbDirectory(), databaseName=#dbGroupMemberGroups(), index="@groupname"));
+
+//--------				   
+			
+getGroupReverse = #idxKeys(indexDir=#dbDirectory(), 
+						   databaseName=#dbGroupMemberReverseGroup(),
+						   index="@groupname");
+			
+//--------
+			
+addGroup = #if(operator=checkGroup,
+			   operand="true",
+			   eq=#errorGroupAlreadyExists(),
+			   ne=#idxPut(indexDir=#dbDirectory(), 
+						  databaseName=#dbGroup(), 
+						  index=groupIndex,
+						  key="@groupname"));
+			
+//--------
+			
+removeGroup = #object(a=#idxDelete(indexDir=#dbDirectory(), 
+								   databaseName=#dbGroup(), 
+								   index=groupIndex,
+								   key="@groupname"),
+					  b=#idxDelete(indexDir=#dbDirectory(), 
+								   databaseName=#dbGroupMemberUsers(),
+								   index="@groupname",
+								   removeIndex="true"),
+					  c=#idxDelete(indexDir=#dbDirectory(), 
+								   databaseName=#dbGroupMemberGroups(),
+								   index="@groupname",
+								   removeIndex="true"));
+						
+//--------
+			
+addMemberGroup = #object(a=#idxPut(indexDir=#dbDirectory(), 
+								   databaseName=#dbGroupMemberGroups(),
+								   index="@groupname",
+								   key="@member"),
+						 b=#idxPut(indexDir=#dbDirectory(), 
+								   databaseName=#dbGroupMemberReverseGroup(),
+								   index="@member",
+								   key="@groupname"),
+						 c="true").cget(c="");
+			
+//--------
+			
+removeMemberGroup = #object(a=#idxDelete(indexDir=#dbDirectory(), 
+									     databaseName=#dbGroupMemberGroups(),
+										 index="@groupname",
+										 key="@member"),
+							b=#idxDelete(indexDir=#dbDirectory(), 
+										 databaseName=#dbGroupMemberReverseGroup(),
+										 index="@member",
+										 key="@groupname"),
+							c="true").cget(c="");
+			
+//--------			
+						
+addMemberUser = #object(a=#idxPut(indexDir=#dbDirectory(), 
+								  databaseName=#dbGroupMemberUsers(),
+								  index="@groupname",
+								  key="@member"),
+					    b=#idxPut(indexDir=#dbDirectory(), 
+								  databaseName=#dbGroupMemberReverseUser(),
+								  index="@member",
+								  key="@groupname"),
+						c="true").cget(c="");
+
+//--------								  
+			
+removeMemberUser = #object(a=#idxDelete(indexDir=#dbDirectory(), 
+										databaseName=#dbGroupMemberUsers(),
+										index="@groupname",
+										key="@member"),
+						   b=#idxDelete(indexDir=#dbDirectory(), 
+										databaseName=#dbGroupMemberReverseUser(),
+										index="@member",
+										key="@groupname"),
+						   c="true").cget(c="");
+			
+//--------
+			
+getGroupList = #idxKeys(indexDir=#dbDirectory(), databaseName=#dbGroup(), index=groupIndex);
+getGroupUserReverse = #getParentGroupsApi(aused=#toArray(obj="[]"), 
+										  groups=#idxKeys(indexDir=#dbDirectory(), databaseName=#dbGroupMemberReverseUser(),
+														  index="@username").toArray()).toArray().union(a=#idxKeys(indexDir=#dbDirectory(), databaseName=#dbGroupMemberReverseUser(),
+																												   index="@username").toArray());
+
+//--------																												   
+			
+getParentGroups = #if(operator=#count(obj=#toArray(obj="@groups")),
+					  operand="0",
+					  eq=#object(b="@aused",
+								 c="@groups").cget(b=""),
+					  ne=#getParentGroupsApi(aused=#addToList(array=#toArray(obj="@aused"), 
+														      item=#getIndex(obj=#toArray(obj="@groups"),
+																		     index="0")),
+										     groups=#if(operator="@groupSet",
+													    operand="",
+													    eq=#toArray(obj="[]"),
+													    ne="@groupSet").ccall(groupSet=#removeDuplicates(obj=#difference(obj=getGroupReverse.ccall(groupname=#getIndex(obj=#toArray(obj="@groups"),
+																																									   index="0")).toArray(),
+																													     diff=#addToList(array=#toArray(obj="@aused"), 
+																																		 item=#getIndex(obj=#toArray(obj="@groups"),
+																																						index="0"))).union(a=#removeFromArray(obj=#toArray(obj="@groups"), 
+																																															  item=#getIndex(obj=#toArray(obj="@groups"),
+																																																						  index="0")))))));
+											
+//--------
+											
+#getParentGroupsApi = getParentGroups;															   
+#addMemberGroupApi = addMemberGroup;
+#removeMemberGroupApi = removeMemberGroup;
+#addMemberUserApi = addMemberUser;
+#removeMemberUserApi = removeMemberUser;
+#getGroupApi = getGroup;
+#addGroupApi = addGroup;
+#removeGroupApi = removeGroup;
+#getGroupsApi = getGroupList;
+#getGroupUserReverseApi = getGroupUserReverse;

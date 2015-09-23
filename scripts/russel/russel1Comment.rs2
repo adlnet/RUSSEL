@@ -1,0 +1,39 @@
+getCommentCount = #idxKeys(indexDir=#dbDirectory(), 
+						   databaseName=#dbComment(),
+						   index="@targetId").count();
+#getCommentCountApi = getCommentCount;
+
+//--------
+
+getComments = #idxKeys(indexDir=#dbDirectory(), 
+					   databaseName=#dbComment(),
+					   index="@targetId").cforEach(op=#idxGet(indexDir=#dbDirectory(), databaseName=#dbComment(), index="@targetId", key="@id").putInObject(item="@id", dest="id"), paramName="id").valueSet();
+#getCommentsApi = getComments;
+			
+//--------
+			
+addComment = #object(b=#toObject(obj="@a").putInObject(item="@commentId", dest="id")).ccall(a=#commentMetadataSchema().ccall(_params=#toObject(obj="@data")).idxPut(indexDir=#dbDirectory(), 
+																																									databaseName=#dbComment(),
+																																									index="@targetId",
+																																									key="@commentId")).cget(b="");
+#addCommentApi = addComment;
+			
+//--------
+			
+removeComment = #object(a=#idxDelete(indexDir=#dbDirectory(), 
+									 databaseName=#dbComment(),
+								     index="@targetId",
+								     key="@commentId"),
+						b="true").cget(b="");
+#removeCommentApi = removeComment;
+
+//--------
+
+removeComments = #object(a=#idxDelete(indexDir=#dbDirectory(), 
+									  databaseName=#dbComment(),
+									  index="@targetId",
+									  removeIndex="true"),
+						 b="true").cget(b="");
+#removeCommentsApi = removeComments;
+			
+//--------			

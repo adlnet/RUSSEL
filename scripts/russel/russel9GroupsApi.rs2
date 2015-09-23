@@ -1,0 +1,156 @@
+//-------------
+
+getGroups = #if(operator=#checkACLAllServiceApi(username="@username",
+											    groups=#getGroupUserReverseApi(username="@username"),
+											    servicename=#serviceService(),
+											    permissionname=#permissionReadAllGroups()),
+			    operand="true",
+			    eq=#getGroupsApi().displayJson(),
+			    ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getGroups = getGroups;
+
+//-------------
+
+createGroup = #if(operator=#checkACLAllServiceApi(username="@username",
+											      groups=#getGroupUserReverseApi(username="@username"),
+											      servicename=#serviceService(),
+											      permissionname=#permissionCreateGroup()),
+			      operand="true",
+			      eq=#object(a=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionGetGroupMembers(),
+															 username="@username"),
+							 b=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionAddGroupMemberGroup(),
+															 username="@username"),
+							 c=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionDeleteGroupMemberGroup(),
+															 username="@username"),
+							 d=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionDeleteGroupMemberUser(),
+															 username="@username"),
+							 e=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionAddGroupMemberUser(),
+															 username="@username"),
+							 f=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionDeleteGroup(),
+															 username="@username"),
+							 g=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionAddPermissions(),
+															 username="@username"),
+							 h=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionRemovePermissions(),
+															 username="@username"),
+							 i=#addACLUserGroupPermissionApi(groupname=#sessionGroupName(),
+															 permissionname=#permissionGetPermissions(),
+															 username="@username"),
+							 z="true").ccall(a=#addGroupApi(groupname=#sessionGroupName())).cget(z="").displayJson(),
+			      ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/createGroup = createGroup;
+
+//-------------
+
+deleteGroup = #if(operator=#checkACLAllServiceApi(username="@username",
+											      groups=#getGroupUserReverseApi(username="@username"),
+											      servicename=#serviceGroup(),
+											      permissionname=#permissionDeleteGroup()),
+			      operand="true",
+			      eq=#if(operator=#checkACLAllGroupApi(username="@username",
+													   groups=#getGroupUserReverseApi(username="@username"),
+													   groupname=#sessionGroupName(),
+													   permissionname=#permissionDeleteGroup()),
+							operand="true",
+							eq=#object(a=#removeGroupApi(groupname=#sessionGroupName()),
+									   b="true").cget(b="").displayJson(),
+							ne=#errorInsufficientPermissions()),
+			      ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/deleteGroup = deleteGroup;
+
+//-------------
+
+addGroupMemberGroup = #if(operator=#checkACLAllServiceApi(username="@username",
+														  groups=#getGroupUserReverseApi(username="@username"),
+														  servicename=#serviceGroup(),
+														  permissionname=#permissionAddGroupMemberGroup()),
+						  operand="true",
+						  eq=#if(operator=#checkACLAllGroupApi(username="@username",
+															   groups=#getGroupUserReverseApi(username="@username"),
+															   groupname=#sessionGroupName(),
+															   permissionname=#permissionAddGroupMemberGroup()),
+								 operand="true",
+								 eq=#addMemberGroupApi(groupname=#sessionGroupName(),
+													   member=#sessionTargetGroup()).displayJson(),
+								 ne=#errorInsufficientPermissions()),
+						  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addGroupMemberGroup = addGroupMemberGroup;
+
+//-------------
+
+deleteGroupMemberGroup = #if(operator=#checkACLAllServiceApi(username="@username",
+															 groups=#getGroupUserReverseApi(username="@username"),
+															 servicename=#serviceGroup(),
+															 permissionname=#permissionDeleteGroupMemberGroup()),
+							 operand="true",
+							 eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  groupname=#sessionGroupName(),
+																  permissionname=#permissionDeleteGroupMemberGroup()),
+									operand="true",
+									eq=#removeMemberGroupApi(groupname=#sessionGroupName(),
+															 member=#sessionTargetGroup()).displayJson(),
+									ne=#errorInsufficientPermissions()),
+							 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/deleteGroupMemberGroup = deleteGroupMemberGroup;
+
+//-------------
+
+addGroupMemberUser = #if(operator=#checkACLAllServiceApi(username="@username",
+														 groups=#getGroupUserReverseApi(username="@username"),
+														 servicename=#serviceGroup(),
+														 permissionname=#permissionAddGroupMemberUser()),
+						 operand="true",
+						 eq=#if(operator=#checkACLAllGroupApi(username="@username",
+															  groups=#getGroupUserReverseApi(username="@username"),
+															  groupname=#sessionGroupName(),
+															  permissionname=#permissionAddGroupMemberUser()),
+								operand="true",
+								eq=#addMemberUserApi(groupname=#sessionGroupName(),
+													 member=#sessionUsername()).displayJson(),
+								ne=#errorInsufficientPermissions()),
+						 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addGroupMemberUser = addGroupMemberUser;
+
+//-------------
+
+deleteGroupMemberUser = #if(operator=#checkACLAllServiceApi(username="@username",
+															groups=#getGroupUserReverseApi(username="@username"),
+															servicename=#serviceGroup(),
+															permissionname=#permissionDeleteGroupMemberUser()),
+							operand="true",
+							eq=#if(operator=#checkACLAllGroupApi(username="@username",
+																 groups=#getGroupUserReverseApi(username="@username"),
+																 groupname=#sessionGroupName(),
+																 permissionname=#permissionDeleteGroupMemberUser()),
+								   operand="true",
+								   eq=#removeMemberUserApi(groupname=#sessionGroupName(),
+														   member=#sessionUsername()).displayJson(),
+								   ne=#errorInsufficientPermissions()),
+							ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/deleteGroupMemberUser = deleteGroupMemberUser;
+
+//-------------
+
+getGroupMembers = #if(operator=#checkACLAllServiceApi(username="@username",
+													  groups=#getGroupUserReverseApi(username="@username"),
+													  servicename=#serviceGroup(),
+													  permissionname=#permissionGetGroupMembers()),
+					  operand="true",
+					  eq=#if(operator=#checkACLAllGroupApi(username="@username",
+														   groups=#getGroupUserReverseApi(username="@username"),
+														   groupname=#sessionGroupName(),
+														   permissionname=#permissionGetGroupMembers()),
+						     operand="true",
+						     eq=#getGroupApi(groupname=#sessionGroupName()).displayJson(),
+							 ne=#errorInsufficientPermissions()),
+					  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getGroupMembers = getGroupMembers;
+

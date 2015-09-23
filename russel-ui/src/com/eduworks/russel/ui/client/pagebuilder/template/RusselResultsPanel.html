@@ -1,0 +1,154 @@
+<!--
+Copyright 2012-2013 Eduworks Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+    <!-- Modal Dialogs -->
+    <div id="newCollectionModal" class="reveal-modal">
+        <h2>Create a Collection</h2>
+        <form class="nice">
+			<input id="collectionTitle" type="text" placeholder="Collection name" class="input-text">
+		</form>
+        <a href="#" class="blue small nice button radius" onclick="$('#newCollectionModal').trigger('reveal:close');" >Save</a> 
+        <a href="#" class="white small nice button radius" onclick="$('#newCollectionModal').trigger('reveal:close');" >Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+
+    <div id="editCollectionModal" class="reveal-modal">
+        <h2>Edit Collection</h2>
+        <p class="lead">Some options below.</p>
+        
+        <a href="#" class="white small nice button radius" onclick="$('#editCollectionModal').trigger('reveal:close');" >Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    <!-- END dialogs -->
+
+
+<!-- page content -->
+    
+        <div class="row">
+            <div class="twelve columns">
+            	<form id="r-searchResultsActions" class="nice">
+            		<div id="r-pageTitle">
+            			<h4>My Files:  </h4>
+            		</div>
+            		<div id="searchOptions" style="display:inline;">
+                    <label>Search in</label>
+                    <select id="resultsSearchSelectSource">
+                      <option>RUSSEL</option>
+                      <option id="resultsSearchSourceLR">Learning Registry</option>
+                    </select>
+					</div>
+            		<div id="filterOptions" style="display:inline;">
+		                <label>Show</label>
+	                    <select id="resultsSearchSelectShow">
+	                      <option>Everything</option>
+	                      <option>Packages</option>
+	                      <option>Documents</option>
+	                      <option>Images</option>
+	                      <option>Videos</option>
+	                      <option>Audio</option>
+	                      <option id="resultsSearchFilterLink">Links</option>
+	                    </select>
+	                    <label>Distribution</label>
+	                    <select id="resultsSearchSelectDistribution">
+	                      <option>Everything</option>
+	                      <option disabled="">Government Content:</option>
+	                      <option>Statement A (public)</option>
+	                      <option>Statement B</option>
+	                      <option>Statement C</option>
+	                      <option>Statement D</option>
+	                      <option>Statement E</option>
+	                      <option>Statement F</option>
+	                      <option>Statement X</option>
+	                      <option disabled="">Distribution Restrictions</option>
+	                      <option>LR - Legal Restrictions</option>
+	                      <option>NR - No restriction</option>
+	                      <option>CP - Cleared for Public</option>
+	                      <option>CG - Cleared for US Gov</option>
+	                      <option>CD - Cleared for DoD</option>
+	                      <option>RD - Restrictions on DoD</option>
+	                      <option>NF - NOFORN</option>
+	                      <option>OT - Other</option> 
+	                    </select>
+	                    <!--
+	                    <label>Sort by</label>
+	                    <select id="resultsSearchSelectSort" disabled="disabled">
+	                      <option>Default</option>
+	                      <option>Ratings</option>
+	                      <option>Usage</option>
+	                      <option>Comments</option>
+	                      <option>Modified Date</option>
+	                    </select>
+	                    -->
+	                    <!-- <span id="resultsSearchSelectReverse" title="Reverse sort order" class="resort"></span> -->
+						<!-- <dd class="">Select <a id="r-editSelectAll" class="finger">All</a> | <a id="r-editSelectNone" class="finger">None</a></dd> -->
+                    </div>
+					<span>
+						<a id="searchPreviousPage" class="finger">Previous Page</a> | <a id="searchNextPage" class="finger">Next Page</a>
+					</span>
+                </form>
+            </div>
+         </div>
+         
+         <div id="content" class="row">
+    		<div class="twelve columns">
+        		<a id="r-objectEditSelected" style="float:right" class="nice small radius white button finger">Edit Selected</a>
+    		</div>
+       	</div>
+          
+		<div id="content" class="row">
+			<div class="twelve columns">
+		
+			<div id="searchPanelWidgetScroll" class="vertStack">
+              
+ <!--           <div class="tile large" tabindex="0"> 
+                    <div class="cube file course"> 
+                    	<div class="front" > 
+                            <p class="title" ><span class="icon"></span>Bradleys_in_Iraq_the_long_long_title_here</p>
+                            <p class="description" style="background-image:url(preview/ABC-XYZ-1234-small.jpg);"> 
+                            	
+                            </p>
+                            <p class="paradata">
+                                <span class="uses">1</span> 
+                                <span class="comments">5</span> 
+                                <span class="status-alert"></span> 
+                                <span class="rating">
+                                	<span class="current-rating" style="width:70%;">3.5 stars</span> 
+                                </span>
+                            </p>
+                        </div>
+                    	<div class="back"> 
+							<a href="#" title="Delete" class="delete"></a>
+							<a href="#" title="Select" class="select"></a>
+                            <p class="status">
+                                <span class="status-title">Bradleys in Iraq the long long title here</span><br>
+                                Course (SCORM 2004) <br> 
+                                Modified: 10/05/2008<br>
+                                <span class="status-alert"></span>FOUO<br> 
+                            </p>
+                            <div class="actions">
+                            	<a href="#" class="">Open</a>
+                            	<a href="#" class="">Related</a>
+                            </div>
+                        </div>
+                      </div>
+                      <a href="#" title="Click to open" class="hotspot"></a> 
+                 </div>
+-->
+                 
+            </div>
+        	</div>
+        </div> 
+          
+    <!-- END page content -->

@@ -1,0 +1,8 @@
+site.name="RUSSEL"
+root.url="http://russel.eduworks.com/"
+esb.url="http://russel.eduworks.com/l/"
+alfresco.url="http://127.0.0.1:9722/"
+site.url="http://127.0.0.1:9722/"
+help.url="http://127.0.0.1:9722/"
+feedback.email="RUSSEL.feedback@adlnet.gov"
+

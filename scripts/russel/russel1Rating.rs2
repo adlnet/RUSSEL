@@ -1,0 +1,33 @@
+// -------------
+
+getRatings = #if(operator=#toArray(obj="@records").count(),
+				 operand="0",
+				 eq=#object(votes="0",
+							rating="2.5"),
+				 ne=#object(votes=#toArray(obj="@records").count(),
+							rating=#average(obj=#toArray(obj="@records")))).ccall(records=#idxKeys(indexDir=#dbDirectory(), 
+																								   databaseName=#dbRating(), 
+																								   index="@targetId").cforEach(paramName="id",
+																															   op=#idxGet(indexDir=#dbDirectory(), 
+																																		  databaseName=#dbRating(), 
+																																		  index="@targetId", 
+																																		  key="@id").toObject().cget(rating="").toDouble()).valueSet());
+#getRatingsApi = getRatings;
+						
+// -------------
+						
+addRating = #object(a=#ratingMetadataSchema().ccall(_params=#toObject(obj="@data")).idxPut(indexDir=#dbDirectory(), 
+																						   databaseName=#dbRating(),
+																						   index="@targetId",
+																						   key="@ratingId"),
+					c="true").cget(c="");
+#addRatingApi = addRating;
+
+// -------------
+
+removeRatings = #object(a=#idxDelete(indexDir=#dbDirectory(), 
+									 databaseName=#dbRating(),
+									 index="@targetId",
+									 removeIndex="true"),
+						 b="true").cget(b="");
+#removeRatingsApi = removeRatings;

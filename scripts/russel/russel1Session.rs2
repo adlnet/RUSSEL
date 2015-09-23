@@ -1,0 +1,48 @@
+sessionIndex = #string(obj="session");
+
+//-------------
+
+checkSession = #idxHas(indexDir=#dbDirectory(), databaseName=#dbSession(), index=sessionIndex, key="@sessionId");
+
+//-------------
+ 
+getSession = #if(operator=#checkSessionApi(sessionId="@sessionId"),
+				 operand="true",
+				 eq=#idxGet(indexDir=#dbDirectory(), 
+							databaseName=#dbSession(), 
+							index=sessionIndex,
+							key="@sessionId"),
+				 ne=#errorInvalidSession());
+				
+//-------------
+				
+createSession = #object(a=#idxPut(indexDir=#dbDirectory(), 
+								  databaseName=#dbSession(), 
+								  index=sessionIndex,
+								  key="@sessionId",
+								  ttlAccessSeconds="1800"),
+						b="@sessionId").cget(b="");
+				
+//-------------
+				
+removeSession = #idxDelete(indexDir=#dbDirectory(), 
+						   databaseName=#dbSession(), 
+						   index=sessionIndex,
+						   key="@sessionId");
+				
+//-------------
+				
+updateSession = #idxPut(indexDir=#dbDirectory(), 
+						databaseName=#dbSession(), 
+						index=sessionIndex,
+						key="@sessionId",
+						username="@username");					 
+
+//-------------
+						
+#checkSessionApi = checkSession;
+#getSessionApi = getSession;
+#createSessionApi = createSession;
+#removeSessionApi = removeSession;
+#updateSessionApi = updateSession;
+

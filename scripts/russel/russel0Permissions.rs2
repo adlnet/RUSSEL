@@ -1,0 +1,121 @@
+createUser = #string(obj="Create_User");
+#permissionCreateUser = createUser;
+
+deleteUser = #string(obj="Delete_User");
+#permissionDeleteUser = deleteUser;
+
+resetUserPassword = #string(obj="Reset_User_Password");
+#permissionResetUserPassword = resetUserPassword;
+
+readAllUsers = #string(obj="Get_Users_Listing");
+#permissionReadAllUsers = readAllUsers;
+
+//-----------
+
+addResource = #string(obj="Add_Resource");
+#permissionAddResource = addResource;
+
+readResource = #string(obj="View_Resource");
+#permissionReadResource = readResource;
+
+deleteResource = #string(obj="Delete_Resource");
+#permissionDeleteResource = deleteResource;
+
+getResource = #string(obj="Download_Resource");
+#permissionGetResource = getResource;
+
+rateResource = #string(obj="Rate_Resource");
+#permissionRateResource = rateResource;
+
+editResource = #string(obj="Update_Resource");
+#permissionEditResource = editResource;
+
+updateResourceMetadata = #string(obj="Update_Resource_Metadata");
+#permissionUpdateResourceMetadata = updateResourceMetadata;
+
+editResourceACL = #string(obj="Edit_Resource_Permission");
+#permissionEditResourceACL = editResourceACL;
+
+generateMetadata = #string(obj="Generate_Metadata");
+#permissionGenerateMetadata = generateMetadata;
+
+//-----------
+
+addComment = #string(obj="Add_Comment");
+#permissionAddComment = addComment;
+
+deleteComment = #string(obj="Delete_Comment");
+#permissionDeleteComment = deleteComment;
+
+getComments = #string(obj="Get_Comments");
+#permissionGetComments = getComments;
+
+//-----------
+
+basicSearch = #string(obj="Search");
+#permissionBasicSearch = basicSearch;
+
+clearBasicSearch = #string(obj="Wipe_Search_Index");
+#permissionClearBasicSearch = clearBasicSearch;
+
+lrBasicSearch = #string(obj="Learning_Registry_Search");
+#permissionLRBasicSearch = lrBasicSearch;
+
+//-----------
+
+addRating = #string(obj="Add_Rating");
+#permissionAddRating = addRating;
+
+//-----------
+
+postFlr = #string(obj="Post_to_Learning_Registry");
+#permissionPostFlr = postFlr;
+
+epssTagging = #string(obj="Epss_Tagging");
+#permissionEpssTagging = epssTagging;
+
+//-----------
+
+readAllGroups = #string(obj="Get_Group_Listing");
+#permissionReadAllGroups = readAllGroups;
+
+createGroup = #string(obj="Create_Group");
+#permissionCreateGroup = createGroup;
+
+deleteGroup = #string(obj="Delete_Group");
+#permissionDeleteGroup = deleteGroup;
+
+addGroupMemberUser = #string(obj="Add_Group_Member_User");
+#permissionAddGroupMemberUser = addGroupMemberUser;
+
+deleteGroupMemberUser = #string(obj="Delete_Group_Member_User");
+#permissionDeleteGroupMemberUser = deleteGroupMemberUser;
+
+addGroupMemberGroup = #string(obj="Add_Group_Member_Group");
+#permissionAddGroupMemberGroup = addGroupMemberGroup;
+
+deleteGroupMemberGroup = #string(obj="Delete_Group_Member_Group");
+#permissionDeleteGroupMemberGroup = deleteGroupMemberGroup;
+
+getGroupMembers = #string(obj="Get_Group_Members");
+#permissionGetGroupMembers = getGroupMembers;
+
+//-----------
+
+getServiceList = #string(obj="Get_Service_Listing");
+#permissionGetServiceList = getServiceList;
+
+getPermissions = #string(obj="Get_Permissions");
+#permissionGetPermissions = getPermissions;
+
+addPermissions = #string(obj="Add_Permissions");
+#permissionAddPermissions = addPermissions;
+
+removePermissions = #string(obj="Remove_Permissions");
+#permissionRemovePermissions = removePermissions;
+
+addServicePermissions = #string(obj="Add_Service_Permissions");
+#permissionAddServicePermissions = addServicePermissions;
+
+removeServicePermissions = #string(obj="Remove_Service_Permissions");
+#permissionRemoveServicePermissions = removeServicePermissions;

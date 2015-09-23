@@ -1,0 +1,43 @@
+search = #if(operator=#checkACLAllServiceApi(username="@username",
+											 groups=#getGroupUserReverseApi(username="@username"),
+											 servicename=#serviceSearch(),
+											 permissionname=#permissionBasicSearch()),
+		     operand="true",
+			 eq=#solrSearch(query="@q",
+						    rows="@rows",
+						    cursor="@cursor",
+						    useCursor="@useCursor",
+							fq=#addToList(item=#add(a="attr_entities:", 
+													b="@username"), 
+										  atFront="true",
+										  array=#getGroupUserReverseApi(username="@username").forEach(paramName="group",
+																								      op=#add(a="attr_entities:", 
+																										      b="@group")).valueSet()).join(divider=" OR "),
+						    start="@start",
+						    idSort="@idSort",
+						    useMustMatchAll="@useMustMatchAll",
+                            solrURL=#urlSolrSearch()).ccall(_params=#sessionQueryParameters()).displayJson(),
+		      ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/search = search;
+
+clearSearchIndex = #if(operator=#checkACLAllServiceApi(username="@username",
+													   groups=#getGroupUserReverseApi(username="@username"),
+												       servicename=#serviceSearch(),
+													   permissionname=#permissionClearBasicSearch()),
+					   operand="true",
+					   eq=#solrClearIndex(solrURL=#urlSolrSearch()).displayJson(),
+					   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/clearSearchIndex = clearSearchIndex;
+
+lrSearch = #if(operator=#checkACLAllServiceApi(username="@username",
+											   groups=#getGroupUserReverseApi(username="@username"),
+											   servicename=#serviceSearch(),
+											   permissionname=#permissionLRBasicSearch()),
+		       operand="true",
+			   eq=#httpPost(obj="",
+						    contentType="text/plain",
+						    multipart="false",
+						    X-Api-Key="445ed2083e35b27e84f549d11ea57da1a161a15c3d135b58d39962d363dc5e7a",
+						    url=#add(a="http://search.learningregistry.net/api/search?q=", b="@searchterm", c="&limit=", d="@itemsperpage", e="&page=", f="@page").ccall(_params=#sessionQueryParameters())).displayJson(),
+			   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/lrSearch = lrSearch;

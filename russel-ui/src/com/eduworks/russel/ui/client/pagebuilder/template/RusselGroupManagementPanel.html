@@ -1,0 +1,92 @@
+<!--
+Copyright 2012-2013 Eduworks Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+    <!-- Modal Dialogs -->
+    <div id="createGroupModal" style="z-index:302" class="reveal-modal">
+        <h2>Create Group</h2>
+		<div class="classicURLField" style="display:block">
+			<label for="newGroupname">Group Name</label>
+			<input type="text" id="newGroupname" />
+			<br/>
+		</div>
+		<hr>
+        <a id="modalCreateGroup" class="addFile blue small nice button radius">Create</a>  
+		<a id="modalCreateCancel" class="white small nice button radius">Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+   
+    <!-- END dialogs -->   
+    
+	<!-- page content -->
+
+	<div id="content" class="row">
+		<div id="r-pageTitle" class="four columns">
+			<h4>Group Management</h4>
+		</div>
+	 
+		<!-- actions -->
+		<div class="eight columns">
+			<dl class="sub-nav">
+			<!-- 	<dd class=""></dd>  -->
+			</dl>
+		</div>
+		
+	</div>
+
+	<div id="content" class="row">
+		<div class="twelve columns">
+			<div id="r-groupManagement">  
+				<a id="groupCreate" class="finger">Create Group</a> | <a id="groupDelete" class="finger">Delete Group</a> | 
+				<a id="groupPermission" class="finger">Permissions</a> | <a id="groupUser" class="finger">Users</a>
+				<br />
+				<br />
+				<br />
+				<div style="position: relative; top: -10px;">
+					<label style="position: relative; top: -10px;">Active Group</label>
+					<select id="groupSelect">
+					</select>
+				</div>
+				<div style="position: relative; top: -75px; left: 430px;">
+					<label style="position: relative; top: -10px;">User List</label>
+					<select id="userList" multiple="multiple">
+					</select>
+				</div>
+				<div style="position: relative; top: 35px; left: 430px;">
+					<label style="position: relative; top: -10px;">Group List</label>
+					<select id="groupList" multiple="multiple">
+					</select>
+				</div>
+				<div style="position: relative; top: -130px; left: 635px;">
+					<a id="addMembers" class="blue small nice button radius">&#62;</a>
+					<br />
+					<a id="removeMembers" class="blue small nice button radius">&#60;</a>
+				</div>
+				<div style="position: relative; top: -330px; left: 860px;">
+					<label style="position: relative; top: -10px;">User Member List</label>
+					<select id="memberUserSelect" multiple="multiple">
+					</select>
+				</div>
+				<div style="position: relative; top: -220px; left: 860px;">
+					<label style="position: relative; top: -10px;">Group Member List</label>
+					<select id="memberGroupSelect" multiple="multiple">
+					</select>
+				</div>
+				<br />
+				<br />
+			</div>       
+		</div>
+	</div>
+        
+      <!-- END page content -->

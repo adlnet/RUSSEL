@@ -1,0 +1,85 @@
+<!--
+Copyright 2012-2013 Eduworks Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+    <!-- Modal Dialogs -->
+    <div id="createUserModal" style="z-index:302" class="reveal-modal">
+        <h2>Create User</h2>
+		<div class="classicURLField" style="display:block">
+			<label for="newUsername">Username</label>
+			<input type="text" id="newUsername" />
+			<br/>
+			<label for="newPassword">Password</label>
+			<input type="password" id="newPassword" />
+			<br/>
+			<label for="newPasswordConfirmation">Password Confirmation</label>
+			<input type="password" id="newPasswordConfirmation" />
+		</div>
+		<hr>
+        <a id="modalNewUserCreate" class="addFile blue small nice button radius">Create</a>  
+		<a id="modalNewUserCancel" class="white small nice button radius">Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+    
+    <div id="resetPasswordModal" style="z-index:303" class="reveal-modal">
+        <h2>Reset User Password</h2>
+		<div class="classicURLField" style="display:block">
+			<label for="resetPassword">Password</label>
+			<input type="password" id="resetPassword" />
+			<br />
+			<label for="resetPasswordConfirmation">Password Confirmation</label>
+			<input type="password" id="resetPasswordConfirmation" />
+		</div>
+		<hr>
+        <a id="modalResetPasswordAccept" class="addFile blue small nice button radius">Reset</a>
+		<a id="modalResetPasswordCancel" class="white small nice button radius">Cancel</a> 
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+   
+    <!-- END dialogs -->   
+
+	<!-- page content -->
+
+	<div id="content" class="row">
+		<div id="r-pageTitle" class="four columns">
+			<h4>User Management</h4>
+		</div>
+	 
+		<!-- actions -->
+		<div class="eight columns">
+			<dl class="sub-nav">
+			<!-- 	<dd class=""></dd>  -->
+			</dl>
+		</div>
+		
+	</div>
+
+	<div id="content" class="row">
+		<div class="twelve columns">
+			<div id="r-userManagement">  
+				<a id="userCreate" class="finger">New User</a> | <a id="userPasswordReset" class="finger">Reset Password</a> | 
+				<a id="userDelete" class="finger">Delete User</a> | <a id="userPermissions" class="finger">Permissions</a> | 
+				<a id="userGroups" class="finger">Groups</a>
+				<br />
+				<br />
+				<br />
+				<select id="userList">
+				</select>
+				<br />
+				<br />
+			</div>       
+		</div>
+	</div>
+        
+      <!-- END page content -->

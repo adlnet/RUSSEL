@@ -1,0 +1,510 @@
+//--------------------
+		
+member = #if (operator=#toArray(obj=#add(a="[", b="@item", c="]")).intersect(a=#toArray(obj="@items")).count(),
+			  operand="0",
+			  eq="false",
+			  ne="true");
+		
+//-------
+
+addACLGroupUserPermissionApi = #idxPut(indexDir=#dbDirectory(),
+									   databaseName=#dbAclGroupUser(),
+									   index="@groupname",
+									   key="@username",
+									   permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																								  databaseName=#dbAclGroupUser(),
+																								  index="@groupname",
+																								  key="@username").toObject().cget(permissions=""), item="@permissionname")));
+#addACLGroupUserPermissionApi = addACLGroupUserPermissionApi;
+					 							
+//--------
+												
+removeACLGroupUserPermissionApi = #idxPut(indexDir=#dbDirectory(),
+										  databaseName=#dbAclGroupUser(),
+										  index="@groupname",
+										  key="@username",
+										  permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				   databaseName=#dbAclGroupUser(),
+																				   index="@groupname",
+																				   key="@username").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLGroupUserPermissionApi = removeACLGroupUserPermissionApi;
+
+//--------
+																				   
+removeACLGroupUser = #getGroupsApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+														   databaseName=#dbAclUserUser(),
+														   index="@groupname",
+														   key="@username"),
+											 paramName="groupname");
+#removeACLGroupUserApi = removeACLGroupUser;
+
+//--------	
+
+getACLGroupUser = #if(operator=#idxHas(indexDir=#dbDirectory(), databaseName=#dbAclGroupUser(), index="@groupname", key="@username"),
+					  operand="true",
+					  eq=#idxGet(indexDir=#dbDirectory(),
+								 databaseName=#dbAclGroupUser(),
+								 index="@groupname",
+								 key="@username").toObject().cget(permissions=""),
+					  ne=#toArray(obj="[]"));
+#getACLGroupUserApi = getACLGroupUser;
+
+//--------	
+		
+addACLUserUserPermissionApi = #idxPut(indexDir=#dbDirectory(),
+									  databaseName=#dbAclUserUser(),
+									  index="@username",
+									  key="@targetuser",
+									  permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																								 databaseName=#dbAclUserUser(),
+																								 index="@username",
+																								 key="@targetuser").toObject().cget(permissions=""), item="@permissionname")));
+#addACLUserUserPermissionApi = addACLUserUserPermissionApi;
+												
+//--------
+												
+removeACLUserUserPermissionApi = #idxPut(indexDir=#dbDirectory(),
+										 databaseName=#dbAclUserUser(),
+										 index="@username",
+										 key="@targetuser",
+										 permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				  databaseName=#dbAclUserUser(),
+																				  index="@username",
+																				  key="@targetuser").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLUserUserPermissionApi = removeACLUserUserPermissionApi;
+
+//--------
+																				   
+removeACLUserUser = #getUserListApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+															databaseName=#dbAclUserUser(),
+															index="@username",
+															key="@targetuser"),
+											  paramName="username");
+#removeACLUserUserApi = removeACLUserUser;
+
+//--------
+
+getACLUserUser = #if(operator=#idxHas(indexDir=#dbDirectory(), databaseName=#dbAclUserUser(), index="@username", key="@targetuser"),
+					 operand="true",
+					 eq=#idxGet(indexDir=#dbDirectory(),
+								databaseName=#dbAclUserUser(),
+								index="@username",
+								key="@targetuser").toObject().cget(permissions=""),
+					 ne=#toArray(obj="[]"));
+#getACLUserUserApi = getACLUserUser;
+
+//--------
+		
+addACLUserResourcePermission = #idxPut(indexDir=#dbDirectory(),
+									   databaseName=#dbAclUserResource(),
+									   index="@username",
+									   key="@resourceid",
+									   permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																								  databaseName=#dbAclUserResource(),
+																								  index="@username",
+																								  key="@resourceid").toObject().cget(permissions=""), item="@permissionname")));
+#addACLUserResourcePermissionApi = addACLUserResourcePermission;
+				
+//--------
+												
+removeACLUserResourcePermission = #idxPut(indexDir=#dbDirectory(),
+										  databaseName=#dbAclUserResource(),
+										  index="@username",
+										  key="@resourceid",
+										  permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				   databaseName=#dbAclUserResource(),
+																				   index="@username",
+																				   key="@resourceid").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLUserResourcePermissionApi = removeACLUserResourcePermission;
+
+//--------
+																				   
+removeACLUserResource = #getUserListApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+																databaseName=#dbAclUserResource(),
+															    index="@username",
+															    key="@resourceid"),
+												  paramName="username");
+#removeACLUserResourceApi = removeACLUserResource;
+
+//--------
+
+getACLUserResource = #if(operator=#idxHas(indexDir=#dbDirectory(), databaseName=#dbAclUserResource(), index="@username", key="@resourceid"),
+						 operand="true",
+						 eq=#idxGet(indexDir=#dbDirectory(),
+									databaseName=#dbAclUserResource(),
+									index="@username",
+									key="@resourceid").toObject().cget(permissions=""),
+						 ne=#toArray(obj="[]"));
+#getACLUserResourceApi = getACLUserResource;
+
+//--------
+
+addACLUserServicePermission = #idxPut(indexDir=#dbDirectory(),
+									  databaseName=#dbAclUserService(),
+									  index="@username",
+									  key="@servicename",
+									  permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																								 databaseName=#dbAclUserService(),
+																								 index="@username",
+																								 key="@servicename").toObject().cget(permissions=""), item="@permissionname")));
+#addACLUserServicePermissionApi = addACLUserServicePermission;
+
+//--------
+
+removeACLUserServicePermission = #idxPut(indexDir=#dbDirectory(),
+										 databaseName=#dbAclUserService(),
+										 index="@username",
+										 key="@servicename",
+										 permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				  databaseName=#dbAclUserService(),
+																				  index="@username",
+																				  key="@servicename").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLUserServicePermissionApi = removeACLUserServicePermission;
+
+//--------
+																				   
+removeACLUserService = #getUserListApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+															   databaseName=#dbAclUserService(),
+															   index="@username",
+															   key="@servicename"),
+												 paramName="username");
+#removeACLUserServiceApi = removeACLUserService;
+
+//--------
+
+getACLUserService = #idxKeys(indexDir=#dbDirectory(),
+							 databaseName=#dbAclUserService(),
+							 index="@username").cforEach(op=#idxGet(indexDir=#dbDirectory(),
+																    databaseName=#dbAclUserService(),
+																    index="@username",
+																    key="@id").toObject().cget(permissions=""),
+														 paramName="id");
+#getACLUserServiceApi = getACLUserService;
+								
+//--------
+
+addACLUserGroupPermission = #idxPut(indexDir=#dbDirectory(),
+									databaseName=#dbAclUserGroup(),
+									index="@username",
+									key="@groupname",
+									permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																							   databaseName=#dbAclUserGroup(),
+																							   index="@username",
+																							   key="@groupname").toObject().cget(permissions=""), item="@permissionname")));
+#addACLUserGroupPermissionApi = addACLUserGroupPermission;
+
+//--------
+																			
+removeACLUserGroupPermission = #idxPut(indexDir=#dbDirectory(),
+									   databaseName=#dbAclUserGroup(),
+									   index="@username",
+									   key="@groupname",
+									   permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				databaseName=#dbAclUserGroup(),
+																			    index="@username",
+																			    key="@groupname").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLUserGroupPermissionApi = removeACLUserGroupPermission;
+
+//--------
+																	
+removeACLUserGroup = #getUserListApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+															 databaseName=#dbAclUserGroup(),
+															 index="@username",
+															 key="@groupname"),
+											   paramName="username");
+#removeACLUserGroupApi = removeACLUserGroup;
+
+//--------
+
+getACLUserGroup = #if(operator=#idxHas(indexDir=#dbDirectory(), databaseName=#dbAclUserGroup(), index="@username", key="@groupname"),
+					  operand="true",
+					  eq=#idxGet(indexDir=#dbDirectory(),
+								 databaseName=#dbAclUserGroup(),
+								 index="@username",
+								 key="@groupname").toObject().cget(permissions=""),
+					  ne=#toArray(obj="[]"));
+#getACLUserGroupApi = getACLUserGroup;
+
+//================================================
+
+addACLGroupResourcePermission = #idxPut(indexDir=#dbDirectory(),
+										databaseName=#dbAclGroupResource(),
+									    index="@groupname",
+									    key="@resourceid",
+									    permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																								   databaseName=#dbAclGroupResource(),
+																								   index="@groupname",
+																								   key="@resourceid").toObject().cget(permissions=""), item="@permissionname")));
+#addACLGroupResourcePermissionApi = addACLGroupResourcePermission;
+
+//--------
+
+removeACLGroupResourcePermission = #idxPut(indexDir=#dbDirectory(),
+										   databaseName=#dbAclGroupResource(),
+										   index="@groupname",
+										   key="@resourceid",
+										   permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				    databaseName=#dbAclGroupResource(),
+																				    index="@groupname",
+																				    key="@resourceid").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLGroupResourcePermissionApi = removeACLGroupResourcePermission;   
+
+//--------
+																				   
+removeACLGroupResource = #getGroupsApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+															   databaseName=#dbAclGroupResource(),
+															   index="@groupname",
+															   key="@resourceid"),
+												 paramName="groupname");
+#removeACLGroupResourceApi = removeACLGroupResource;   
+
+//--------
+
+getACLGroupResource = #if(operator=#idxHas(indexDir=#dbDirectory(), databaseName=#dbAclGroupResource(), index="@groupname", key="@resourceid"),
+						  operand="true",
+						  eq=#idxGet(indexDir=#dbDirectory(),
+								     databaseName=#dbAclGroupResource(),
+								     index="@groupname",
+								     key="@resourceid").toObject().cget(permissions=""),
+						  ne=#toArray(obj="[]"));
+#getACLGroupResourceApi = getACLGroupResource;
+
+//--------
+
+addACLGroupServicePermission = #idxPut(indexDir=#dbDirectory(),
+									   databaseName=#dbAclGroupService(),
+									   index="@groupname",
+									   key="@servicename",
+									   permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																								  databaseName=#dbAclGroupService(),
+																								  index="@groupname",
+																								  key="@servicename").toObject().cget(permissions=""), item="@permissionname")));
+#addACLGroupServicePermissionApi = addACLGroupServicePermission;				
+													
+//--------
+
+removeACLGroupServicePermission = #idxPut(indexDir=#dbDirectory(),
+										  databaseName=#dbAclGroupService(),
+										  index="@groupname",
+										  key="@servicename",
+										  permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				   databaseName=#dbAclGroupService(),
+																				   index="@groupname",
+																				   key="@servicename").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLGroupServicePermissionApi = removeACLGroupServicePermission;
+
+//--------
+																				   
+removeACLGroupService = #getGroupsApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+															  databaseName=#dbAclGroupService(),
+															  index="@groupname",
+															  key="@servicename"),
+											    paramName="groupname");
+#removeACLGroupServiceApi = removeACLGroupService;
+
+//--------
+
+getACLGroupService = #idxKeys(indexDir=#dbDirectory(),
+							  databaseName=#dbAclGroupService(),
+							  index="@groupname").cforEach(op=#idxGet(indexDir=#dbDirectory(),
+																	  databaseName=#dbAclGroupService(),
+																	  index="@groupname",
+																	  key="@id").toObject().cget(permissions=""),
+														   paramName="id").valueSet();
+#getACLGroupServiceApi = getACLGroupService;
+
+//--------
+
+addACLGroupGroupPermission = #idxPut(indexDir=#dbDirectory(),
+									 databaseName=#dbAclGroupGroup(),
+								     index="@groupname",
+								     key="@targetgroup",
+								     permissions=#removeDuplicates(obj=#addToList(array=#idxGet(indexDir=#dbDirectory(),
+																							    databaseName=#dbAclGroupGroup(),
+																							    index="@groupname",
+																							    key="@targetgroup").toObject().cget(permissions=""), item="@permissionname")));
+#addACLGroupGroupPermissionApi = addACLGroupGroupPermission;
+
+//--------
+
+removeACLGroupGroupPermission = #idxPut(indexDir=#dbDirectory(),
+										databaseName=#dbAclGroupGroup(),
+										index="@groupname",
+										key="@targetgroup",
+										permissions=#removeFromArray(obj=#idxGet(indexDir=#dbDirectory(),
+																				 databaseName=#dbAclGroupGroup(),
+																				 index="@groupname",
+																				 key="@targetgroup").toObject().cget(permissions=""), item="@permissionname"));
+#removeACLGroupGroupPermissionApi = removeACLGroupGroupPermission;
+
+//--------
+																				   
+removeACLGroupGroup = #getGroupsApi().forEach(op=#idxDelete(indexDir=#dbDirectory(),
+														    databaseName=#dbAclGroupGroup(),
+														    index="@groupname",
+														    key="@targetgroup"),
+											  paramName="groupname");
+#removeACLGroupGroupApi = removeACLGroupGroup;
+
+//--------
+
+getACLGroupGroup = #if(operator=#idxHas(indexDir=#dbDirectory(), databaseName=#dbAclGroupGroup(), index="@groupname", key="@targetgroup"),
+					   operand="true",
+					   eq=#idxGet(indexDir=#dbDirectory(),
+								  databaseName=#dbAclGroupGroup(),
+								  index="@groupname",
+								  key="@targetgroup").toObject().cget(permissions=""),
+					   ne=#toArray(obj="[]"));
+#getACLGroupGroupApi = getACLGroupGroup;
+
+//--------
+					
+checkACLUserService = #if(operator=member.ccall(item="@permissionname",
+											    items=#idxGet(indexDir=#dbDirectory(),
+															  databaseName=#dbAclUserService(),
+															  index="@username",
+															  key="@servicename").toObject().cget(permissions="")),
+						  operand="true",
+						  ne="null",
+						  eq="true");
+								   
+//--------
+								   
+checkACLUserResource = #if(operator=member.ccall(item="@permissionname",
+												 items=#idxGet(indexDir=#dbDirectory(),
+															   databaseName=#dbAclUserResource(),
+															   index="@username",
+															   key="@resourceid").toObject().cget(permissions="")),
+						   operand="true",
+						   ne="null",
+						   eq="true");
+
+//--------
+
+checkACLUserGroup = #if(operator=member.ccall(item="@permissionname",
+											  items=#idxGet(indexDir=#dbDirectory(),
+															databaseName=#dbAclUserGroup(),
+														    index="@username",
+														    key="@groupname").toObject().cget(permissions="")),
+						operand="true",
+						ne="null",
+						eq="true");
+
+//--------
+
+checkACLUserUser = #if(operator=member.ccall(item="@permissionname",
+											 items=#idxGet(indexDir=#dbDirectory(),
+														   databaseName=#dbAclUserUser(),
+														   index="@username",
+														   key="@targetuser").toObject().cget(permissions="")),
+					   operand="true",
+					   ne="null",
+					   eq="true");
+
+//--------
+
+checkACLGroupService = #if(operator=member.ccall(item="@permissionname",
+												 items=#idxGet(indexDir=#dbDirectory(),
+															   databaseName=#dbAclGroupService(),
+															   index="@groupname",
+															   key="@servicename").toObject().cget(permissions="")),
+						   operand="true",
+						   ne="null",
+						   eq="true");
+
+//--------
+
+checkACLGroupResource = #if(operator=member.ccall(item="@permissionname",
+												  items=#idxGet(indexDir=#dbDirectory(),
+															    databaseName=#dbAclGroupResource(),
+															    index="@groupname",
+															    key="@resourceid").toObject().cget(permissions="")),
+							operand="true",
+							ne="null",
+							eq="true");
+
+//--------
+
+checkACLGroupGroup = #if(operator=member.ccall(item="@permissionname",
+											   items=#idxGet(indexDir=#dbDirectory(),
+															 databaseName=#dbAclGroupGroup(),
+												 			 index="@groupname",
+															 key="@targetgroup").toObject().cget(permissions="")),
+						 operand="true",
+						 ne="null",
+						 eq="true");
+						 
+//--------
+
+checkACLGroupUser = #if(operator=member.ccall(item="@permissionname",
+											  items=#idxGet(indexDir=#dbDirectory(),
+															databaseName=#dbAclGroupUser(),
+												 			index="@groupname",
+															key="@username").toObject().cget(permissions="")),
+						operand="true",
+						ne="null",
+						eq="true");
+						 
+//--------------------
+
+checkACLAllService = #if (operator=checkACLUserService.ccall(permissionname="@permissionname",
+															 username="@username",
+															 servicename="@servicename"),
+						  operand="true",
+						  eq="true",
+						  ne=#if(operator=#count(obj=#toArray(obj="@groups").forEach(op=checkACLGroupService.ccall(permissionname="@permissionname",
+																												   servicename="@servicename",
+																												   groupname="@groupname"),
+																					 paramName="groupname").valueSet()),
+							     operand="0",
+								 eq="false",
+								 ne="true"));
+#checkACLAllServiceApi = checkACLAllService;
+
+//--------------------
+
+checkACLAllResource = #if (operator=checkACLUserResource.ccall(permissionname="@permissionname",
+															   username="@username",
+															   resourceid="@resourceid"),
+						  operand="true",
+						  eq="true",
+						  ne=#if(operator=#count(obj=#toArray(obj="@groups").forEach(op=checkACLGroupResource.ccall(permissionname="@permissionname",
+																												    resourceid="@resourceid",
+																												    groupname="@groupname"),
+																					 paramName="groupname").valueSet()),
+							     operand="0",
+								 eq="false",
+								 ne="true"));
+#checkACLAllResourceApi = checkACLAllResource;
+
+//--------------------
+
+checkACLAllGroup = #if (operator=checkACLUserGroup.ccall(permissionname="@permissionname",
+														 username="@username",
+														 groupname="@groupname"),
+						operand="true",
+						eq="true",
+						ne=#if(operator=#count(obj=#toArray(obj="@groups").forEach(op=checkACLGroupGroup.ccall(permissionname="@permissionname",
+																											   targetgroup="@groupname",
+																											   groupname="@groupn"),
+																				   paramName="groupn").valueSet()),
+							   operand="0",
+							   eq="false",
+							   ne="true"));
+#checkACLAllGroupApi = checkACLAllGroup;
+
+//--------------------
+
+checkACLAllUser = #if (operator=checkACLUserUser.ccall(permissionname="@permissionname",
+													   username="@username",
+													   targetuser="@targetuser"),
+					   operand="true",
+					   eq="true",
+					   ne=#if(operator=#count(obj=#toArray(obj="@groups").forEach(op=checkACLGroupUser.ccall(permissionname="@permissionname",
+																											 username="@username",
+																											 groupname="@groupn"),
+																				  paramName="groupn").valueSet()),
+							  operand="0",
+							  eq="false",
+							  ne="true"));
+#checkACLAllUserApi = checkACLAllUser;

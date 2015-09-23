@@ -1,0 +1,14 @@
+user = #string(obj="user");
+#serviceUser = user;
+
+group = #string(obj="group");
+#serviceGroup = group;
+
+resource = #string(obj="resource");
+#serviceResource = resource;
+
+search = #string(obj="search");
+#serviceSearch = search;
+
+service = #string(obj="service");
+#serviceService = service;

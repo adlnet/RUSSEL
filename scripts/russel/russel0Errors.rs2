@@ -1,0 +1,23 @@
+errorInvalidUsernamePassword = #error(msg="Invalid username or password.");
+#errorInvalidUsernamePassword = errorInvalidUsernamePassword;
+
+errorInsufficientPermissions = #error(msg="Insufficient permissions.");
+#errorInsufficientPermissions = errorInsufficientPermissions;
+
+errorInvalidAction = #error(msg="Invalid Action");
+#errorInvalidAction = errorInvalidAction;
+
+errorUserAlreadyExists = #error(msg="User already exists.");
+#errorUserAlreadyExists = errorUserAlreadyExists;
+
+errorGroupAlreadyExists = #error(msg="Group already exists.");
+#errorGroupAlreadyExists = errorGroupAlreadyExists;
+
+errorInvalidSession = #error(msg="Invalid Session.");
+#errorInvalidSession = errorInvalidSession;
+
+errorInvalidUsername = #error(msg="Invalid username.");
+#errorInvalidUsername = errorInvalidUsername;
+
+errorHere = #error(msg="Here");
+#errorDebug = errorHere;

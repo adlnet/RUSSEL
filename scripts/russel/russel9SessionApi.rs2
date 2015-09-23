@@ -1,0 +1,27 @@
+//SESSION MANAGEMENT
+//------------------------------------
+login = #object(a=#if(operator=#checkUserApi(username=#sessionUsername()),
+					  operand="true",
+					  ne=#errorInvalidUsernamePassword()),
+			    b=#if(operator=#checkUserPasswordApi(username=#sessionUsername(),
+												     password=#sessionPassword()),
+					  operand="true",
+					  ne=#errorInvalidUsernamePassword()),
+				c=#updateSessionApi(username=#sessionUsername(),
+									sessionId=#createSessionApi(sessionId="@uuid")),
+				d="@uuid").ccall(uuid=#generateUUID()).cget(d="").displayJson();
+
+/login = login;
+
+//-------------
+				
+logout = #object(a=#removeSessionApi(sessionId=#sessionId())).displayJson();
+
+/logout = logout;
+
+//-------------
+
+validate = #if (operator=#checkSessionApi(sessionId=#sessionId()),
+				operand="true",
+				ne=#errorInvalidSession());
+/validateSession = validate;

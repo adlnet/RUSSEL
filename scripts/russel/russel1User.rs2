@@ -1,0 +1,80 @@
+userIndex=#string(obj="user");
+
+//-------------
+
+checkUserPassword = #bCryptCompareHash(passwordHash=#idxGet(indexDir=#dbDirectory(), 
+															databaseName=#dbUser(), 
+															index=userIndex, 
+															key="@username").toObject().cget(password=""),
+									   password="@password");
+		
+#checkUserPasswordApi = checkUserPassword;
+		
+//-------------
+		
+checkUser = #idxHas(indexDir=#dbDirectory(), databaseName=#dbUser(), index=userIndex, key="@username");
+
+#checkUserApi = checkUser;
+ 
+//-------------
+ 
+getUser = #idxGet(indexDir=#dbDirectory(), 
+				  databaseName=#dbUser(), 
+				  index=userIndex,
+				  key="@username");
+#getUserApi = getUser;
+
+//-------------
+								
+addUser = #object(a=#if(operator=#checkUserApi(username="@username"),
+					    operand="true",
+						eq=#errorUserAlreadyExists()),
+				  b=#idxPut(indexDir=#dbDirectory(), 
+							databaseName=#dbUser(), 
+							index=userIndex,
+							key="@username",
+							password=#bCryptHash(password="@password",
+												 rounds="10"))).cget(b="");
+									   
+#addUserApi = addUser;
+
+//-------------
+	
+removeUser = #idxDelete(indexDir=#dbDirectory(), 
+					    databaseName=#dbUser(), 
+					    index=userIndex,
+					    key="@username");
+					
+#removeUserApi = removeUser;
+
+//-------------
+					
+updateUser = #idxPut(indexDir=#dbDirectory(), 
+					 databaseName=#dbUser(), 
+					 index=userIndex,
+					 key="@username");
+					 
+#updateUserApi = updateUser;
+
+//-------------
+					 
+resetUserPassword = #object(a=#if(operator=#checkUserApi(username="@username"),
+								  operand="true",
+								  ne=#errorInvalidUsername()),
+							b=#if(operator="@username",
+								  operand="",
+								  eq=#errorInvalidUsername()),
+							c=#idxPut(indexDir=#dbDirectory(), 
+									  databaseName=#dbUser(), 
+									  index=userIndex,
+									  key="@username",
+									  password=#bCryptHash(password="@password",
+														   rounds="10")));
+
+#resetUserPasswordApi = resetUserPassword;
+			  
+//-------------
+			  
+getUsers = #idxKeys(indexDir=#dbDirectory(), databaseName=#dbUser(), index=userIndex);
+
+#getUsersApi = getUsers;

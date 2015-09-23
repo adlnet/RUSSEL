@@ -1,0 +1,141 @@
+adminUsername = #string(obj="<Username>");
+#adminUsername = adminUsername;
+
+adminPassword = #string(obj="<Password>");
+#adminPassword = adminPassword;
+
+flrPublishUrl=#string(obj="http://sandbox.learningregistry.org/publish");
+#urlLearningRegistry = flrPublishUrl;
+
+flrPublishToken=#string(obj="<PUBLISH TOKEN>");
+#tokenLearningRegistry = flrPublishToken;
+
+urlMetadataGeneration = #string(obj="<GENERATE METADATA URL>");
+#urlMetadataGeneration = urlMetadataGeneration;
+
+urlSolrSearch = #string(obj="http%3A%2F%2F127%2E0%2E0%2E1%3A8983%2Fsolr%2Frussel%2F");
+#urlSolrSearch = urlSolrSearch;
+
+mimeTypes = #object().putInObject(item="russel/link", dest=".rlk").putInObject(item="russel/project", dest=".rpf");
+#resourceMimeTypes = mimeTypes;
+
+ratingMetadataSchema = #object( 
+	ratedBy = #if(operator="@ratedBy", operand="", ne="@ratedBy"),
+	ratedAt = #if(operator="@ratedAt", operand="", ne="@ratedAt"),
+	rating = #if(operator="@rating", operand="", ne="@rating")
+);
+#ratingMetadataSchema = ratingMetadataSchema;
+
+commentMetadataSchema = #object(
+	text = #if(operator="@text", operand="", ne="@text"),
+	createdBy = #if(operator="@createdBy", operand="", ne="@createdBy"),
+	createdAt = #if(operator="@createdAt", operand="", ne="@createdAt")
+);
+#commentMetadataSchema = commentMetadataSchema;
+
+resourceMetadataSchema = #object(
+	fileName_s = #if(operator="@fileName_s", operand="", ne="@fileName_s"),
+	description_txt_en = #if(operator="@description_txt_en", operand="", ne="@description_txt_en"),
+	mimeType_s = #if(operator="@mimeType_s", operand="", ne="@mimeType_s"),
+	title_txt_en = #if(operator="@title_txt_en", operand="", ne="@title_txt_en"),
+	createdBy_s = #if(operator="@createdBy_s", operand="", ne="@createdBy_s"),
+	publisher_txt_en = #if(operator="@publisher_txt_en", operand="", ne="@publisher_txt_en"),
+	classification_txt_en = #if(operator="@classification_txt_en", operand="", ne="@classification_txt_en"),
+	environment_txt_en = #if(operator="@environment_txt_en", operand="", ne="@environment_txt_en"),
+	coverage_txt_en = #if(operator="@coverage_txt_en", operand="", ne="@coverage_txt_en"),
+	language_txt_en = #if(operator="@language_txt_en", operand="", ne="@language_txt_en"),
+	technicalRequirements_txt_en = #if(operator="@technicalRequirements_txt_en", operand="", ne="@technicalRequirements_txt_en"),
+	distribution_txt_en = #if(operator="@distribution_txt_en", operand="", ne="@distribution_txt_en"),
+	version_s = #if(operator="@version_s", operand="", ne="@version_s"),
+	thumbnail_s = #if(operator="@thumbnail_s", operand="", ne="@thumbnail_s"),
+	partOf_txt_en = #if(operator="@partOf_txt_en", operand="", ne="@partOf_txt_en"),
+	requires_txt_en = #if(operator="@requires_txt_en", operand="", ne="@requires_txt_en"),
+	uploadedBy_s = #if(operator="@uploadedBy_s", operand="", ne="@uploadedBy_s"),
+	sharedBy_s = #if(operator="@sharedBy_s", operand="", ne="@sharedBy_s"),
+	interactivity_txt_en = #if(operator="@interactivity_txt_en", operand="", ne="@interactivity_txt_en"),
+	level_s = #if(operator="@level_s", operand="", ne="@level_s"),
+	keywords_txt_en = #if(operator="@keywords_txt_en", operand="", ne="@keywords_txt_en"),
+	attr_objective = #if(operator="@attr_objective", operand="", ne=#toArray(obj="@attr_objective")),
+	fileContent_txt_en = #if(operator="@fileContent_txt_en", operand="", ne="@fileContent_txt_en"),
+	fouo_b = #if(operator="@fouo_b", operand="", ne="@fouo_b"),
+	skill_txt_en = #if(operator="@skill_txt_en", operand="", ne="@skill_txt_en"),
+	view_l = #if(operator="@view_l", operand="", ne="@view_l"),
+	downloads_l = #if(operator="@downloads_l", operand="", ne="@downloads_l"),
+	fileSizeBytes_l = #if(operator="@fileSizeBytes_l", operand="", ne="@fileSizeBytes_l"),
+	duration_f = #if(operator="@duration_f", operand="", ne="@duration_f"),
+	rating_f = #if(operator="@rating_f", operand="", ne="@rating_f"),
+	votes_l = #if(operator="@votes_l", operand="", ne="@votes_l"),
+	commentCount_l = #if(operator="@commentCount_l", operand="", ne="@commentCount_l"),
+	updatedDate_l = #if(operator="@updatedDate_l", operand="", ne="@updatedDate_l"),
+	uploadDate_l = #if(operator="@uploadDate_l", operand="", ne="@uploadDate_l"),
+	flrDocId_s = #if(operator="@flrDocId_s", operand="", ne="@flrDocId_s"),
+	flrParadataId_s = #if(operator="@flrParadataId_s", operand="", ne="@flrParadataId_s"),
+	flrResourceLocator_s = #if(operator="@flrResourceLocator_s", operand="", ne="@flrResourceLocator_s"),
+	notes_txt_en = #if(operator="@notes_txt_en", operand="", ne="@notes_txt_en"),
+	epssStrategy_s = #if(operator="@epssStrategy_s", operand="", ne="@epssStrategy_s"),
+	attr_entities = #if(operator="@showEntities", operand="", ne=#toArray(obj="@attr_entities"))
+);
+#resourceMetadataSchema = resourceMetadataSchema;
+
+dbDirectory = #string(obj="etc/db");
+#dbDirectory = dbDirectory;
+
+dbAclUserResource = #string(obj="dbAclUserResource");
+#dbAclUserResource = dbAclUserResource;
+
+dbAclUserService = #string(obj="dbAclUserService");
+#dbAclUserService = dbAclUserService;
+
+dbAclUserGroup = #string(obj="dbAclUserGroup");
+#dbAclUserGroup = dbAclUserGroup;
+
+dbAclGroupResource = #string(obj="dbAclGroupResource");
+#dbAclGroupResource = dbAclGroupResource;
+
+dbAclGroupService = #string(obj="dbAclGroupService");
+#dbAclGroupService = dbAclGroupService;
+
+dbAclGroupGroup = #string(obj="dbAclGroupGroup");
+#dbAclGroupGroup = dbAclGroupGroup;
+
+dbAclGroupUser = #string(obj="dbAclGroupUser");
+#dbAclGroupUser = dbAclGroupUser;
+
+dbAclUserUser = #string(obj="dbAclUserUser");
+#dbAclUserUser = dbAclUserUser;
+
+dbResource = #string(obj="dbResource");
+#dbResource = dbResource;
+
+dbService = #string(obj="dbService");
+#dbService = dbService;
+
+dbServicePermission = #string(obj="dbServicePermission");
+#dbServicePermission = dbServicePermission;
+
+dbComment = #string(obj="dbComment");
+#dbComment = dbComment;
+
+dbRating = #string(obj="dbRating");
+#dbRating = dbRating;
+
+dbSession = #string(obj="dbSession");
+#dbSession = dbSession;
+
+dbUser = #string(obj="dbUser");
+#dbUser = dbUser;
+
+dbGroup = #string(obj="dbGroup");
+#dbGroup = dbGroup;
+
+dbGroupMemberUsers = #string(obj="dbGroupMemberUsers");
+#dbGroupMemberUsers = dbGroupMemberUsers;
+
+dbGroupMemberGroups = #string(obj="dbGroupMemberGroups");
+#dbGroupMemberGroups = dbGroupMemberGroups;
+
+dbGroupMemberReverseGroup = #string(obj="dbGroupMemberReverseGroup");
+#dbGroupMemberReverseGroup = dbGroupMemberReverseGroup;
+
+dbGroupMemberReverseUser = #string(obj="dbGroupMemberReverseUser");
+#dbGroupMemberReverseUser = dbGroupMemberReverseUser;

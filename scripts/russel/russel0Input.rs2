@@ -1,0 +1,71 @@
+sessionPost = #getFileFromPost(name="session").fileToString().toObject();
+#sessionPostdata = sessionPost;
+
+filePost = #getFileFromPost().getIndex(index="@fileIndex");
+#filePostdata = filePost;
+
+sessionType = #if(operator=sessionPost.cget(type=""),
+				  operand="",
+				  eq="@type",
+				  ne=sessionPost.cget(type=""));
+#sessionType = sessionType;
+
+sessionQueryParameters = sessionPost.cget(queryparameters="");
+#sessionQueryParameters = sessionQueryParameters;
+
+sessionUser = sessionPost.cget(username="");
+#sessionUsername = sessionUser;
+
+sessionTargetUser = sessionPost.cget(targetuser="");
+#sessionTargetUser = sessionTargetUser;
+
+sessionPass = sessionPost.cget(password="");
+#sessionPassword = sessionPass;
+
+sessionGroup = sessionPost.cget(groupname="");
+#sessionGroupName = sessionGroup;
+
+sessionPermission = sessionPost.cget(permissionname="");
+#sessionPermissionName = sessionPermission;
+
+sessionResource = #if(operator=sessionPost.cget(resourceid=""),
+					  operand="",
+					  eq="@resourceid",
+					  ne=sessionPost.cget(resourceid=""));
+#sessionResourceId = sessionResource;
+
+sessionGroupMember = sessionPost.cget(groupmember="");
+#sessionGroupMember = sessionGroupMember;
+
+sessionId = #if(operator=sessionPost.cget(sessionid=""),
+			    operand="",
+			    eq="@sessionid",
+			    ne=sessionPost.cget(sessionid=""));
+#sessionId = sessionId;
+
+sessionCommentId = sessionPost.cget(commentid="");
+#sessionCommentId = sessionCommentId;
+
+sessionCommentParameters = sessionPost.cget(commentparameters="");
+#sessionCommentParameters = sessionCommentParameters;
+
+sessionRatingParameters = sessionPost.cget(ratingparameters="");
+#sessionRatingParameters = sessionRatingParameters;
+
+sessionTargetGroup = sessionPost.cget(targetgroup="");
+#sessionTargetGroup = sessionTargetGroup;
+
+sessionServiceName = sessionPost.cget(servicename="");
+#sessionServiceName = sessionServiceName;
+
+sessionSource = sessionPost.cget(source="");
+#sessionSource = sessionSource;
+
+sessionDestination = sessionPost.cget(destination="");
+#sessionDestination = sessionDestination;
+
+sessionDestinationType = sessionPost.cget(destinationtype="");
+#sessionDestinationType = sessionDestinationType;
+
+sessionResourceMetadata = sessionPost.cget(resourcemetadata="");
+#sessionResourceMetadata = sessionResourceMetadata;

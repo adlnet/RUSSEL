@@ -1,0 +1,297 @@
+//--------------------
+		
+member = #if (operator=#toArray(obj=#add(a="[", b="@item", c="]")).intersect(a=#toArray(obj="@items")).count(),
+			  operand="0",
+			  eq="false",
+			  ne="true");
+			  
+//--------------------
+			  
+addResource = #if(operator=#checkACLAllServiceApi(username="@username",
+												  groups=#getGroupUserReverseApi(username="@username"),
+												  servicename=#serviceService(),
+												  permissionname=#permissionAddResource()),
+				  operand="true",
+				  eq=#object(a=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionReadResource(),
+																username="@username"),
+							 b=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionDeleteResource(),
+																username="@username"),
+							 c=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionGetResource(),
+																username="@username"),
+							 d=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionAddComment(),
+																username="@username"),
+							 e=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionAddRating(),
+																username="@username"),
+							 g=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionGetComments(),
+																username="@username"),
+							 h=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionDeleteComment(),
+																username="@username"),
+							 i=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionEditResource(),
+																username="@username"),
+							 j=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionGetPermissions(),
+																username="@username"),
+							 k=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionUpdateResourceMetadata(),
+																username="@username"),
+							 l=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionGenerateMetadata(),
+																username="@username"),
+							 m=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionEpssTagging(),
+																username="@username"),
+							 n=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionPostFlr(),
+																username="@username"),
+							 o=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionAddPermissions(),
+																username="@username"),
+							 p=#addACLUserResourcePermissionApi(resourceid="@resourceId",
+																permissionname=#permissionRemovePermissions(),
+																username="@username"),
+							 z=#updateResourceMetadataApi(resourceId="@resourceId",
+													      metadata=#object(fileName_s=#filePostdata(fileIndex="1").filename(),
+																		   mimeType_s=#mimeType(file=#filePostdata(fileIndex="1"), extensions=#resourceMimeTypes()),
+																		   fileSizeBytes_l=#filePostdata(fileIndex="1").fileSize(),
+																		   uploadedBy_s="@username",
+																		   votes_l="0",
+																		   downloads_l="0",
+																		   view_l="0",
+																		   rating_f="2.5",
+																		   epssStrategy_s=#object(),
+																		   commentCount_l="0",
+																		   updatedDate_l=#date(_raw="true"),
+																		   uploadDate_l=#date(_raw="true"),
+																		   attr_entities=#toArray(obj="@username"),
+																		   showEntities="true"))).ccall(resourceId=#addResourceApi(data=#filePostdata(fileIndex="1").fileToBase64(),
+																															       resourceId=#generateUUID())).cget(z="").displayJson(),
+				  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addResource = addResource;
+
+//-------------
+
+updateResource = #if(operator=#checkACLAllServiceApi(username="@username",
+													 groups=#getGroupUserReverseApi(username="@username"),
+													 servicename=#serviceResource(),
+													 permissionname=#permissionEditResource()),
+					 operand="true",
+					 eq=#if(operator=#checkACLAllResourceApi(username="@username",
+															 groups=#getGroupUserReverseApi(username="@username"),
+															 resourceid=#sessionResourceId(),
+															 permissionname=#permissionEditResource()),
+							operand="true",
+							eq=#addResourceApi(data=#filePostdata(fileIndex="1").fileToBase64(),
+											   resourceId=#sessionResourceId()).displayJson(),
+							ne=#errorInsufficientPermissions()),
+					 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/updateResource = updateResource;
+
+//-------------
+
+removeResource = #if(operator=#checkACLAllServiceApi(username="@username",
+													 groups=#getGroupUserReverseApi(username="@username"),
+													 servicename=#serviceResource(),
+													 permissionname=#permissionDeleteResource()),
+					 operand="true",
+					 eq=#if(operator=#checkACLAllResourceApi(username="@username",
+															 groups=#getGroupUserReverseApi(username="@username"),
+															 resourceid=#sessionResourceId(),
+															 permissionname=#permissionDeleteResource()),
+							operand="true",
+							eq=#object(resource=#removeResourceApi(resourceId=#sessionResourceId()),
+									   comments=#removeCommentsApi(targetId=#sessionResourceId()),
+									   ratings=#removeRatingsApi(targetId=#sessionResourceId())).displayJson(),
+							ne=#errorInsufficientPermissions()),
+					 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/removeResource = removeResource;
+
+//-------------
+
+getResource = #if(operator=#checkACLAllServiceApi(username="@username",
+												  groups=#getGroupUserReverseApi(username="@username"),
+												  servicename=#serviceResource(),
+												  permissionname=#permissionGetResource()),
+				  operand="true",
+				  eq=#if(operator=#checkACLAllResourceApi(username="@username",
+														  groups=#getGroupUserReverseApi(username="@username"),
+														  resourceid=#sessionResourceId(),
+														  permissionname=#permissionGetResource()),
+						 operand="true",
+						 eq=#object(a=#if(operator=#sessionType(),
+										  operand="count",
+										  eq=#updateResourceMetadataApi(resourceId=#sessionResourceId(),
+																		metadata=#object(downloads_l=#add(a=#getResourceMetadataApi(resourceId=#sessionResourceId()).cget(downloads_l=""),b="1")))),
+									b=#getResourceApi(resourceId=#sessionResourceId())).cget(b=""),
+						 ne=#errorInsufficientPermissions()),
+				  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getResource = getResource;
+
+//-------------
+
+getResourceMetadata = #if(operator=#checkACLAllServiceApi(username="@username",
+														  groups=#getGroupUserReverseApi(username="@username"),
+														  servicename=#serviceResource(),
+														  permissionname=#permissionReadResource()),
+						  operand="true",
+						  eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  resourceid=#sessionResourceId(),
+																  permissionname=#permissionReadResource()),
+								 operand="true",
+								 eq=#object(a=#if(operator=#sessionType(),
+												  operand="count",
+												  eq=#updateResourceMetadataApi(resourceId=#sessionResourceId(),
+																				metadata=#object(view_l=#add(a=#getResourceMetadataApi(resourceId=#sessionResourceId()).cget(view_l=""),b="1")))),
+											b=#getResourceMetadataApi(resourceId=#sessionResourceId())).cget(b="").displayJson(),
+								 ne=#errorInsufficientPermissions()),
+						  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getResourceMetadata = getResourceMetadata;
+
+//-------------
+
+updateResourceMetadata = #if(operator=#checkACLAllServiceApi(username="@username",
+														     groups=#getGroupUserReverseApi(username="@username"),
+															 servicename=#serviceResource(),
+															 permissionname=#permissionUpdateResourceMetadata()),
+						  operand="true",
+						  eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  resourceid=#sessionResourceId(),
+																  permissionname=#permissionUpdateResourceMetadata()),
+								 operand="true",
+								 eq=#updateResourceMetadataApi(resourceId=#sessionResourceId(),
+															   metadata=#sessionResourceMetadata()).displayJson(),
+								 ne=#errorInsufficientPermissions()),
+						  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/updateResourceMetadata = updateResourceMetadata;
+
+//-------------
+
+enableResourceSearch = #if(operator=#checkACLAllServiceApi(username="@username",
+														   groups=#getGroupUserReverseApi(username="@username"),
+														   servicename=#serviceResource(),
+														   permissionname=#permissionAddPermissions()),
+						   operand="true",
+						   eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																   groups=#getGroupUserReverseApi(username="@username"),
+																   resourceid=#sessionResourceId(),
+																   permissionname=#permissionAddPermissions()),
+								  operand="true",
+								  eq=#updateResourceMetadataApi(resourceId=#sessionResourceId(),
+															    metadata=#object(attr_entities=#removeDuplicates(obj=#addToList(item=#sessionPermissionName(), array=#toArray(obj="@rec"))),
+																				 showEntities="true")).ccall(rec=#getResourceMetadataApi(resourceId=#sessionResourceId()).cget(attr_entities="")).displayJson(),
+								  ne=#errorInsufficientPermissions()),
+						   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/enableResourceSearch = enableResourceSearch;
+
+//-------------
+
+disableResourceSearch = #if(operator=#checkACLAllServiceApi(username="@username",
+														   groups=#getGroupUserReverseApi(username="@username"),
+														   servicename=#serviceResource(),
+														   permissionname=#permissionRemovePermissions()),
+						   operand="true",
+						   eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																   groups=#getGroupUserReverseApi(username="@username"),
+																   resourceid=#sessionResourceId(),
+																   permissionname=#permissionRemovePermissions()),
+								  operand="true",
+								  eq=#updateResourceMetadataApi(resourceId=#sessionResourceId(),
+															    metadata=#object(attr_entities=#removeDuplicates(obj=#toArray(obj="@rec").cremove(item=#sessionPermissionName()).debug()).debug(),
+																				 showEntities="true")).ccall(rec=#getResourceMetadataApi(resourceId=#sessionResourceId()).cget(attr_entities="")).displayJson(),
+								  ne=#errorInsufficientPermissions()),
+						   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/disableResourceSearch = disableResourceSearch;
+
+//-------------
+
+checkResourceSearch = #if(operator=#checkACLAllServiceApi(username="@username",
+														   groups=#getGroupUserReverseApi(username="@username"),
+														   servicename=#serviceResource(),
+														   permissionname=#permissionGetPermissions()),
+						  operand="true",
+						  eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																  groups=#getGroupUserReverseApi(username="@username"),
+																  resourceid=#sessionResourceId(),
+																  permissionname=#permissionGetPermissions()),
+								 operand="true",
+								 eq=member.ccall(items=#getResourceMetadataApi(resourceId=#sessionResourceId()).cget(attr_entities=""),
+												 item=#sessionSource()).displayJson(),
+								 ne=#errorInsufficientPermissions()),
+						  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/checkResourceSearch = checkResourceSearch;
+
+//-------------
+updateResourceEpss = #if(operator=#checkACLAllServiceApi(username="@username",
+														 groups=#getGroupUserReverseApi(username="@username"),
+														 servicename=#serviceResource(),
+														 permissionname=#permissionEpssTagging()),
+						  operand="true",
+						  eq=#sessionResourceMetadata().cforEach(op=#if(operator=#checkACLAllResourceApi(username="@username",
+																									 groups=#getGroupUserReverseApi(username="@username"),
+																									 resourceid=#toObject(obj="@o").cget(r=""),
+																									 permissionname=#permissionEpssTagging()),
+																	operand="true",
+																	eq=#updateResourceMetadataApi(resourceId=#toObject(obj="@o").cget(r=""),
+																								  metadata=#object(epssStrategy_s=#if(operator=#toObject(obj="@epss").getByParam(param="@s"),
+																																	  operand="1",
+																																	  ge=#toObject(obj="@epss"),
+																																	  lt=#toObject(obj="@epss").removeByParam(param="@s"))).ccall(epss=#toObject(obj="@rec").putInObject(item=#if(operator=#toObject(obj="@rec").has(has="@s"),
+																																																												 operand="true",
+																																																												 eq=#add(a=#toObject(obj="@rec").getByParam(param="@s"), b="@val"),
+																																																												 ne="@val"),
+																																																										 dest="@s")).ccall(rec=#getResourceMetadataApi(resourceId=#toObject(obj="@o").cget(r="")).cget(epssStrategy_s=""),
+																																																																					   s=#toObject(obj="@o").cget(s=""),
+																																																																					   val=#toObject(obj="@o").cget(op=""))).displayJson(),
+																	ne=#errorInsufficientPermissions()),
+															 paramName="o",
+															 threaded="false").displayJson(),
+						  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/updateResourceEpss = updateResourceEpss;
+
+//-------------
+
+generateResourceMetadata = #if(operator=#checkACLAllServiceApi(username="@username",
+														       groups=#getGroupUserReverseApi(username="@username"),
+															   servicename=#serviceResource(),
+															   permissionname=#permissionGenerateMetadata()),
+							   operand="true",
+							   eq=#if(operator=#checkACLAllResourceApi(username="@username",
+																	   groups=#getGroupUserReverseApi(username="@username"),
+																	   resourceid=#sessionResourceId(),
+																	   permissionname=#permissionGenerateMetadata()),
+									  operand="true",
+									  eq=#generateResourceMetadataApi(resourceId=#sessionResourceId(),
+																	  type=#sessionType()).displayJson(),
+									  ne=#errorInsufficientPermissions()),
+							   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/generateResourceMetadata = generateResourceMetadata;
+
+//-------------
+
+zipResources = #if(operator=#checkACLAllServiceApi(username="@username",
+												   groups=#getGroupUserReverseApi(username="@username"),
+												   servicename=#serviceResource(),
+												   permissionname=#permissionGetResource()),
+				   operand="true",
+				   eq=#filesToZip(obj=#addToList(item=#filePostdata(fileIndex="2"),
+												 array=#addToList(item=#filePostdata(fileIndex="1"), 
+																  array=#sessionResourceMetadata().cforEach(op=#if(operator=#checkACLAllResourceApi(username="@username",
+																																			    groups=#getGroupUserReverseApi(username="@username"),
+																																			    resourceid="@id",
+																																			    permissionname=#permissionGetResource()),
+																											   operand="true",
+																											   eq=#getResourceApi(resourceId="@id"),
+																											   ne=#errorInsufficientPermissions()),
+																									    paramName="id").valueSet())),
+								  name=#sessionResourceId()),
+					ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/zipResources = zipResources;

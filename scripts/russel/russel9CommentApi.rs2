@@ -1,0 +1,58 @@
+addComment = #if(operator=#checkACLAllServiceApi(username="@username",
+												 groups=#getGroupUserReverseApi(username="@username"),
+												 servicename=#serviceService(),
+												 permissionname=#permissionAddComment()),
+				 operand="true",
+				 eq=#if(operator=#checkACLAllResourceApi(username="@username",
+														 groups=#getGroupUserReverseApi(username="@username"),
+														 resourceid=#sessionResourceId(),
+														 permissionname=#permissionAddComment()),
+						operand="true",
+						eq=#object(r=#updateResourceMetadataApi(resourceId=#sessionResourceId(),
+															    metadata=#object(commentCount_l=#getCommentCountApi(targetId=#sessionResourceId()))),
+								   m=#object(commentCount_l=#getCommentCountApi(targetId=#sessionResourceId())),
+								   c="@a").ccall(a=#addCommentApi(targetId=#sessionResourceId(),
+															      commentId=#generateUUID(),
+																  data=#commentMetadataSchema().ccall(_params=#toObject(obj=#sessionCommentParameters().putInObject(item="@username",
+																																																									      dest="createdBy").putInObject(item=#date(_raw="true"),
+																																																																	    dest="createdAt"))))).displayJson(),
+						ne=#errorInsufficientPermissions()),
+				 ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/addComment = addComment;
+
+// -------------
+
+deleteComment = #if(operator=#checkACLAllServiceApi(username="@username",
+													groups=#getGroupUserReverseApi(username="@username"),
+													servicename=#serviceComment(),
+													permissionname=#permissionDeleteComment()),
+					operand="true",
+					eq=#if(operator=#checkACLAllResourceApi(username="@username",
+															groups=#getGroupUserReverseApi(username="@username"),
+															resourceid=#sessionResourceId(),
+															permissionname=#permissionDeleteComment()),
+						   operand="true",
+						   eq=#object(c=#updateResourceMetadataApi(resourceId=#sessionResourceId(),
+															       metadata=#object(commentCount_l=#getCommentCountApi(targetId=#sessionResourceId()))),
+									  m=#object(commentCount_l=#getCommentCountApi(targetId=#sessionResourceId()))).ccall(a=#removeCommentApi(targetId=#sessionResourceId(),
+																																			  commentId=#sessionCommentId())).displayJson(),
+						   ne=#errorInsufficientPermissions()),
+					ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/deleteComment = deleteComment;
+
+// -------------
+
+getComments = #if(operator=#checkACLAllServiceApi(username="@username",
+												  groups=#getGroupUserReverseApi(username="@username"),
+												  servicename=#serviceService(),
+												  permissionname=#permissionGetComments()),
+				  operand="true",
+				  eq=#if(operator=#checkACLAllResourceApi(username="@username",
+														  groups=#getGroupUserReverseApi(username="@username"),
+														  resourceid=#sessionResourceId(),
+														  permissionname=#permissionGetComments()),
+						 operand="true",
+						 eq=#getCommentsApi(targetId=#sessionResourceId()).displayJson(),
+						 ne=#errorInsufficientPermissions()),
+				  ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getComments = getComments;

@@ -1,0 +1,34 @@
+<!--
+Copyright 2012-2013 Eduworks Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<div id="login-block" class="panel">
+    <form class="nice">
+        <label for="r-logo">RUSSEL Login</label>
+        <input id="loginName" name="username" type="text" placeholder="User Name" class="input-text">
+        <input id="loginPassword" name="password" type="password" placeholder="Password" class="input-text">
+        <!-- <input id="rememberMe" type="checkbox" class="finger"><label class="checkbox" for="rememberMe">Remember me</label> -->
+        <a id="loginButton" class="small white nice button radius finger">Login</a> 
+        <!-- Insert this div dynamically if there's an error (Hiding it isn't ideal) -->
+        <div id="errorContainer">
+        </div>
+        <hr>
+        <p>Build version <span id="buildNumber"></span></p>
+        <!--
+        <a id="ForgotButton" class="finger">Forgot password</a> | 
+        <a id="RequestButton" class="finger">Request an Account</a>
+        -->
+    </form>
+</div>
+    

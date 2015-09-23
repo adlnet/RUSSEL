@@ -1,0 +1,81 @@
+createUser = #if(operator=#checkACLAllServiceApi(username="@username",
+											     groups=#getGroupUserReverseApi(username="@username"),
+											     servicename=#serviceService(),
+											     permissionname=#permissionCreateUser()),
+			     operand="true",
+			     eq=#object(a=#addACLUserUserPermissionApi(targetuser=#sessionUsername(),
+														   permissionname=#permissionDeleteUser(),
+														   username="@username"),
+							b=#addACLUserUserPermissionApi(targetuser=#sessionUsername(),
+														   permissionname=#permissionResetUserPassword(),
+														   username="@username"),
+							c=#addACLUserUserPermissionApi(targetuser=#sessionUsername(),
+														   permissionname=#permissionGetPermissions(),
+														   username="@username"),
+							d=#addACLUserUserPermissionApi(targetuser=#sessionUsername(),
+														   permissionname=#permissionAddPermissions(),
+														   username="@username"),
+							e=#addACLUserUserPermissionApi(targetuser=#sessionUsername(),
+														   permissionname=#permissionRemovePermissions(),
+														   username="@username"),
+							f=#addACLUserUserPermissionApi(targetuser="@username",
+														   permissionname=#permissionRemovePermissions(),
+														   username="@username"),
+							g=#addACLUserUserPermissionApi(targetuser="@username",
+														   permissionname=#permissionAddPermissions(),
+														   username="@username"),
+							h=#addACLUserUserPermissionApi(targetuser="@username",
+														   permissionname=#permissionGetPermissions(),
+														   username="@username"),
+							z="true").ccall(b=#addUserApi(username=#sessionUsername(),
+														  password=#sessionPassword())).cget(z="").displayJson(),
+			     ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/createUser = createUser;
+
+//-------------
+
+deleteUser = #if(operator=#checkACLAllServiceApi(username="@username",
+											     groups=#getGroupUserReverseApi(username="@username"),
+											     servicename=#serviceUser(),
+											     permissionname=#permissionDeleteUser()),
+			     operand="true",
+			     eq=#if(operator=#checkACLAllUserApi(username="@username",
+													 groups=#getGroupUserReverseApi(username="@username"),
+													 targetuser=#sessionUsername(),
+													 permissionname=#permissionDeleteUser()),
+						operand="true",
+						eq=#object(b=#removeUserApi(username=#sessionUsername()),
+								   c="true").cget(c="").displayJson(),
+						ne=#errorInsufficientPermissions()),
+			     ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/deleteUser = deleteUser;
+
+//-------------
+
+resetUserPassword = #if(operator=#checkACLAllServiceApi(username="@username",
+													    groups=#getGroupUserReverseApi(username="@username"),
+													    servicename=#serviceUser(),
+													    permissionname=#permissionResetUserPassword()),
+						operand="true",
+					    eq=#if(operator=#checkACLAllUserApi(username="@username",
+															groups=#getGroupUserReverseApi(username="@username"),
+															targetuser=#sessionUsername(),
+															permissionname=#permissionResetUserPassword()),
+							   operand="true",
+							   eq=#object(b=#resetUserPasswordApi(username=#sessionUsername(),
+																  password=#sessionPassword()),
+										  c="true").cget(c="").displayJson(),
+							   ne=#errorInsufficientPermissions()),
+					    ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/resetUserPassword = resetUserPassword;
+
+//-------------
+
+getUsers = #if(operator=#checkACLAllServiceApi(username="@username",
+											   groups=#getGroupUserReverseApi(username="@username"),
+											   servicename=#serviceService(),
+											   permissionname=#permissionReadAllUsers()),
+			   operand="true",
+			   eq=#getUsersApi().displayJson(),
+			   ne=#errorInsufficientPermissions()).ccall(username=#getSessionApi(sessionId=#sessionId()).toObject().cget(username=""));
+/getUsers = getUsers;

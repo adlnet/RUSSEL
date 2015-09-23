@@ -1,0 +1,26 @@
+serviceIndex = #string(obj="services");
+			
+//--------
+			
+addServicePermission = #object(a=#idxPut(indexDir=#dbDirectory(),
+										 databaseName=#dbService(),
+										 index=serviceIndex,
+										 key="@servicename"),
+							   b=#idxPut(indexDir=#dbDirectory(), 
+									     databaseName=#dbServicePermission(), 
+									     index="@servicename",
+									     key="@permissionname"));
+
+//--------					   
+			
+getServicePermissionLists = #idxKeys(indexDir=#dbDirectory(), 
+									 databaseName=#dbService(), 
+									 index=serviceIndex).cforEach(op=#idxKeys(indexDir=#dbDirectory(), 
+																		      databaseName=#dbServicePermission(), 
+																		      index="@service"),
+																  paramName="service");
+
+//--------
+
+#addServicePermissionApi = addServicePermission;
+#getServicePermissionListsApi = getServicePermissionLists;

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="russel-ui" basedir="." default="distStage">
+	<property name="project.dir" value="."/>
+	<property file="${project.dir}/build.properties"/>
+	<property file="${project.dir}/module.properties"/>
+	
+	<property name="build.number" value="${build.major.number}.${build.minor.number}"/>
+	
+	<target name="majorVersion">
+	    <propertyfile file="build.properties">
+	    	<entry key="build.major.number" type="int" operation="+" value="1" pattern="0"/>
+	    </propertyfile>
+	</target>
+	
+	<target name="minorVersion">
+	    <propertyfile file="build.properties">
+	    	<entry key="build.minor.number" type="int" operation="+" value="1" pattern="0"/>
+	    </propertyfile>
+	</target>
+	
+	<target name="setModuleVersion" depends="minorVersion">
+		<propertyfile file="war/js/module.properties">
+			<entry key="module.version" value="${build.number}" />
+		</propertyfile>
+		<echo>${build.number}</echo>
+	</target>
+
+	<target name="dist">
+		<sshexec host="" trust="yes" username="" password="" command="rm -Rf /var/www/public/*"/>
+		<echo>${build.number}</echo>
+		<scp todir="@:/var/www/public" trust="yes">
+			<fileset dir="war" excludes="WEB-INF/">
+				<exclude name="**/.svn" />
+			</fileset>
+		</scp>
+	</target>
+	
+	<target name="distStage">
+		<echo>${build.number}</echo>
+		<copy tofile="war/russel_ui/gwt/clean/clean.css" file="clean.css"/>
+		<copy tofile="war/russel_ui/sc/skins/Enterprise/skin_styles.css" file="skin_styles.css"/>
+		<scp todir="@:/var/www/public" trust="yes">
+			<fileset dir="war" excludes="WEB-INF/">
+				<exclude name="**/.svn" />
+				<modified>
+		        	 <param name="cache.cachefile" value="localdev.cache"/>
+		       	</modified>
+			</fileset>
+		</scp>
+  		<sshexec host="" trust="yes" username="" password="" command="chmod -R 775 /var/www/public"/>
+	</target>
+	
+	<property name="src.dir" value="src"/>
+	<property name="gwt.home" value="../../../../"/>
+	<target name="gwt-compile" description="GWT compile to JavaScript">
+		<delete dir="war/russel_ui" />
+		<java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+		    <classpath>
+		        <pathelement location="${src.dir}" />
+		        <pathelement location="../EwGWTLib/src" />
+		        <pathelement location="../EwGWTLib/war/WEB-INF/classes" />
+		        <pathelement location="../EwGWTLib/lib/lib-gwt-file-0.3.jar" />
+		        <pathelement location="${gwt.home}\gwt-2.6.0\validation-api-1.0.0.GA.jar" />
+		        <pathelement location="${gwt.home}\gwt-2.6.0\validation-api-1.0.0.GA-sources.jar" />
+		        <pathelement location="${gwt.home}\gwt-2.6.0\gwt-dev.jar" />
+		        <pathelement location="${gwt.home}\gwt-2.6.0\gwt-user.jar" />
+		    </classpath>
+		    <jvmarg value="-Xmx5g" />
+		    <arg line="-style"/>
+			<arg value="PRETTY" />
+		    <arg value="com.eduworks.russel.ui.Russel_ui" />
+		</java>  
+	</target>
+	<target name="gwt-dist" description="Packaging">
+		<delete dir="war/WEB-INF" />
+		<copy tofile="war/russel_ui/gwt/clean/clean.css" file="clean.css"/>
+		<copy tofile="war/russel_ui/sc/skins/Enterprise/skin_styles.css" file="skin_styles.css"/>
+		<zip destfile="russel-ui.zip">
+			<fileset dir="war">
+			</fileset>
+		</zip>
+	</target>
+	
+</project>
