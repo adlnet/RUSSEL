@@ -28,6 +28,8 @@
     * [Open russel/js/installation.settings for edit](#3_15_1)
     * [Open /var/lib/tomcat7/etc/russel0Settings.rs2 for edit](#3_15_2)
     * [Final Steps](#3_16)
++ [Contributing to the Project](#Contributing-to-the-Project)
++ [License](#License)
 
 
 # <a name="1_0"></a>RUSSEL
@@ -411,3 +413,23 @@ sudo service tomcat7 start
 
 Navigate to ```http://<server url>/russel/``` to visit RUSSEL website
 Navigate to ```http://<server url>/russelSolr/``` to check russelSolr DB stats
+
+## Contributing to the project <a name="Contributing-to-the-Project"></a>
+We welcome contributions to this project. Fork this repository, make changes, and submit pull requests. If you're not comfortable with editing the code, please [submit an issue](https://github.com/adlnet/RUSSEL/issues) and we'll be happy to address it. 
+
+## License <a name="License"></a>
+   Copyright &copy;2016 Advanced Distributed Learning
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
